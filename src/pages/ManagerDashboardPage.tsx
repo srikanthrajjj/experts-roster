@@ -23,7 +23,7 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#EEF5FC] text-slate-800">
-      <AppHeader showVersionToggle />
+      <AppHeader />
 
       <div className="mx-auto max-w-7xl px-4 py-6">
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

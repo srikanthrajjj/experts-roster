@@ -3,8 +3,6 @@ import type { DashboardView } from '../../types/expert';
 import AppHeader from './AppHeader';
 import { RosterViewTabs } from './ViewTabs';
 
-type AppHeaderProps = React.ComponentProps<typeof AppHeader>;
-
 type RosterPlanningLayoutProps = {
   children: React.ReactNode;
   activeView?: DashboardView | null;
@@ -12,7 +10,6 @@ type RosterPlanningLayoutProps = {
   subtitle?: string;
   kpis?: React.ReactNode;
   sidebar?: React.ReactNode;
-  appHeaderProps?: AppHeaderProps;
 };
 
 export default function RosterPlanningLayout({
@@ -22,11 +19,10 @@ export default function RosterPlanningLayout({
   subtitle,
   kpis,
   sidebar,
-  appHeaderProps,
 }: RosterPlanningLayoutProps) {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#EEF5FC] text-slate-800">
-      <AppHeader {...appHeaderProps} />
+      <AppHeader />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {sidebar}

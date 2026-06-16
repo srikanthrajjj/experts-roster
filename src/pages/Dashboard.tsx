@@ -421,8 +421,6 @@ function FilterStudioTab({
 }
 
 export default function Dashboard() {
-  const [dashboardVersion, setDashboardVersion] = useState<'v1' | 'v2'>('v1');
-  const [v2ActivePanel, setV2ActivePanel] = useState<'basic' | 'experience' | 'languages' | 'working'>('basic');
   const [quickKeyword, setQuickKeyword] = useState('');
   const [globalPracticeArea, setGlobalPracticeArea] = useState('All');
   const [programmeOffer, setProgrammeOffer] = useState('All');
@@ -774,52 +772,12 @@ export default function Dashboard() {
     </div>
   );
 
-  const v2PanelMeta = {
-    basic: {
-      title: 'Roster Basics',
-      description: 'Practice, offer, geography, and regional scope.',
-      icon: BadgeCheck,
-      count: basicFilterCount,
-      onClear: clearBasicFilters,
-      clearDisabled: !basicFiltersActive,
-    },
-    experience: {
-      title: 'Experience Signals',
-      description: 'Years, emergency readiness, and UNICEF track record.',
-      icon: Award,
-      count: experienceFilterCount,
-      onClear: clearExperienceFilters,
-      clearDisabled: !experienceFiltersActive,
-    },
-    languages: {
-      title: 'Languages',
-      description: 'UN languages and broader communication coverage.',
-      icon: Languages,
-      count: languageFilterCount,
-      onClear: clearLanguageFilters,
-      clearDisabled: !languageFiltersActive,
-    },
-    working: {
-      title: 'Working Terms',
-      description: 'Fee bands, modality, and roster sorting.',
-      icon: Briefcase,
-      count: workingFilterCount,
-      onClear: clearWorkingFilters,
-      clearDisabled: !workingFiltersActive,
-    },
-  } as const;
-
-  const activeV2PanelMeta = v2PanelMeta[v2ActivePanel];
-  const ActiveV2PanelIcon = activeV2PanelMeta.icon;
-
   return (
     <div className="min-h-screen overflow-hidden bg-[#EEF5FC] text-slate-800">
       <header className="relative z-30 h-[66px] bg-[#0091F9] text-white shadow-[0_14px_30px_rgba(0,145,249,0.18)]">
         <div className="flex h-full items-center justify-between gap-5 px-5 xl:px-8">
           <div className="flex h-full min-w-0 items-center gap-7">
-            <Link to="/" className="flex shrink-0 items-center rounded-md outline-none transition hover:opacity-90 focus:ring-2 focus:ring-white/60">
-              <UnicefLogo className="h-10" />
-            </Link>
+            <UnicefLogo className="h-10" />
 
             <nav className="hidden h-full items-center gap-3 text-sm font-bold lg:flex">
               <div className="relative">
@@ -845,37 +803,7 @@ export default function Dashboard() {
             </nav>
           </div>
 
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-4">
-            <div className="relative hidden w-full max-w-[440px] md:block">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/75" />
-              <input
-                type="text"
-                placeholder="Search portal..."
-                className="h-11 w-full rounded-full border border-white/15 bg-white/15 pl-11 pr-4 text-sm font-semibold text-white outline-none transition placeholder:text-white/75 focus:border-white/40 focus:bg-white focus:text-slate-900 focus:placeholder:text-slate-400"
-              />
-            </div>
-            <div className="flex h-11 items-center gap-1 rounded-full border border-white/25 bg-white/10 p-1 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setDashboardVersion('v1')}
-                className={cn(
-                  'min-w-[48px] rounded-full px-3 py-1.5 text-xs font-black uppercase transition',
-                  dashboardVersion === 'v1' ? 'bg-white text-[#0091F9]' : 'text-white/85 hover:bg-white/10 hover:text-white',
-                )}
-              >
-                v1
-              </button>
-              <button
-                type="button"
-                onClick={() => setDashboardVersion('v2')}
-                className={cn(
-                  'min-w-[48px] rounded-full px-3 py-1.5 text-xs font-black uppercase transition',
-                  dashboardVersion === 'v2' ? 'bg-white text-[#0091F9]' : 'text-white/85 hover:bg-white/10 hover:text-white',
-                )}
-              >
-                v2
-              </button>
-            </div>
+          <div className="flex min-w-0 items-center justify-end gap-4">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/35 bg-white/10 text-sm font-black shadow-sm">
               A
             </div>
@@ -884,7 +812,6 @@ export default function Dashboard() {
       </header>
 
       <div className="flex h-[calc(100vh-66px)] min-h-0">
-        {dashboardVersion === 'v1' && (
         <aside
           className={cn(
             'hidden shrink-0 border-r border-slate-200 bg-white/95 shadow-[10px_0_35px_rgba(15,23,42,0.06)] xl:flex xl:flex-col',
@@ -942,159 +869,28 @@ export default function Dashboard() {
             </div>
           )}
         </aside>
-        )}
 
         <main className="min-w-0 flex-1 overflow-hidden">
           <section className="flex h-full min-h-0 flex-col px-3 py-4 lg:px-4 xl:px-5">
-            {dashboardVersion === 'v1' && (
-              <div className="shrink-0 mb-4 flex items-center justify-between">
-                <h1 className="text-3xl font-black text-[#0F1B3D] md:text-4xl">Find the right expert. Drive impact.</h1>
-                <div className="flex gap-4">
-                  <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
-                    <Users className="h-4 w-4 text-[#0072CE]" />
-                    <div>
-                      <div className="text-xs font-bold text-slate-500">Total Experts</div>
-                      <div className="text-2xl font-black text-[#0072CE]">714</div>
-                    </div>
+            <div className="shrink-0 mb-4 flex items-center justify-between">
+              <h1 className="text-3xl font-black text-[#0F1B3D] md:text-4xl">Find the right expert. Drive impact.</h1>
+              <div className="flex gap-4">
+                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
+                  <Users className="h-4 w-4 text-[#0072CE]" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-500">Total Experts</div>
+                    <div className="text-2xl font-black text-[#0072CE]">714</div>
                   </div>
-                  <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
-                    <CheckCircle className="h-4 w-4 text-teal-600" />
-                    <div>
-                      <div className="text-xs font-bold text-slate-500">In Scope</div>
-                      <div className="text-2xl font-black text-teal-600">{filteredExperts.length}</div>
-                    </div>
+                </div>
+                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
+                  <CheckCircle className="h-4 w-4 text-teal-600" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-500">In Scope</div>
+                    <div className="text-2xl font-black text-teal-600">{filteredExperts.length}</div>
                   </div>
                 </div>
               </div>
-            )}
-            {dashboardVersion === 'v2' && (
-              <div className="mt-1 shrink-0 grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto]">
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1fr)]">
-                  <div className="rounded border border-slate-200 bg-white p-1.5 shadow-sm">
-                    <div className="flex items-center gap-1 mb-1.5">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                        <BadgeCheck className="h-3 w-3" />
-                      </div>
-                      <h3 className="text-[12px] font-black text-[#0F1B3D]">BASICS</h3>
-                      <button
-                        type="button"
-                        onClick={clearBasicFilters}
-                        disabled={!basicFiltersActive}
-                        className="ml-auto text-[9px] font-black uppercase text-[#0072CE] hover:bg-sky-50 px-0.5 py-0 rounded disabled:text-slate-300 disabled:pointer-events-none"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="grid grid-cols-2 gap-1">
-                        <FilterSelect label="Practice" value={globalPracticeArea} options={PRACTICE_AREAS} onChange={(value) => { setGlobalPracticeArea(value); setCurrentPage(1); }} />
-                        <FilterSelect label="Offer" value={programmeOffer} options={PROGRAMME_OFFERS} onChange={(value) => { setProgrammeOffer(value); setCurrentPage(1); }} />
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <FilterSelect label="Country" value={country} options={COUNTRIES} onChange={(value) => { setCountry(value); setCurrentPage(1); }} />
-                        <FilterSelect label="Region" value={regionalExperience} options={REGIONS} onChange={(value) => { setRegionalExperience(value); setCurrentPage(1); }} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded border border-slate-200 bg-white p-1.5 shadow-sm">
-                    <div className="flex items-center gap-1 mb-1.5">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                        <Award className="h-3 w-3" />
-                      </div>
-                      <h3 className="text-[12px] font-black text-[#0F1B3D]">EXPERIENCE</h3>
-                      <button
-                        type="button"
-                        onClick={clearExperienceFilters}
-                        disabled={!experienceFiltersActive}
-                        className="ml-auto text-[9px] font-black uppercase text-[#0072CE] hover:bg-sky-50 px-0.5 py-0 rounded disabled:text-slate-300 disabled:pointer-events-none"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                    <div className="space-y-1">
-                      <FilterSelect label="Years" value={yearsExperience} options={YEARS_EXPERIENCE} onChange={(value) => { setYearsExperience(value); setCurrentPage(1); }} />
-                      <div className="grid grid-cols-2 gap-1">
-                        <FilterToggleGroup label="Emergency" values={['Yes', 'No']} selected={emergencyExperience} onToggle={(value) => toggleListValue(emergencyExperience, value, setEmergencyExperience)} />
-                        <FilterToggleGroup label="UNICEF" values={['Yes', 'No']} selected={previousUnicef} onToggle={(value) => toggleListValue(previousUnicef, value, setPreviousUnicef)} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded border border-slate-200 bg-white p-1.5 shadow-sm">
-                    <div className="flex items-center gap-1 mb-1.5">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-100 text-purple-600">
-                        <Languages className="h-3 w-3" />
-                      </div>
-                      <h3 className="text-[12px] font-black text-[#0F1B3D]">LANGUAGES</h3>
-                      <button
-                        type="button"
-                        onClick={clearLanguageFilters}
-                        disabled={!languageFiltersActive}
-                        className="ml-auto text-[9px] font-black uppercase text-[#0072CE] hover:bg-sky-50 px-0.5 py-0 rounded disabled:text-slate-300 disabled:pointer-events-none"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                    <div className="space-y-3">
-                      <FilterSelect label="UN" value={unLanguages} options={LANGUAGES} onChange={(value) => { setUnLanguages(value); setCurrentPage(1); }} />
-                      <FilterSelect label="All" value={allLanguages} options={LANGUAGES} onChange={(value) => { setAllLanguages(value); setCurrentPage(1); }} />
-                    </div>
-                  </div>
-
-                  <div className="rounded border border-slate-200 bg-white p-1.5 shadow-sm">
-                    <div className="flex items-center gap-1 mb-1.5">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-orange-600">
-                        <Briefcase className="h-3 w-3" />
-                      </div>
-                      <h3 className="text-[12px] font-black text-[#0F1B3D]">WORKING</h3>
-                      <button
-                        type="button"
-                        onClick={clearWorkingFilters}
-                        disabled={!workingFiltersActive}
-                        className="ml-auto text-[9px] font-black uppercase text-[#0072CE] hover:bg-sky-50 px-0.5 py-0 rounded disabled:text-slate-300 disabled:pointer-events-none"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                    <div className="space-y-3">
-                      <FilterSelect label="Fee" value={dailyFee} options={DAILY_FEES} onChange={(value) => { setDailyFee(value); setCurrentPage(1); }} />
-                      <FilterSelect label="Modality" value={workModality} options={['All', 'Flexible', 'Short-term', 'Emergency Deployments', 'Long-term only']} onChange={(value) => { setWorkModality(value); setCurrentPage(1); }} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(320px,1fr)_minmax(320px,1fr)]">
-                  <div className="rounded border border-slate-200 bg-gradient-to-br from-sky-50 to-blue-50 p-4 shadow-sm min-h-[140px]">
-                    <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-200 text-sky-700 shadow-sm">
-                        <Users className="h-5 w-5" />
-                      </div>
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                        Total experts
-                      </div>
-                      <div className="text-4xl font-black text-[#0072CE] leading-none">
-                        714
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded border border-slate-200 bg-gradient-to-br from-teal-50 to-emerald-50 p-4 shadow-sm min-h-[140px]">
-                    <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-200 text-teal-700 shadow-sm">
-                        <CheckCircle className="h-5 w-5" />
-                      </div>
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                        In scope
-                      </div>
-                      <div className="text-4xl font-black text-teal-700 leading-none">
-                        {filteredExperts.length}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
 
             {activeFilterChips.length > 0 && (
               <div className="mt-4 shrink-0 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-4 py-3 shadow-sm">

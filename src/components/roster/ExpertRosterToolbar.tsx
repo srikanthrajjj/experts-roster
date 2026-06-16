@@ -1,13 +1,16 @@
-import { ListFilter } from 'lucide-react';
 import GlobalSearch from './GlobalSearch';
 import ViewToggle, { type RosterViewMode } from './ViewToggle';
+import ActiveFilterChips from './ActiveFilterChips';
 import { SORT_OPTIONS, type SortOrder } from '../../lib/expertDisplay';
+import type { FilterState } from '../../types/expert';
 
 type ExpertRosterToolbarProps = {
   searchValue: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder?: string;
-  activeFilterCount: number;
+  filters: FilterState;
+  onFiltersChange: (filters: FilterState) => void;
+  onClearAllFilters?: () => void;
   expertCount?: number;
   sortOrder: SortOrder;
   onSortChange: (order: SortOrder) => void;
@@ -21,7 +24,9 @@ export default function ExpertRosterToolbar({
   searchValue,
   onSearchChange,
   searchPlaceholder = 'Search roster...',
-  activeFilterCount,
+  filters,
+  onFiltersChange,
+  onClearAllFilters,
   expertCount,
   sortOrder,
   onSortChange,
@@ -31,25 +36,30 @@ export default function ExpertRosterToolbar({
   showViewToggle = true,
 }: ExpertRosterToolbarProps) {
   return (
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        <GlobalSearch
-          value={searchValue}
-          onChange={onSearchChange}
-          placeholder={searchPlaceholder}
-          showSuggestions={showSuggestions}
-          className="max-w-md flex-1"
-        />
-        <div className="flex shrink-0 items-center gap-2 text-sm font-bold text-slate-500">
-          <ListFilter className="h-4 w-4 text-[#0072CE]" />
-          <span>
-            {activeFilterCount} active filters
-            {expertCount !== undefined && ` · ${expertCount} experts`}
-          </span>
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
+          <GlobalSearch
+            value={searchValue}
+            onChange={onSearchChange}
+            placeholder={searchPlaceholder}
+            showSuggestions={showSuggestions}
+            className="max-w-md flex-1"
+          />
+          {expertCount !== undefined && (
+            <span className="shrink-0 text-sm font-bold text-slate-500">
+              {expertCount} experts
+            </span>
+          )}
         </div>
+        <ActiveFilterChips
+          filters={filters}
+          onFiltersChange={onFiltersChange}
+          onClearAll={onClearAllFilters}
+        />
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex shrink-0 flex-wrap items-center gap-3">
         <select
           value={sortOrder}
           onChange={(e) => onSortChange(e.target.value as SortOrder)}

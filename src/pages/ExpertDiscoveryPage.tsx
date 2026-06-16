@@ -53,12 +53,7 @@ export default function ExpertDiscoveryPage() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#EEF5FC] text-slate-800">
-      <AppHeader
-        searchValue={filters.search}
-        onSearchChange={(v) => setFilters({ ...filters, search: v })}
-        searchPlaceholder="Search by name, technology, skill, certification..."
-        showVersionToggle
-      />
+      <AppHeader />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <FilterSidebar
@@ -87,7 +82,9 @@ export default function ExpertDiscoveryPage() {
                   searchValue={filters.search}
                   onSearchChange={(v) => setFilters({ ...filters, search: v })}
                   searchPlaceholder="Search roster..."
-                  activeFilterCount={activeCount}
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  onClearAllFilters={() => setFilters(DEFAULT_FILTERS)}
                   expertCount={sortedExperts.length}
                   sortOrder={sortOrder}
                   onSortChange={setSortOrder}

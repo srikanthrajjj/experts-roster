@@ -26,9 +26,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="bg-[#0091F9] text-white flex items-center justify-between px-6 py-3 shrink-0 relative z-30">
         <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center hover:opacity-90">
-            <UnicefLogo className="h-8" />
-          </Link>
+          <UnicefLogo className="h-8" />
           <nav className="hidden md:flex gap-6 text-sm font-medium items-center relative">
             <Link
               to="/roster/planning"
@@ -39,14 +37,6 @@ export default function LandingPage() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <div className="relative hidden sm:block">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/70" />
-            <input 
-              type="text" 
-              placeholder="Search portal..." 
-              className="pl-9 pr-4 py-1.5 rounded-full bg-white/20 border border-transparent focus:bg-white text-sm focus:text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50 w-64 transition-all placeholder:text-white/70 focus:placeholder:text-gray-400" 
-            />
-          </div>
           <div className="w-8 h-8 rounded-full bg-white/20 border border-white/40 flex items-center justify-center font-semibold text-sm cursor-pointer hover:bg-white/30 transition-colors">
             A
           </div>

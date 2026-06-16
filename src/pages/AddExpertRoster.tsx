@@ -58,9 +58,7 @@ export default function AddExpertRoster() {
       {/* Header */}
       <header className="bg-[#0091F9] text-white flex items-center justify-between px-6 py-3 shrink-0 relative z-30">
         <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center hover:opacity-90">
-            <UnicefLogo className="h-8" />
-          </Link>
+          <UnicefLogo className="h-8" />
           <nav className="flex gap-6 text-sm font-medium items-center relative">
             <div className="relative">
               <button

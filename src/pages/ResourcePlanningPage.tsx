@@ -64,12 +64,6 @@ export default function ResourcePlanningPage() {
       title="Resource availability & planning"
       subtitle="View experts availability, plan engagements and manage allocations."
       kpis={<KPICards kpis={kpis} variant="planning" />}
-      appHeaderProps={{
-        searchValue: filters.search,
-        onSearchChange: (v) => setFilters({ ...filters, search: v }),
-        searchPlaceholder: 'Search portal...',
-        showVersionToggle: true,
-      }}
       sidebar={
         <FilterSidebar
           filters={filters}
@@ -87,7 +81,9 @@ export default function ResourcePlanningPage() {
             searchValue={filters.search}
             onSearchChange={(v) => setFilters({ ...filters, search: v })}
             searchPlaceholder="Search experts..."
-            activeFilterCount={activeCount}
+            filters={filters}
+            onFiltersChange={setFilters}
+            onClearAllFilters={() => setFilters(DEFAULT_FILTERS)}
             expertCount={sortedExperts.length}
             sortOrder={sortOrder}
             onSortChange={setSortOrder}
