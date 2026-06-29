@@ -13,6 +13,7 @@ import { useExpertProfileModal } from '../contexts/ExpertProfileModalContext';
 import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
 import { DEFAULT_FILTERS, type FilterState, type ITExpert } from '../types/expert';
 import { countActiveFilters, filterExperts } from '../lib/filterExperts';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { isExpertRole } from '../lib/userRole';
 import { sortExperts, type SortOrder } from '../lib/expertDisplay';
 import type { RosterViewMode } from '../components/roster/ViewToggle';
@@ -20,13 +21,15 @@ import { cn } from '../lib/utils';
 
 export default function ResourcePlanningPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') ?? '';
   const layoutParam = searchParams.get('layout') as RosterViewMode | null;
   const initialListViewMode: RosterViewMode =
     layoutParam === 'cards' || layoutParam === 'list' ? layoutParam : 'list';
 
   const [filters, setFilters] = useState<FilterState>({ ...DEFAULT_FILTERS, search: initialSearch });
+  const [searchInput, setSearchInput] = useState(initialSearch);
+  const debouncedSearch = useDebouncedValue(searchInput, 250);
   const [userRole, setUserRole] = useState<string | null>(() => localStorage.getItem('userRole'));
 
   useEffect(() => {
@@ -51,6 +54,30 @@ export default function ResourcePlanningPage() {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [navigate]);
+
+  useEffect(() => {
+    setFilters((prev) => (prev.search === debouncedSearch ? prev : { ...prev, search: debouncedSearch }));
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') ?? '';
+    if (urlSearch !== debouncedSearch) {
+      setSearchInput(urlSearch);
+      setFilters((prev) => ({ ...prev, search: urlSearch }));
+    }
+  }, [searchParams, debouncedSearch]);
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (debouncedSearch.trim()) next.set('search', debouncedSearch.trim());
+        else next.delete('search');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [debouncedSearch, setSearchParams]);
 
   const [expertsData, setExpertsData] = useState<ITExpert[]>(() => {
     const saved = localStorage.getItem('expert_dashboard_data');
@@ -77,6 +104,11 @@ export default function ResourcePlanningPage() {
   const kpis = useMemo(() => computeKPIs(expertsData), [expertsData]);
   const activeCount = countActiveFilters(filters);
 
+  const handleFiltersChange = (next: FilterState) => {
+    setFilters(next);
+    if (next.search !== searchInput) setSearchInput(next.search);
+  };
+
   return (
     <RosterPlanningLayout
       title="Resource availability & planning"
@@ -85,8 +117,11 @@ export default function ResourcePlanningPage() {
       sidebar={
         <FilterSidebar
           filters={filters}
-          onChange={setFilters}
-          onClear={() => setFilters(DEFAULT_FILTERS)}
+          onChange={handleFiltersChange}
+          onClear={() => {
+            setSearchInput('');
+            setFilters(DEFAULT_FILTERS);
+          }}
           collapsed={filtersCollapsed}
           onToggleCollapse={() => setFiltersCollapsed((v) => !v)}
           activeCount={activeCount}
@@ -96,24 +131,48 @@ export default function ResourcePlanningPage() {
       <div className="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden rounded-b-xl rounded-tr-xl border border-t-0 border-slate-200 bg-white shadow-[0_22px_65px_rgba(15,23,42,0.08)]">
         <div className="shrink-0 border-b border-slate-200 px-4 py-3">
           <ExpertRosterToolbar
-            searchValue={filters.search}
-            onSearchChange={(v) => setFilters({ ...filters, search: v })}
-            searchPlaceholder="Search experts..."
+            searchValue={searchInput}
+            onSearchChange={setSearchInput}
+            searchPlaceholder="Search by name, skill, country..."
             filters={filters}
-            onFiltersChange={setFilters}
-            onClearAllFilters={() => setFilters(DEFAULT_FILTERS)}
+            onFiltersChange={handleFiltersChange}
+            onClearAllFilters={() => {
+              setSearchInput('');
+              setFilters(DEFAULT_FILTERS);
+            }}
             expertCount={sortedExperts.length}
             sortOrder={sortOrder}
             onSortChange={setSortOrder}
             viewMode={listViewMode}
             onViewModeChange={setListViewMode}
             showViewToggle={true}
+            showSuggestions
+            showTypeahead
+            experts={expertsData}
+            onSelectExpert={(id) => openProfile(id)}
           />
         </div>
 
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <div className="min-w-0 flex-1 overflow-hidden">
-            {listViewMode === 'list' ? (
+            {sortedExperts.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center px-4 py-20 text-center">
+                <h3 className="text-lg font-black text-[#0F1B3D]">No experts found</h3>
+                <p className="mt-2 max-w-sm text-sm text-slate-500">
+                  Try a different name, skill, country, or certification — or clear your filters.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput('');
+                    setFilters(DEFAULT_FILTERS);
+                  }}
+                  className="mt-4 rounded-lg bg-[#0072CE] px-4 py-2 text-sm font-black text-white"
+                >
+                  Reset filters
+                </button>
+              </div>
+            ) : listViewMode === 'list' ? (
               <div className="custom-scrollbar h-full overflow-auto pb-16">
                 <ExpertListView
                   experts={sortedExperts}

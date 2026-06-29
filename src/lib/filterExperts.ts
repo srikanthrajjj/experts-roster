@@ -1,28 +1,10 @@
 import type { FilterState, ITExpert } from '../types/expert';
+import { expertMatchesSearch } from './searchExperts';
 import { expertMatchesSkillGroup } from './skillGroups';
 
 export function filterExperts(experts: ITExpert[], filters: FilterState): ITExpert[] {
   return experts.filter((expert) => {
-    const keyword = filters.search.trim().toLowerCase();
-    if (keyword) {
-      const searchable = [
-        expert.name,
-        expert.title,
-        expert.role,
-        expert.country,
-        expert.team,
-        expert.timezone,
-        ...expert.skills,
-        ...expert.technologyStack,
-        ...expert.certifications.map((c) => (typeof c === 'string' ? c : c.name)),
-        ...expert.regions,
-        expert.functionalArea,
-        expert.businessUnit,
-      ]
-        .join(' ')
-        .toLowerCase();
-      if (!searchable.includes(keyword)) return false;
-    }
+    if (filters.search.trim() && !expertMatchesSearch(expert, filters.search)) return false;
 
     if (filters.availabilityStatus !== 'All') {
       const statusMap: Record<string, string> = {

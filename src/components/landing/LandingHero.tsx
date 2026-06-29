@@ -2,20 +2,26 @@ import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { SUGGESTED_SEARCHES } from '../../data/constants';
+import type { ITExpert } from '../../types/expert';
 import { rosterPlanningPath } from '../../lib/rosterView';
+import GlobalSearch from '../roster/GlobalSearch';
 
 type LandingHeroProps = {
   searchQuery: string;
   searchInputId: string;
+  experts: ITExpert[];
   onSearchChange: (value: string) => void;
   onSearchSubmit: (e: FormEvent) => void;
+  onSelectExpert: (expertId: string) => void;
 };
 
 export default function LandingHero({
   searchQuery,
   searchInputId,
+  experts,
   onSearchChange,
   onSearchSubmit,
+  onSelectExpert,
 }: LandingHeroProps) {
   return (
     <section className="border-b border-sky-100 bg-white" aria-labelledby="hero-heading">
@@ -34,23 +40,21 @@ export default function LandingHero({
 
           <form onSubmit={onSearchSubmit} className="mt-8" role="search" aria-label="Search experts">
             <label htmlFor={searchInputId} className="sr-only">
-              Search by name, skill, or certification
+              Search by name, skill, country, or certification
             </label>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <div className="relative flex-1">
-                <Search
-                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                  aria-hidden
-                />
-                <input
-                  id={searchInputId}
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  placeholder="e.g. Azure, ServiceNow, AI/ML"
-                  className="w-full rounded-xl border border-sky-200 bg-white py-3.5 pl-12 pr-4 text-slate-900 shadow-sm focus:border-[#0091F9] focus:outline-none focus:ring-2 focus:ring-sky-100"
-                />
-              </div>
+              <GlobalSearch
+                value={searchQuery}
+                onChange={onSearchChange}
+                experts={experts}
+                showTypeahead
+                showSuggestions={false}
+                onSelectExpert={onSelectExpert}
+                placeholder="Search by name, skill, country..."
+                size="hero"
+                className="flex-1"
+                inputId={searchInputId}
+              />
               <button
                 type="submit"
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0091F9] px-8 py-4 text-base font-black uppercase tracking-wide text-white shadow-lg shadow-[#0091F9]/30 transition hover:bg-[#007ACC] hover:shadow-xl hover:shadow-[#0091F9]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2 cursor-pointer sm:min-w-[11rem]"

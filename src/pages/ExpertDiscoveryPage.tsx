@@ -12,6 +12,7 @@ import { useExpertProfileModal } from '../contexts/ExpertProfileModalContext';
 import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
 import { DEFAULT_FILTERS, type FilterState, type ITExpert } from '../types/expert';
 import { countActiveFilters, filterExperts } from '../lib/filterExperts';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { sortExperts, type SortOrder } from '../lib/expertDisplay';
 import type { RosterViewMode } from '../components/roster/ViewToggle';
 
@@ -24,6 +25,8 @@ export default function ExpertDiscoveryPage() {
   const initialLayout = layoutParam && VALID_LAYOUTS.includes(layoutParam) ? layoutParam : 'list';
 
   const [filters, setFilters] = useState<FilterState>({ ...DEFAULT_FILTERS, search: initialSearch });
+  const [searchInput, setSearchInput] = useState(initialSearch);
+  const debouncedSearch = useDebouncedValue(searchInput, 250);
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
   const [selectedExpert, setSelectedExpert] = useState<ITExpert | null>(null);
   const [emailExpert, setEmailExpert] = useState<ITExpert | null>(null);
@@ -46,10 +49,39 @@ export default function ExpertDiscoveryPage() {
     return () => window.removeEventListener('storage', syncData);
   }, []);
 
+  useEffect(() => {
+    setFilters((prev) => (prev.search === debouncedSearch ? prev : { ...prev, search: debouncedSearch }));
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') ?? '';
+    if (urlSearch !== debouncedSearch) {
+      setSearchInput(urlSearch);
+      setFilters((prev) => ({ ...prev, search: urlSearch }));
+    }
+  }, [searchParams, debouncedSearch]);
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (debouncedSearch.trim()) next.set('search', debouncedSearch.trim());
+        else next.delete('search');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [debouncedSearch, setSearchParams]);
+
   const filteredExperts = useMemo(() => filterExperts(expertsData, filters), [expertsData, filters]);
   const sortedExperts = useMemo(() => sortExperts(filteredExperts, sortOrder), [filteredExperts, sortOrder]);
   const kpis = useMemo(() => computeKPIs(expertsData), [expertsData]);
   const activeCount = countActiveFilters(filters);
+
+  const handleFiltersChange = (next: FilterState) => {
+    setFilters(next);
+    if (next.search !== searchInput) setSearchInput(next.search);
+  };
 
   const handleViewModeChange = (mode: RosterViewMode) => {
     setViewMode(mode);
@@ -73,8 +105,11 @@ export default function ExpertDiscoveryPage() {
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <FilterSidebar
           filters={filters}
-          onChange={setFilters}
-          onClear={() => setFilters(DEFAULT_FILTERS)}
+          onChange={handleFiltersChange}
+          onClear={() => {
+            setSearchInput('');
+            setFilters(DEFAULT_FILTERS);
+          }}
           collapsed={filtersCollapsed}
           onToggleCollapse={() => setFiltersCollapsed((v) => !v)}
           activeCount={activeCount}
@@ -94,18 +129,24 @@ export default function ExpertDiscoveryPage() {
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               <div className="shrink-0 border-b border-slate-200 p-4">
                 <ExpertRosterToolbar
-                  searchValue={filters.search}
-                  onSearchChange={(v) => setFilters({ ...filters, search: v })}
-                  searchPlaceholder="Search roster..."
+                  searchValue={searchInput}
+                  onSearchChange={setSearchInput}
+                  searchPlaceholder="Search by name, skill, country..."
                   filters={filters}
-                  onFiltersChange={setFilters}
-                  onClearAllFilters={() => setFilters(DEFAULT_FILTERS)}
+                  onFiltersChange={handleFiltersChange}
+                  onClearAllFilters={() => {
+                    setSearchInput('');
+                    setFilters(DEFAULT_FILTERS);
+                  }}
                   expertCount={sortedExperts.length}
                   sortOrder={sortOrder}
                   onSortChange={setSortOrder}
                   viewMode={viewMode}
                   onViewModeChange={handleViewModeChange}
                   showSuggestions
+                  showTypeahead
+                  experts={expertsData}
+                  onSelectExpert={(id) => openProfile(id)}
                 />
               </div>
 

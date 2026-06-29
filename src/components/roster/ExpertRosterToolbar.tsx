@@ -2,7 +2,7 @@ import GlobalSearch from './GlobalSearch';
 import ViewToggle, { type RosterViewMode } from './ViewToggle';
 import ActiveFilterChips from './ActiveFilterChips';
 import { SORT_OPTIONS, type SortOrder } from '../../lib/expertDisplay';
-import type { FilterState } from '../../types/expert';
+import type { FilterState, ITExpert } from '../../types/expert';
 
 type ExpertRosterToolbarProps = {
   searchValue: string;
@@ -17,6 +17,9 @@ type ExpertRosterToolbarProps = {
   viewMode: RosterViewMode;
   onViewModeChange: (mode: RosterViewMode) => void;
   showSuggestions?: boolean;
+  showTypeahead?: boolean;
+  experts?: ITExpert[];
+  onSelectExpert?: (expertId: string) => void;
   showViewToggle?: boolean;
 };
 
@@ -33,6 +36,9 @@ export default function ExpertRosterToolbar({
   viewMode,
   onViewModeChange,
   showSuggestions = false,
+  showTypeahead = false,
+  experts,
+  onSelectExpert,
   showViewToggle = true,
 }: ExpertRosterToolbarProps) {
   return (
@@ -44,6 +50,9 @@ export default function ExpertRosterToolbar({
             onChange={onSearchChange}
             placeholder={searchPlaceholder}
             showSuggestions={showSuggestions}
+            showTypeahead={showTypeahead}
+            experts={experts}
+            onSelectExpert={onSelectExpert}
             className="max-w-md flex-1"
           />
           {expertCount !== undefined && (

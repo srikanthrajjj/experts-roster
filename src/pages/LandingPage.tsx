@@ -294,6 +294,10 @@ export default function LandingPage() {
     navigate(searchTarget);
   };
 
+  const handleSelectExpert = (expertId: string) => {
+    navigate(rosterPlanningPath('list', { search: searchQuery.trim(), profile: expertId }));
+  };
+
   return (
     <div className="min-h-screen overflow-x-hidden font-sans pb-20 md:pb-0 bg-[#F7FAFD] text-slate-800">
       <a
@@ -372,8 +376,10 @@ export default function LandingPage() {
         <LandingHero
           searchQuery={searchQuery}
           searchInputId={searchInputId}
+          experts={MOCK_IT_EXPERTS}
           onSearchChange={setSearchQuery}
           onSearchSubmit={handleSearchSubmit}
+          onSelectExpert={handleSelectExpert}
         />
 
         {/* Available now — featured experts */}
