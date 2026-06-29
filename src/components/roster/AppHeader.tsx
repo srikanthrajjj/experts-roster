@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import UnicefLogo from './UnicefLogo';
 import { getRoleDotClass, getRoleLabel, isExpertRole } from '../../lib/userRole';
 import { usePersonaModal } from '../../contexts/PersonaModalContext';
 
@@ -35,10 +34,8 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-30 h-[66px] bg-[#0091F9] text-white shadow-[0_14px_30px_rgba(0,145,249,0.18)]">
       <div className="flex h-full items-center justify-between gap-5 px-5 xl:px-8">
-        <div className="flex h-full min-w-0 items-center gap-7">
-          <UnicefLogo className="h-10" />
-
-          <span className="hidden text-sm font-bold text-white lg:block">
+        <div className="flex h-full min-w-0 items-center">
+          <span className="text-sm font-bold text-white lg:text-base">
             Resource availability & planning
           </span>
         </div>

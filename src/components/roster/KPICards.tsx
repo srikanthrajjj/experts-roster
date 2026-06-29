@@ -14,49 +14,42 @@ type KPIColor = 'green' | 'orange' | 'blue' | 'red' | 'purple' | 'teal' | 'navy'
 
 const colorStyles: Record<
   KPIColor,
-  { icon: string; value: string; glow: string; accent: string }
+  { icon: string; value: string; glow: string }
 > = {
   green: {
     icon: 'bg-emerald-500/15 text-emerald-600',
     value: 'text-emerald-600',
     glow: 'from-emerald-400/25 to-transparent',
-    accent: 'bg-emerald-500',
   },
   orange: {
     icon: 'bg-amber-500/15 text-amber-600',
     value: 'text-amber-600',
     glow: 'from-amber-400/25 to-transparent',
-    accent: 'bg-amber-500',
   },
   blue: {
     icon: 'bg-sky-500/15 text-sky-600',
     value: 'text-sky-600',
     glow: 'from-sky-400/25 to-transparent',
-    accent: 'bg-sky-500',
   },
   red: {
     icon: 'bg-rose-500/15 text-rose-600',
     value: 'text-rose-600',
     glow: 'from-rose-400/25 to-transparent',
-    accent: 'bg-rose-500',
   },
   purple: {
     icon: 'bg-violet-500/15 text-violet-600',
     value: 'text-violet-600',
     glow: 'from-violet-400/25 to-transparent',
-    accent: 'bg-violet-500',
   },
   teal: {
     icon: 'bg-teal-500/15 text-teal-600',
     value: 'text-teal-600',
     glow: 'from-teal-400/25 to-transparent',
-    accent: 'bg-teal-500',
   },
   navy: {
     icon: 'bg-[#0091F9]/15 text-[#0091F9]',
     value: 'text-[#0091F9]',
     glow: 'from-[#0091F9]/20 to-transparent',
-    accent: 'bg-[#0091F9]',
   },
 };
 
@@ -78,7 +71,6 @@ export function KPICard({ label, value, color, compact, suffix = 'experts' }: KP
       )}
     >
       <div className={cn('absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br blur-2xl', c.glow)} />
-      <div className={cn('absolute left-0 top-0 h-1 w-full', c.accent, 'opacity-80')} />
       <div className="relative">
         <div className="text-[10px] font-black uppercase tracking-wider text-slate-500">{label}</div>
         <div className={cn('mt-1 font-black', c.value, compact ? 'text-xl' : 'text-2xl')}>

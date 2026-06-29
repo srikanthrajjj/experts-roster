@@ -2,7 +2,6 @@ import React, { useId, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
-  ArrowUpRight,
   Calendar,
   ChevronDown,
   Globe2,
@@ -10,29 +9,49 @@ import {
   Search,
   X,
 } from 'lucide-react';
-import { SUGGESTED_SEARCHES, QUICK_LINKS_ADVISORS, QUICK_LINKS_CO, type QuickLink } from '../data/constants';
+import { QUICK_LINKS_ADVISORS, QUICK_LINKS_CO, type QuickLink } from '../data/constants';
 import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
 import { rosterPlanningPath } from '../lib/rosterView';
 import { formatNextAvailable } from '../lib/availability';
 import { getRoleDotClass, getRoleLabel, isExpertRole } from '../lib/userRole';
 import { usePersonaModal } from '../contexts/PersonaModalContext';
+import { LandingThemeProvider, useLandingTheme } from '../contexts/LandingThemeContext';
 import UnicefDitOneBrand from '../components/roster/UnicefDitOneBrand';
 import Avatar, { StatusBadge } from '../components/roster/SharedUI';
 import { ExpertResourceBadges } from '../components/roster/LeafBadges';
+import LandingHero from '../components/landing/LandingHero';
+import ThemeToggleFab from '../components/landing/ThemeToggleFab';
 import { cn } from '../lib/utils';
 
 const TEAM_BLUE = '#0091F9';
-const TEAM_CYAN = '#00ADEF';
 
 function LinkTile({ link }: { link: QuickLink }) {
-  const base =
-    'group flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:border-[#0091F9]/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2';
+  const { isMidnight } = useLandingTheme();
+  const base = cn(
+    'group flex items-center justify-between gap-4 rounded-xl px-6 py-5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+    isMidnight
+      ? 'border border-white/10 bg-white/5 backdrop-blur-sm hover:border-[#00ADEF]/40 hover:bg-white/10 focus-visible:ring-[#00ADEF]'
+      : 'border border-slate-200 bg-white shadow-sm hover:border-[#0091F9]/40 hover:shadow-md focus-visible:ring-[#0091F9]',
+  );
   const inner = (
     <>
-      <span className="text-[15px] font-semibold leading-snug text-slate-800 group-hover:text-[#0091F9] transition-colors">
+      <span
+        className={cn(
+          'text-[15px] font-semibold leading-snug transition-colors',
+          isMidnight
+            ? 'text-slate-200 group-hover:text-[#00ADEF]'
+            : 'text-slate-800 group-hover:text-[#0091F9]',
+        )}
+      >
         {link.label}
       </span>
-      <ArrowRight className="h-5 w-5 shrink-0 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-[#0091F9]" aria-hidden />
+      <ArrowRight
+        className={cn(
+          'h-5 w-5 shrink-0 transition-all group-hover:translate-x-0.5',
+          isMidnight ? 'text-slate-500 group-hover:text-[#00ADEF]' : 'text-slate-300 group-hover:text-[#0091F9]',
+        )}
+        aria-hidden
+      />
     </>
   );
   if (link.external) return <a href={link.href} target="_blank" rel="noopener noreferrer" className={base}>{inner}</a>;
@@ -109,10 +128,13 @@ const NAVIGATION_ITEMS: NavItem[] = [
   { type: 'link', label: 'FAQs', to: '#faq-heading' },
 ];
 
-function navItemClassName(compact?: boolean) {
+function navItemClassName(isMidnight: boolean, compact?: boolean) {
   return cn(
-    'rounded-lg font-semibold text-slate-600 transition-colors hover:bg-sky-50 hover:text-[#0091F9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9]',
-    compact ? 'px-3 py-3 text-sm' : 'px-3 py-2 text-sm',
+    'rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 whitespace-nowrap',
+    compact ? 'px-3 py-3 text-sm' : 'px-2 py-1.5 text-[13px] xl:px-2.5 xl:text-sm',
+    isMidnight
+      ? 'text-slate-300 hover:bg-white/10 hover:text-[#00ADEF] focus-visible:ring-[#00ADEF]'
+      : 'text-slate-600 hover:bg-slate-100 hover:text-[#0091F9] focus-visible:ring-[#0091F9]',
   );
 }
 
@@ -147,6 +169,7 @@ function NavLeaf({
 }
 
 function DesktopNavigation({ onNavigate }: { onNavigate?: () => void }) {
+  const { isMidnight } = useLandingTheme();
   return (
     <>
       {NAVIGATION_ITEMS.map((item) => {
@@ -155,7 +178,7 @@ function DesktopNavigation({ onNavigate }: { onNavigate?: () => void }) {
             <div key={item.label}>
               <NavLeaf
                 item={item}
-                className={navItemClassName()}
+                className={navItemClassName(isMidnight)}
                 onNavigate={onNavigate}
               />
             </div>
@@ -165,19 +188,29 @@ function DesktopNavigation({ onNavigate }: { onNavigate?: () => void }) {
           <div key={item.label} className="group relative">
             <button
               type="button"
-              className={cn(navItemClassName(), 'inline-flex items-center gap-1 cursor-pointer')}
+              className={cn(navItemClassName(isMidnight), 'inline-flex items-center gap-1 cursor-pointer')}
               aria-haspopup="true"
             >
               {item.label}
               <ChevronDown className="h-3.5 w-3.5 opacity-60" aria-hidden />
             </button>
             <div className="invisible absolute left-0 top-full z-50 min-w-[220px] pt-1 opacity-0 transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
-              <div className="rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+              <div
+                className={cn(
+                  'rounded-xl border py-1 shadow-lg',
+                  isMidnight ? 'border-white/10 bg-[#0F1729]' : 'border-slate-200 bg-white',
+                )}
+              >
                 {item.items.map((sub) => (
                   <div key={sub.label}>
                     <NavLeaf
                       item={sub}
-                      className="block px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-sky-50 hover:text-[#0091F9]"
+                      className={cn(
+                        'block px-4 py-2.5 text-sm font-semibold',
+                        isMidnight
+                          ? 'text-slate-200 hover:bg-white/10 hover:text-[#00ADEF]'
+                          : 'text-slate-700 hover:bg-sky-50 hover:text-[#0091F9]',
+                      )}
                       onNavigate={onNavigate}
                     />
                   </div>
@@ -192,6 +225,7 @@ function DesktopNavigation({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 function MobileNavigation({ onNavigate }: { onNavigate: () => void }) {
+  const { isMidnight } = useLandingTheme();
   const flatItems: { label: string; to: string; external?: boolean }[] = [];
   NAVIGATION_ITEMS.forEach((item) => {
     if (item.type === 'link') flatItems.push(item);
@@ -204,7 +238,7 @@ function MobileNavigation({ onNavigate }: { onNavigate: () => void }) {
         <div key={item.label}>
           <NavLeaf
             item={item}
-            className={navItemClassName(true)}
+            className={navItemClassName(isMidnight, true)}
             onNavigate={onNavigate}
           />
         </div>
@@ -226,10 +260,16 @@ function FaqItem({
   open: boolean;
   onToggle: () => void;
 }) {
+  const { isMidnight } = useLandingTheme();
   const panelId = `${id}-panel`;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white">
+    <div
+      className={cn(
+        'rounded-xl border',
+        isMidnight ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white',
+      )}
+    >
       <h3 className="m-0">
         <button
           type="button"
@@ -237,10 +277,22 @@ function FaqItem({
           aria-expanded={open}
           aria-controls={panelId}
           onClick={onToggle}
-          className="flex w-full items-center justify-between gap-4 rounded-xl px-5 py-4 text-left cursor-pointer hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2"
+          className={cn(
+            'flex w-full items-center justify-between gap-4 rounded-xl px-5 py-4 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+            isMidnight
+              ? 'hover:bg-white/5 focus-visible:ring-[#00ADEF]'
+              : 'hover:bg-slate-50 focus-visible:ring-[#0091F9]',
+          )}
         >
-          <span className="font-bold text-[#0F1B3D]">{question}</span>
-          <ChevronDown className={cn('h-5 w-5 shrink-0 text-slate-400 transition-transform', open && 'rotate-180')} aria-hidden />
+          <span className={cn('font-bold', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>{question}</span>
+          <ChevronDown
+            className={cn(
+              'h-5 w-5 shrink-0 transition-transform',
+              isMidnight ? 'text-slate-400' : 'text-slate-400',
+              open && 'rotate-180',
+            )}
+            aria-hidden
+          />
         </button>
       </h3>
       <div
@@ -248,7 +300,10 @@ function FaqItem({
         role="region"
         aria-labelledby={id}
         hidden={!open}
-        className="border-t border-slate-100 px-5 pb-4 pt-1 text-sm leading-relaxed text-slate-600"
+        className={cn(
+          'border-t px-5 pb-4 pt-1 text-sm leading-relaxed',
+          isMidnight ? 'border-white/10 text-slate-300' : 'border-slate-100 text-slate-600',
+        )}
       >
         {answer}
       </div>
@@ -256,7 +311,7 @@ function FaqItem({
   );
 }
 
-export default function LandingPage() {
+function LandingPageContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -266,6 +321,7 @@ export default function LandingPage() {
   const searchInputId = useId();
   const faqBaseId = useId();
 
+  const { isMidnight } = useLandingTheme();
   const kpis = useMemo(() => computeKPIs(MOCK_IT_EXPERTS), []);
   const marketplacePath = isExpertRole(userRole) ? '/roster/expert-dashboard' : '/roster/planning';
 
@@ -302,7 +358,12 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7FAFD] font-sans text-slate-800 pb-20 md:pb-0">
+    <div
+      className={cn(
+        'min-h-screen overflow-x-hidden font-sans pb-20 md:pb-0 transition-colors duration-300',
+        isMidnight ? 'bg-[#070D18] text-slate-100' : 'bg-[#F7FAFD] text-slate-800',
+      )}
+    >
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-[#0072CE] focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#0091F9]"
@@ -310,33 +371,59 @@ export default function LandingPage() {
         Skip to main content
       </a>
 
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 lg:px-8">
+      <header
+        className={cn(
+          'fixed inset-x-0 top-0 z-50 w-full backdrop-blur-md transition-colors duration-300',
+          isMidnight
+            ? 'border-b border-white/10 bg-[#0B1220]/95'
+            : 'border-b border-slate-100 bg-white/95 shadow-sm shadow-slate-900/[0.03]',
+        )}
+      >
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 lg:px-8">
           <Link
             to="/"
             aria-label="TeamOne home"
-            className="shrink-0 rounded-lg outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2"
+            className="shrink-0 rounded-md outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2"
           >
-            <UnicefDitOneBrand className="h-[62px] w-auto max-w-[min(100%,364px)] sm:h-[73px] sm:max-w-[416px]" />
+            <UnicefDitOneBrand
+              className={cn(
+                'h-8 w-auto max-w-[min(100%,160px)] sm:h-10 sm:max-w-[220px]',
+                isMidnight && 'brightness-110 contrast-105',
+              )}
+            />
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+          <nav
+            className="hidden min-w-0 flex-1 items-center justify-center gap-0 overflow-x-auto xl:flex [&::-webkit-scrollbar]:hidden"
+            aria-label="Primary"
+            style={{ scrollbarWidth: 'none' }}
+          >
             <DesktopNavigation />
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="ml-auto flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={openPersonaModal}
-              className="hidden items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-bold text-[#0072CE] transition hover:bg-sky-100 sm:flex cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2"
+              className={cn(
+                'flex max-w-[7.5rem] items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition sm:max-w-[9rem] sm:px-3 xl:max-w-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                isMidnight
+                  ? 'bg-white/10 text-[#00ADEF] hover:bg-white/15 focus-visible:ring-[#00ADEF]'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80 focus-visible:ring-[#0091F9]',
+              )}
             >
-              <span className={cn('h-1.5 w-1.5 rounded-full', getRoleDotClass(userRole))} aria-hidden />
-              <span>{userRole ? getRoleLabel(userRole) : 'Choose role'}</span>
+              <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', getRoleDotClass(userRole))} aria-hidden />
+              <span className="truncate">{userRole ? getRoleLabel(userRole) : 'Choose role'}</span>
             </button>
             <button
               type="button"
               onClick={() => setMobileNavOpen((v) => !v)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-600 md:hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9]"
+              className={cn(
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg xl:hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2',
+                isMidnight
+                  ? 'text-slate-200 hover:bg-white/10 focus-visible:ring-[#00ADEF]'
+                  : 'text-slate-600 hover:bg-slate-100 focus-visible:ring-[#0091F9]',
+              )}
               aria-expanded={mobileNavOpen}
               aria-controls={mobileNavId}
               aria-label={mobileNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -347,7 +434,13 @@ export default function LandingPage() {
         </div>
 
         {mobileNavOpen && (
-          <div id={mobileNavId} className="border-t border-slate-200 bg-white px-5 py-4 md:hidden">
+          <div
+            id={mobileNavId}
+            className={cn(
+              'max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain border-t px-4 py-4 sm:px-6 xl:hidden',
+              isMidnight ? 'border-white/10 bg-[#0B1220]' : 'border-slate-100 bg-white',
+            )}
+          >
             <nav className="flex flex-col gap-1" aria-label="Primary mobile">
               <MobileNavigation onNavigate={() => setMobileNavOpen(false)} />
               <button
@@ -356,7 +449,12 @@ export default function LandingPage() {
                   openPersonaModal();
                   setMobileNavOpen(false);
                 }}
-                className="mt-2 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-left text-sm font-bold text-[#0072CE] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9]"
+                className={cn(
+                  'mt-2 rounded-lg px-4 py-3 text-left text-sm font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2',
+                  isMidnight
+                    ? 'bg-white/10 text-[#00ADEF] focus-visible:ring-[#00ADEF]'
+                    : 'bg-slate-100 text-slate-700 focus-visible:ring-[#0091F9]',
+                )}
               >
                 {userRole ? `Role: ${getRoleLabel(userRole)}` : 'Choose your role'}
               </button>
@@ -365,87 +463,27 @@ export default function LandingPage() {
         )}
       </header>
 
+      {/* Spacer for fixed header — matches header bar height */}
+      <div className="h-[52px] sm:h-[56px]" aria-hidden />
+
       <main id="main-content">
-        {/* Hero — single decision point: search */}
-        <section className="border-b border-sky-100 bg-white" aria-labelledby="hero-heading">
-          <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:px-8 lg:py-16">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#0091F9]">Digital Impact Team One</p>
-              <h1 id="hero-heading" className="mt-3 text-4xl font-black leading-tight tracking-tight text-[#0F1B3D] sm:text-5xl">
-                Find UNICEF digital experts with live availability
-              </h1>
-              <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-600">
-                One place to search skills, verify certifications, and staff programmes — backed by real roster data.
-              </p>
+        <LandingHero
+          searchQuery={searchQuery}
+          searchInputId={searchInputId}
+          kpis={kpis}
+          topSkillsCount={topSkills.length}
+          onSearchChange={setSearchQuery}
+          onSearchSubmit={handleSearchSubmit}
+        />
 
-              <form onSubmit={handleSearchSubmit} className="mt-8" role="search" aria-label="Search experts">
-                <label htmlFor={searchInputId} className="sr-only">
-                  Search by name, skill, or certification
-                </label>
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <div className="relative flex-1">
-                    <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" aria-hidden />
-                    <input
-                      id={searchInputId}
-                      type="search"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="e.g. Azure, ServiceNow, AI/ML"
-                      className="w-full rounded-xl border border-sky-200 bg-white py-3.5 pl-12 pr-4 text-slate-900 shadow-sm focus:border-[#0091F9] focus:outline-none focus:ring-2 focus:ring-sky-100"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="rounded-xl px-6 py-3.5 text-sm font-bold text-white shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2 cursor-pointer"
-                    style={{ backgroundColor: TEAM_BLUE }}
-                  >
-                    Search roster
-                  </button>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2" role="list" aria-label="Popular searches">
-                  {SUGGESTED_SEARCHES.slice(0, 3).map((term) => (
-                    <Link
-                      key={term}
-                      to={rosterPlanningPath('list', { search: term })}
-                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-[#0091F9] hover:text-[#0091F9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9]"
-                    >
-                      {term}
-                    </Link>
-                  ))}
-                </div>
-              </form>
-
-
-            </div>
-
-            <aside
-              className="rounded-2xl border border-sky-100 bg-sky-50/50 p-5 sm:p-6"
-              aria-label="Roster summary"
-            >
-              <h2 className="text-sm font-black uppercase tracking-wide text-slate-500">This week</h2>
-              <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
-                <div className="rounded-xl bg-white p-3 shadow-sm">
-                  <dt className="text-[10px] font-bold uppercase text-slate-400">Available</dt>
-                  <dd className="mt-1 text-2xl font-black text-emerald-600">{kpis.availableThisWeek}</dd>
-                </div>
-                <div className="rounded-xl bg-white p-3 shadow-sm">
-                  <dt className="text-[10px] font-bold uppercase text-slate-400">Partial</dt>
-                  <dd className="mt-1 text-2xl font-black text-amber-600">{kpis.partiallyAvailable}</dd>
-                </div>
-                <div className="rounded-xl bg-white p-3 shadow-sm">
-                  <dt className="text-[10px] font-bold uppercase text-slate-400">Total pool</dt>
-                  <dd className="mt-1 text-2xl font-black text-[#0091F9]">{kpis.total}</dd>
-                </div>
-              </dl>
-              <p className="mt-4 text-xs leading-relaxed text-slate-500">
-                {kpis.availableNext30} experts staffable within 30 days across {topSkills.length}+ technology areas.
-              </p>
-            </aside>
-          </div>
-        </section>
-
-        {/* Two clear paths — Hick's Law: binary choice */}
-        <section className="border-b border-slate-200 bg-white py-10" aria-labelledby="paths-heading">
+        {/* Two clear paths */}
+        <section
+          className={cn(
+            'border-b py-10 transition-colors',
+            isMidnight ? 'border-white/10 bg-[#0B1220]' : 'border-slate-200 bg-white',
+          )}
+          aria-labelledby="paths-heading"
+        >
           <div className="mx-auto max-w-6xl px-5 lg:px-8">
             <h2 id="paths-heading" className="sr-only">
               Choose your path
@@ -453,25 +491,39 @@ export default function LandingPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <Link
                 to={marketplacePath}
-                className="group flex flex-col rounded-2xl border-2 border-[#0091F9]/20 bg-gradient-to-br from-sky-50 to-white p-6 transition hover:border-[#0091F9]/40 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2"
+                className={cn(
+                  'group flex flex-col rounded-2xl border-2 p-6 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                  isMidnight
+                    ? 'border-[#00ADEF]/30 bg-gradient-to-br from-[#0091F9]/10 to-transparent hover:border-[#00ADEF]/50 hover:shadow-[0_0_30px_rgba(0,173,239,0.15)] focus-visible:ring-[#00ADEF]'
+                    : 'border-[#0091F9]/20 bg-gradient-to-br from-sky-50 to-white hover:border-[#0091F9]/40 hover:shadow-lg focus-visible:ring-[#0091F9]',
+                )}
               >
-                <h3 className="text-xl font-black text-[#0F1B3D]">I need digital support</h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">
+                <h3 className={cn('text-xl font-black', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
+                  I need digital support
+                </h3>
+                <p className={cn('mt-2 flex-1 text-sm leading-relaxed', isMidnight ? 'text-slate-300' : 'text-slate-600')}>
                   Browse experts, check capacity, and request staffing for your country office or programme.
                 </p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#0091F9]">
+                <span className={cn('mt-4 inline-flex items-center gap-1 text-sm font-bold', isMidnight ? 'text-[#00ADEF]' : 'text-[#0091F9]')}>
                   Open marketplace <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
                 </span>
               </Link>
               <Link
                 to="/roster/expert-dashboard"
-                className="group flex flex-col rounded-2xl border-2 border-slate-200 bg-white p-6 transition hover:border-slate-300 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2"
+                className={cn(
+                  'group flex flex-col rounded-2xl border-2 p-6 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                  isMidnight
+                    ? 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.08] focus-visible:ring-[#00ADEF]'
+                    : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-lg focus-visible:ring-[#0091F9]',
+                )}
               >
-                <h3 className="text-xl font-black text-[#0F1B3D]">I am a tech expert</h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">
+                <h3 className={cn('text-xl font-black', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
+                  I am a tech expert
+                </h3>
+                <p className={cn('mt-2 flex-1 text-sm leading-relaxed', isMidnight ? 'text-slate-300' : 'text-slate-600')}>
                   Update your availability, skills, and certifications so managers can find and book you.
                 </p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#0091F9]">
+                <span className={cn('mt-4 inline-flex items-center gap-1 text-sm font-bold', isMidnight ? 'text-[#00ADEF]' : 'text-[#0091F9]')}>
                   Open advisor dashboard <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
                 </span>
               </Link>
@@ -480,9 +532,19 @@ export default function LandingPage() {
         </section>
 
         {/* TeamOne quick links */}
-        <section className="border-y border-blue-100 bg-[#EEF6FF] py-14 sm:py-16" aria-label="Quick links">
+        <section
+          className={cn(
+            'border-y py-14 sm:py-16 transition-colors',
+            isMidnight
+              ? 'border-white/10 bg-gradient-to-b from-[#0B1220] to-[#070D18]'
+              : 'border-blue-100 bg-[#EEF6FF]',
+          )}
+          aria-label="Quick links"
+        >
           <div className="mx-auto max-w-6xl px-5 lg:px-8">
-            <h2 className="mb-10 text-2xl font-black text-[#0F1B3D] sm:text-3xl">Quick Links</h2>
+            <h2 className={cn('mb-10 text-2xl font-black sm:text-3xl', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
+              Quick Links
+            </h2>
             <div className="grid gap-10 sm:grid-cols-2">
 
               {/* Country Offices */}
@@ -501,7 +563,13 @@ export default function LandingPage() {
 
               {/* Digital Advisors */}
               <div>
-                <h2 id="quick-links-advisors-heading" className="mb-6 text-xs font-black uppercase tracking-widest text-[#0F1B3D]">
+                <h2
+                  id="quick-links-advisors-heading"
+                  className={cn(
+                    'mb-6 text-xs font-black uppercase tracking-widest',
+                    isMidnight ? 'text-[#00ADEF]' : 'text-[#0F1B3D]',
+                  )}
+                >
                   For Digital Advisors
                 </h2>
                 <div className="space-y-3">
@@ -520,37 +588,58 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-5 py-14 lg:px-8 lg:py-16">
           {/* How it works — replaces duplicate value pillars */}
           <section className="mb-16" aria-labelledby="how-heading">
-            <h2 id="how-heading" className="text-2xl font-black text-[#0F1B3D] sm:text-3xl">
+            <h2 id="how-heading" className={cn('text-2xl font-black sm:text-3xl', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
               How it works
             </h2>
             <ol className="mt-8 grid gap-4 md:grid-cols-3">
               {HOW_IT_WORKS.map((item) => (
                 <li
                   key={item.step}
-                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                  className={cn(
+                    'rounded-2xl border p-6',
+                    isMidnight
+                      ? 'border-white/10 bg-white/5 backdrop-blur-sm'
+                      : 'border-slate-200 bg-white shadow-sm',
+                  )}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0091F9] text-sm font-black text-white" aria-hidden>
+                  <span
+                    className={cn(
+                      'flex h-8 w-8 items-center justify-center rounded-full text-sm font-black text-white',
+                      isMidnight ? 'bg-gradient-to-r from-[#0091F9] to-[#00ADEF]' : 'bg-[#0091F9]',
+                    )}
+                    aria-hidden
+                  >
                     {item.step}
                   </span>
-                  <h3 className="mt-4 text-base font-black text-[#0F1B3D]">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.body}</p>
+                  <h3 className={cn('mt-4 text-base font-black', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
+                    {item.title}
+                  </h3>
+                  <p className={cn('mt-2 text-sm leading-relaxed', isMidnight ? 'text-slate-300' : 'text-slate-600')}>
+                    {item.body}
+                  </p>
                 </li>
               ))}
             </ol>
           </section>
 
-          {/* Featured experts — single social proof block */}
           <section className="mb-16" aria-labelledby="experts-heading">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 id="experts-heading" className="text-2xl font-black text-[#0F1B3D] sm:text-3xl">
+                <h2 id="experts-heading" className={cn('text-2xl font-black sm:text-3xl', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
                   Available now
                 </h2>
-                <p className="mt-1 text-sm text-slate-600">Top-rated experts from the live roster.</p>
+                <p className={cn('mt-1 text-sm', isMidnight ? 'text-slate-400' : 'text-slate-600')}>
+                  Top-rated experts from the live roster.
+                </p>
               </div>
               <Link
                 to={rosterPlanningPath('list')}
-                className="text-sm font-bold text-[#0091F9] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] rounded"
+                className={cn(
+                  'text-sm font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 rounded',
+                  isMidnight
+                    ? 'text-[#00ADEF] focus-visible:ring-[#00ADEF]'
+                    : 'text-[#0091F9] focus-visible:ring-[#0091F9]',
+                )}
               >
                 View all experts
               </Link>
@@ -561,27 +650,41 @@ export default function LandingPage() {
                 <li key={expert.id}>
                   <Link
                     to={rosterPlanningPath('list', { profile: expert.id })}
-                    className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2"
+                    className={cn(
+                      'flex h-full flex-col rounded-2xl border p-5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                      isMidnight
+                        ? 'border-white/10 bg-white/5 hover:border-[#00ADEF]/30 hover:bg-white/[0.08] focus-visible:ring-[#00ADEF]'
+                        : 'border-slate-200 bg-white shadow-sm hover:border-sky-200 hover:shadow-md focus-visible:ring-[#0091F9]',
+                    )}
                   >
                     <div className="flex items-start gap-3">
                       <Avatar expert={expert} size="md" />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="truncate font-black text-[#0F1B3D]">{expert.name}</span>
+                          <span className={cn('truncate font-black', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
+                            {expert.name}
+                          </span>
                           <ExpertResourceBadges expert={expert} max={3} />
                         </div>
-                        <p className="truncate text-sm text-slate-500">{expert.role}</p>
+                        <p className={cn('truncate text-sm', isMidnight ? 'text-slate-400' : 'text-slate-500')}>
+                          {expert.role}
+                        </p>
                         <div className="mt-2">
                           <StatusBadge status={expert.availabilityStatus} />
                         </div>
                       </div>
                     </div>
-                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
+                    <div
+                      className={cn(
+                        'mt-4 flex items-center justify-between border-t pt-3 text-xs',
+                        isMidnight ? 'border-white/10 text-slate-400' : 'border-slate-100 text-slate-500',
+                      )}
+                    >
                       <span className="inline-flex items-center gap-1">
                         <Globe2 className="h-3.5 w-3.5" aria-hidden />
                         {expert.country}
                       </span>
-                      <span className="inline-flex items-center gap-1 font-semibold text-[#0072CE]">
+                      <span className={cn('inline-flex items-center gap-1 font-semibold', isMidnight ? 'text-[#00ADEF]' : 'text-[#0072CE]')}>
                         <Calendar className="h-3.5 w-3.5" aria-hidden />
                         {formatNextAvailable(expert.nextAvailableDate, expert.availabilityStatus)}
                       </span>
@@ -592,9 +695,8 @@ export default function LandingPage() {
             </ul>
           </section>
 
-          {/* FAQ — collapsed by default to reduce cognitive load */}
           <section aria-labelledby="faq-heading">
-            <h2 id="faq-heading" className="text-2xl font-black text-[#0F1B3D] sm:text-3xl">
+            <h2 id="faq-heading" className={cn('text-2xl font-black sm:text-3xl', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
               Questions
             </h2>
             <div className="mt-6 space-y-3">
@@ -612,28 +714,59 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section className="mt-16 rounded-2xl border border-sky-100 bg-white p-6 sm:p-8" aria-labelledby="about-heading">
-            <h2 id="about-heading" className="text-lg font-black text-[#0091F9]">
+          <section
+            className={cn(
+              'mt-16 rounded-2xl border p-6 sm:p-8',
+              isMidnight ? 'border-[#00ADEF]/20 bg-gradient-to-br from-[#0091F9]/10 to-transparent' : 'border-sky-100 bg-white',
+            )}
+            aria-labelledby="about-heading"
+          >
+            <h2 id="about-heading" className={cn('text-lg font-black', isMidnight ? 'text-[#00ADEF]' : 'text-[#0091F9]')}>
               What is TeamOne?
             </h2>
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600">
+            <p className={cn('mt-3 max-w-3xl text-sm leading-relaxed', isMidnight ? 'text-slate-300' : 'text-slate-600')}>
               TeamOne is UNICEF&apos;s operating model for Digital Impact — connecting expertise from country offices, regional hubs, and headquarters into one global team to deliver coordinated digital support.
             </p>
           </section>
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-8">
+      <footer
+        className={cn(
+          'border-t py-8 transition-colors',
+          isMidnight ? 'border-white/10 bg-[#0B1220]' : 'border-slate-200 bg-white',
+        )}
+      >
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 sm:flex-row lg:px-8">
-          <UnicefDitOneBrand className="h-[57px] w-auto max-w-[286px] opacity-90 sm:h-[62px] sm:max-w-[338px]" />
-          <nav className="flex flex-wrap justify-center gap-5 text-sm font-semibold text-slate-500" aria-label="Footer">
-            <Link to={rosterPlanningPath('list')} className="hover:text-[#0091F9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] rounded">
+          <UnicefDitOneBrand
+            className={cn(
+              'h-[57px] w-auto max-w-[286px] opacity-90 sm:h-[62px] sm:max-w-[338px]',
+              isMidnight && 'brightness-110',
+            )}
+          />
+          <nav
+            className={cn(
+              'flex flex-wrap justify-center gap-5 text-sm font-semibold',
+              isMidnight ? 'text-slate-400' : 'text-slate-500',
+            )}
+            aria-label="Footer"
+          >
+            <Link
+              to={rosterPlanningPath('list')}
+              className={cn(
+                'rounded focus-visible:outline-none focus-visible:ring-2',
+                isMidnight ? 'hover:text-[#00ADEF] focus-visible:ring-[#00ADEF]' : 'hover:text-[#0091F9] focus-visible:ring-[#0091F9]',
+              )}
+            >
               Expert roster
             </Link>
             <button
               type="button"
               onClick={openPersonaModal}
-              className="hover:text-[#0091F9] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] rounded"
+              className={cn(
+                'cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2',
+                isMidnight ? 'hover:text-[#00ADEF] focus-visible:ring-[#00ADEF]' : 'hover:text-[#0091F9] focus-visible:ring-[#0091F9]',
+              )}
             >
               Switch role
             </button>
@@ -641,17 +774,36 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Mobile: one primary action only */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white p-3 md:hidden">
+      <ThemeToggleFab />
+
+      <div
+        className={cn(
+          'fixed bottom-0 left-0 right-0 z-30 border-t p-3 md:hidden',
+          isMidnight ? 'border-white/10 bg-[#0B1220]' : 'border-slate-200 bg-white',
+        )}
+      >
         <Link
           to={searchTarget}
-          className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2"
-          style={{ backgroundColor: TEAM_BLUE }}
+          className={cn(
+            'flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+            isMidnight
+              ? 'bg-gradient-to-r from-[#0091F9] to-[#00ADEF] focus-visible:ring-[#00ADEF]'
+              : 'focus-visible:ring-[#0091F9]',
+          )}
+          style={isMidnight ? undefined : { backgroundColor: TEAM_BLUE }}
         >
           <Search className="h-4 w-4" aria-hidden />
           Search roster
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <LandingThemeProvider>
+      <LandingPageContent />
+    </LandingThemeProvider>
   );
 }
