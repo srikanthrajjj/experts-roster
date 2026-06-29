@@ -13,7 +13,7 @@ import { QUICK_LINKS_ADVISORS, QUICK_LINKS_CO, type QuickLink } from '../data/co
 import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
 import { rosterPlanningPath } from '../lib/rosterView';
 import { formatNextAvailable } from '../lib/availability';
-import { getRoleDotClass, getRoleLabel, isExpertRole } from '../lib/userRole';
+import { getRoleDotClass, getRoleLabel } from '../lib/userRole';
 import { usePersonaModal } from '../contexts/PersonaModalContext';
 import { LandingThemeProvider, useLandingTheme } from '../contexts/LandingThemeContext';
 import UnicefDitOneBrand from '../components/roster/UnicefDitOneBrand';
@@ -323,7 +323,6 @@ function LandingPageContent() {
 
   const { isMidnight } = useLandingTheme();
   const kpis = useMemo(() => computeKPIs(MOCK_IT_EXPERTS), []);
-  const marketplacePath = isExpertRole(userRole) ? '/roster/expert-dashboard' : '/roster/planning';
 
   const featuredExperts = useMemo(
     () =>
@@ -475,61 +474,6 @@ function LandingPageContent() {
           onSearchChange={setSearchQuery}
           onSearchSubmit={handleSearchSubmit}
         />
-
-        {/* Two clear paths */}
-        <section
-          className={cn(
-            'border-b py-10 transition-colors',
-            isMidnight ? 'border-white/10 bg-[#0B1220]' : 'border-slate-200 bg-white',
-          )}
-          aria-labelledby="paths-heading"
-        >
-          <div className="mx-auto max-w-6xl px-5 lg:px-8">
-            <h2 id="paths-heading" className="sr-only">
-              Choose your path
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Link
-                to={marketplacePath}
-                className={cn(
-                  'group flex flex-col rounded-2xl border-2 p-6 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-                  isMidnight
-                    ? 'border-[#00ADEF]/30 bg-gradient-to-br from-[#0091F9]/10 to-transparent hover:border-[#00ADEF]/50 hover:shadow-[0_0_30px_rgba(0,173,239,0.15)] focus-visible:ring-[#00ADEF]'
-                    : 'border-[#0091F9]/20 bg-gradient-to-br from-sky-50 to-white hover:border-[#0091F9]/40 hover:shadow-lg focus-visible:ring-[#0091F9]',
-                )}
-              >
-                <h3 className={cn('text-xl font-black', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
-                  I need digital support
-                </h3>
-                <p className={cn('mt-2 flex-1 text-sm leading-relaxed', isMidnight ? 'text-slate-300' : 'text-slate-600')}>
-                  Browse experts, check capacity, and request staffing for your country office or programme.
-                </p>
-                <span className={cn('mt-4 inline-flex items-center gap-1 text-sm font-bold', isMidnight ? 'text-[#00ADEF]' : 'text-[#0091F9]')}>
-                  Open marketplace <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
-                </span>
-              </Link>
-              <Link
-                to="/roster/expert-dashboard"
-                className={cn(
-                  'group flex flex-col rounded-2xl border-2 p-6 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-                  isMidnight
-                    ? 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.08] focus-visible:ring-[#00ADEF]'
-                    : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-lg focus-visible:ring-[#0091F9]',
-                )}
-              >
-                <h3 className={cn('text-xl font-black', isMidnight ? 'text-white' : 'text-[#0F1B3D]')}>
-                  I am a tech expert
-                </h3>
-                <p className={cn('mt-2 flex-1 text-sm leading-relaxed', isMidnight ? 'text-slate-300' : 'text-slate-600')}>
-                  Update your availability, skills, and certifications so managers can find and book you.
-                </p>
-                <span className={cn('mt-4 inline-flex items-center gap-1 text-sm font-bold', isMidnight ? 'text-[#00ADEF]' : 'text-[#0091F9]')}>
-                  Open advisor dashboard <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
-                </span>
-              </Link>
-            </div>
-          </div>
-        </section>
 
         {/* TeamOne quick links */}
         <section
