@@ -24,13 +24,13 @@ export function getExpertSearchableText(expert: ITExpert): string {
     expert.contractType,
     expert.experienceLevel,
     expert.certificationLevel,
-    ...expert.skills,
-    ...expert.technologyStack,
-    ...expert.languages,
-    ...expert.regions,
-    ...expert.specialCapabilities,
-    ...expert.certifications.map((c) => (typeof c === 'string' ? c : c.name)),
-    ...expert.expertiseLevels.map((e) => e.skill),
+    ...(expert.skills ?? []),
+    ...(expert.technologyStack ?? []),
+    ...(expert.languages ?? []),
+    ...(expert.regions ?? []),
+    ...(expert.specialCapabilities ?? []),
+    ...(expert.certifications ?? []).map((c) => (typeof c === 'string' ? c : c.name)),
+    ...(expert.expertiseLevels ?? []).map((e) => e.skill),
   ]
     .join(' ')
     .toLowerCase();

@@ -12,7 +12,7 @@ import { useExpertProfileModal } from '../contexts/ExpertProfileModalContext';
 import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
 import { DEFAULT_FILTERS, type FilterState, type ITExpert } from '../types/expert';
 import { countActiveFilters, filterExperts } from '../lib/filterExperts';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useRosterSearchState } from '../hooks/useRosterSearchState';
 import { sortExperts, type SortOrder } from '../lib/expertDisplay';
 import type { RosterViewMode } from '../components/roster/ViewToggle';
 
@@ -25,8 +25,7 @@ export default function ExpertDiscoveryPage() {
   const initialLayout = layoutParam && VALID_LAYOUTS.includes(layoutParam) ? layoutParam : 'list';
 
   const [filters, setFilters] = useState<FilterState>({ ...DEFAULT_FILTERS, search: initialSearch });
-  const [searchInput, setSearchInput] = useState(initialSearch);
-  const debouncedSearch = useDebouncedValue(searchInput, 250);
+  const { searchInput, setSearchInput, syncSearchFromFilters, clearSearchInput } = useRosterSearchState(setFilters);
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
   const [selectedExpert, setSelectedExpert] = useState<ITExpert | null>(null);
   const [emailExpert, setEmailExpert] = useState<ITExpert | null>(null);
@@ -49,39 +48,12 @@ export default function ExpertDiscoveryPage() {
     return () => window.removeEventListener('storage', syncData);
   }, []);
 
-  useEffect(() => {
-    setFilters((prev) => (prev.search === debouncedSearch ? prev : { ...prev, search: debouncedSearch }));
-  }, [debouncedSearch]);
-
-  useEffect(() => {
-    const urlSearch = searchParams.get('search') ?? '';
-    if (urlSearch !== debouncedSearch) {
-      setSearchInput(urlSearch);
-      setFilters((prev) => ({ ...prev, search: urlSearch }));
-    }
-  }, [searchParams, debouncedSearch]);
-
-  useEffect(() => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (debouncedSearch.trim()) next.set('search', debouncedSearch.trim());
-        else next.delete('search');
-        return next;
-      },
-      { replace: true },
-    );
-  }, [debouncedSearch, setSearchParams]);
-
   const filteredExperts = useMemo(() => filterExperts(expertsData, filters), [expertsData, filters]);
   const sortedExperts = useMemo(() => sortExperts(filteredExperts, sortOrder), [filteredExperts, sortOrder]);
   const kpis = useMemo(() => computeKPIs(expertsData), [expertsData]);
   const activeCount = countActiveFilters(filters);
 
-  const handleFiltersChange = (next: FilterState) => {
-    setFilters(next);
-    if (next.search !== searchInput) setSearchInput(next.search);
-  };
+  const handleFiltersChange = syncSearchFromFilters;
 
   const handleViewModeChange = (mode: RosterViewMode) => {
     setViewMode(mode);
@@ -107,7 +79,7 @@ export default function ExpertDiscoveryPage() {
           filters={filters}
           onChange={handleFiltersChange}
           onClear={() => {
-            setSearchInput('');
+            clearSearchInput();
             setFilters(DEFAULT_FILTERS);
           }}
           collapsed={filtersCollapsed}
@@ -135,7 +107,7 @@ export default function ExpertDiscoveryPage() {
                   filters={filters}
                   onFiltersChange={handleFiltersChange}
                   onClearAllFilters={() => {
-                    setSearchInput('');
+                    clearSearchInput();
                     setFilters(DEFAULT_FILTERS);
                   }}
                   expertCount={sortedExperts.length}

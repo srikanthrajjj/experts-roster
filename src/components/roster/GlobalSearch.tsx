@@ -108,6 +108,7 @@ export default function GlobalSearch({
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
                           if (onSelectExpert) {
+                            onChange(item.label);
                             onSelectExpert(item.expertId);
                           } else {
                             onChange(item.label);

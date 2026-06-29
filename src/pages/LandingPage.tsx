@@ -295,7 +295,10 @@ export default function LandingPage() {
   };
 
   const handleSelectExpert = (expertId: string) => {
-    navigate(rosterPlanningPath('list', { search: searchQuery.trim(), profile: expertId }));
+    const expert = MOCK_IT_EXPERTS.find((e) => e.id === expertId);
+    const term = expert?.name ?? searchQuery.trim();
+    if (term !== searchQuery) setSearchQuery(term);
+    navigate(rosterPlanningPath('list', { search: term, profile: expertId }));
   };
 
   return (

@@ -13,7 +13,7 @@ import { useExpertProfileModal } from '../contexts/ExpertProfileModalContext';
 import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
 import { DEFAULT_FILTERS, type FilterState, type ITExpert } from '../types/expert';
 import { countActiveFilters, filterExperts } from '../lib/filterExperts';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useRosterSearchState } from '../hooks/useRosterSearchState';
 import { isExpertRole } from '../lib/userRole';
 import { sortExperts, type SortOrder } from '../lib/expertDisplay';
 import type { RosterViewMode } from '../components/roster/ViewToggle';
@@ -21,15 +21,14 @@ import { cn } from '../lib/utils';
 
 export default function ResourcePlanningPage() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') ?? '';
   const layoutParam = searchParams.get('layout') as RosterViewMode | null;
   const initialListViewMode: RosterViewMode =
     layoutParam === 'cards' || layoutParam === 'list' ? layoutParam : 'list';
 
   const [filters, setFilters] = useState<FilterState>({ ...DEFAULT_FILTERS, search: initialSearch });
-  const [searchInput, setSearchInput] = useState(initialSearch);
-  const debouncedSearch = useDebouncedValue(searchInput, 250);
+  const { searchInput, setSearchInput, syncSearchFromFilters, clearSearchInput } = useRosterSearchState(setFilters);
   const [userRole, setUserRole] = useState<string | null>(() => localStorage.getItem('userRole'));
 
   useEffect(() => {
@@ -54,30 +53,6 @@ export default function ResourcePlanningPage() {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [navigate]);
-
-  useEffect(() => {
-    setFilters((prev) => (prev.search === debouncedSearch ? prev : { ...prev, search: debouncedSearch }));
-  }, [debouncedSearch]);
-
-  useEffect(() => {
-    const urlSearch = searchParams.get('search') ?? '';
-    if (urlSearch !== debouncedSearch) {
-      setSearchInput(urlSearch);
-      setFilters((prev) => ({ ...prev, search: urlSearch }));
-    }
-  }, [searchParams, debouncedSearch]);
-
-  useEffect(() => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (debouncedSearch.trim()) next.set('search', debouncedSearch.trim());
-        else next.delete('search');
-        return next;
-      },
-      { replace: true },
-    );
-  }, [debouncedSearch, setSearchParams]);
 
   const [expertsData, setExpertsData] = useState<ITExpert[]>(() => {
     const saved = localStorage.getItem('expert_dashboard_data');
@@ -104,10 +79,7 @@ export default function ResourcePlanningPage() {
   const kpis = useMemo(() => computeKPIs(expertsData), [expertsData]);
   const activeCount = countActiveFilters(filters);
 
-  const handleFiltersChange = (next: FilterState) => {
-    setFilters(next);
-    if (next.search !== searchInput) setSearchInput(next.search);
-  };
+  const handleFiltersChange = syncSearchFromFilters;
 
   return (
     <RosterPlanningLayout
@@ -119,7 +91,7 @@ export default function ResourcePlanningPage() {
           filters={filters}
           onChange={handleFiltersChange}
           onClear={() => {
-            setSearchInput('');
+            clearSearchInput();
             setFilters(DEFAULT_FILTERS);
           }}
           collapsed={filtersCollapsed}
@@ -137,7 +109,7 @@ export default function ResourcePlanningPage() {
             filters={filters}
             onFiltersChange={handleFiltersChange}
             onClearAllFilters={() => {
-              setSearchInput('');
+              clearSearchInput();
               setFilters(DEFAULT_FILTERS);
             }}
             expertCount={sortedExperts.length}
@@ -164,7 +136,7 @@ export default function ResourcePlanningPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setSearchInput('');
+                    clearSearchInput();
                     setFilters(DEFAULT_FILTERS);
                   }}
                   className="mt-4 rounded-lg bg-[#0072CE] px-4 py-2 text-sm font-black text-white"
