@@ -13,7 +13,7 @@ export default function UnicefLogo({ className }: UnicefLogoProps) {
       className="flex shrink-0 items-center rounded-md outline-none transition hover:opacity-90 focus:ring-2 focus:ring-white/60"
     >
       <img
-        src="/unicef-logo.png"
+        src="/unicef-dit-logo.png"
         alt="UNICEF"
         width={120}
         height={36}

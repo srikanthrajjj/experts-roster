@@ -109,6 +109,110 @@ const NAVIGATION_ITEMS: NavItem[] = [
   { type: 'link', label: 'FAQs', to: '#faq-heading' },
 ];
 
+function navItemClassName(compact?: boolean) {
+  return cn(
+    'rounded-lg font-semibold text-slate-600 transition-colors hover:bg-sky-50 hover:text-[#0091F9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9]',
+    compact ? 'px-3 py-3 text-sm' : 'px-3 py-2 text-sm',
+  );
+}
+
+function NavLeaf({
+  item,
+  className,
+  onNavigate,
+}: {
+  item: { label: string; to: string; external?: boolean };
+  className: string;
+  onNavigate?: () => void;
+}) {
+  if (item.external || item.to.startsWith('http')) {
+    return (
+      <a href={item.to} target="_blank" rel="noopener noreferrer" className={className} onClick={onNavigate}>
+        {item.label}
+      </a>
+    );
+  }
+  if (item.to.startsWith('#')) {
+    return (
+      <a href={item.to} className={className} onClick={onNavigate}>
+        {item.label}
+      </a>
+    );
+  }
+  return (
+    <Link to={item.to} className={className} onClick={onNavigate}>
+      {item.label}
+    </Link>
+  );
+}
+
+function DesktopNavigation({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <>
+      {NAVIGATION_ITEMS.map((item) => {
+        if (item.type === 'link') {
+          return (
+            <div key={item.label}>
+              <NavLeaf
+                item={item}
+                className={navItemClassName()}
+                onNavigate={onNavigate}
+              />
+            </div>
+          );
+        }
+        return (
+          <div key={item.label} className="group relative">
+            <button
+              type="button"
+              className={cn(navItemClassName(), 'inline-flex items-center gap-1 cursor-pointer')}
+              aria-haspopup="true"
+            >
+              {item.label}
+              <ChevronDown className="h-3.5 w-3.5 opacity-60" aria-hidden />
+            </button>
+            <div className="invisible absolute left-0 top-full z-50 min-w-[220px] pt-1 opacity-0 transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+              <div className="rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                {item.items.map((sub) => (
+                  <div key={sub.label}>
+                    <NavLeaf
+                      item={sub}
+                      className="block px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-sky-50 hover:text-[#0091F9]"
+                      onNavigate={onNavigate}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+function MobileNavigation({ onNavigate }: { onNavigate: () => void }) {
+  const flatItems: { label: string; to: string; external?: boolean }[] = [];
+  NAVIGATION_ITEMS.forEach((item) => {
+    if (item.type === 'link') flatItems.push(item);
+    else flatItems.push(...item.items);
+  });
+
+  return (
+    <>
+      {flatItems.map((item) => (
+        <div key={item.label}>
+          <NavLeaf
+            item={item}
+            className={navItemClassName(true)}
+            onNavigate={onNavigate}
+          />
+        </div>
+      ))}
+    </>
+  );
+}
+
 function FaqItem({
   id,
   question,
@@ -217,16 +321,7 @@ export default function LandingPage() {
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-            {NAV_LINKS.map((item) => (
-              <Link
-                key={item.label}
-                to={item.to}
-                title={item.description}
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-sky-50 hover:text-[#0091F9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9]"
-              >
-                {item.label}
-              </Link>
-            ))}
+            <DesktopNavigation />
           </nav>
 
           <div className="flex items-center gap-2">
@@ -254,16 +349,7 @@ export default function LandingPage() {
         {mobileNavOpen && (
           <div id={mobileNavId} className="border-t border-slate-200 bg-white px-5 py-4 md:hidden">
             <nav className="flex flex-col gap-1" aria-label="Primary mobile">
-              {NAV_LINKS.map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.to}
-                  onClick={() => setMobileNavOpen(false)}
-                  className="rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-sky-50 hover:text-[#0091F9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9]"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              <MobileNavigation onNavigate={() => setMobileNavOpen(false)} />
               <button
                 type="button"
                 onClick={() => {
@@ -406,7 +492,9 @@ export default function LandingPage() {
                 </h2>
                 <div className="space-y-3">
                   {QUICK_LINKS_CO.map((link) => (
-                    <LinkTile key={link.label} link={link} />
+                    <div key={link.label}>
+                      <LinkTile link={link} />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -418,7 +506,9 @@ export default function LandingPage() {
                 </h2>
                 <div className="space-y-3">
                   {QUICK_LINKS_ADVISORS.map((link) => (
-                    <LinkTile key={link.label} link={link} />
+                    <div key={link.label}>
+                      <LinkTile link={link} />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -509,14 +599,15 @@ export default function LandingPage() {
             </h2>
             <div className="mt-6 space-y-3">
               {FAQ_ITEMS.map((item, i) => (
-                <FaqItem
-                  key={item.q}
-                  id={`${faqBaseId}-${i}`}
-                  question={item.q}
-                  answer={item.a}
-                  open={openFaq === i}
-                  onToggle={() => setOpenFaq(openFaq === i ? null : i)}
-                />
+                <div key={item.q}>
+                  <FaqItem
+                    id={`${faqBaseId}-${i}`}
+                    question={item.q}
+                    answer={item.a}
+                    open={openFaq === i}
+                    onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+                  />
+                </div>
               ))}
             </div>
           </section>
