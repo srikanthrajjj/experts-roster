@@ -101,7 +101,7 @@ export default function ManagerDashboardPage() {
         >
           <Link
             to="/roster/planning?view=gantt"
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#0072CE] shadow-lg transition hover:bg-sky-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#0072CE] transition hover:bg-sky-50"
           >
             <GanttChart className="h-4 w-4" aria-hidden />
             Gantt Planning

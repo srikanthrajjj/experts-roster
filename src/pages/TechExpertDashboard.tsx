@@ -352,7 +352,7 @@ export default function TechExpertDashboard() {
                 <button
                   type="button"
                   onClick={() => setIsEditProfileOpen(true)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#0072CE] shadow-lg transition hover:bg-sky-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#0072CE] transition hover:bg-sky-50"
                 >
                   <User className="h-4 w-4" aria-hidden />
                   Edit Profile

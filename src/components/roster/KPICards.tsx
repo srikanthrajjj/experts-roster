@@ -231,7 +231,7 @@ export function DashboardHero({
   return (
     <section
       className={cn(
-        'relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-[#0091F9] via-[#0072CE] to-[#0055A6] px-6 py-7 text-white shadow-[0_28px_80px_rgba(0,145,249,0.35)] sm:px-8 sm:py-9',
+        'relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-[#0091F9] via-[#0072CE] to-[#0055A6] px-6 py-7 text-white sm:px-8 sm:py-9',
         className,
       )}
     >
@@ -244,9 +244,6 @@ export function DashboardHero({
         }}
         aria-hidden
       />
-      <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#00ADEF]/30 blur-3xl" aria-hidden />
-      <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" aria-hidden />
-
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           {eyebrow && (
