@@ -387,7 +387,7 @@ function LandingPageContent() {
           >
             <UnicefDitOneBrand
               className={cn(
-                'h-8 w-auto max-w-[min(100%,160px)] sm:h-10 sm:max-w-[220px]',
+                'h-[42px] w-auto max-w-[min(100%,208px)] sm:h-[52px] sm:max-w-[286px]',
                 isMidnight && 'brightness-110 contrast-105',
               )}
             />
