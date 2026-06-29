@@ -14,13 +14,10 @@ import MonthlyCalendarView from '../components/roster/MonthlyCalendarView';
 import ExpertProfileEditModal from '../components/roster/ExpertProfileEditModal';
 import { CertificationsGrid } from '../components/roster/CertificationBadge';
 import { DashboardHero, InsightPanel, UtilizationRing } from '../components/roster/KPICards';
-import Avatar, { StatusBadge } from '../components/roster/SharedUI';
-import { ExpertResourceBadges } from '../components/roster/LeafBadges';
 import { MOCK_IT_EXPERTS, formatWeekLabel } from '../data/itExperts';
 import type { ITExpert, AllocationBlock } from '../types/expert';
-import { isExpertRole, isManagerLike } from '../lib/userRole';
+import { isManagerLike } from '../lib/userRole';
 import { formatNextAvailable } from '../lib/availability';
-import { cn } from '../lib/utils';
 
 export default function TechExpertDashboard() {
   const navigate = useNavigate();
@@ -342,7 +339,7 @@ export default function TechExpertDashboard() {
           <DashboardHero
             eyebrow="Digital Advisor · Expert Workspace"
             title={`Welcome back, ${activeExpert.name.split(' ')[0]}!`}
-            subtitle={`${activeExpert.role} · ${activeExpert.team}`}
+            subtitle={`${activeExpert.role} · ${activeExpert.team} · ${activeExpert.availability} · Next available ${formatNextAvailable(activeExpert.nextAvailableDate, activeExpert.availabilityStatus)}`}
             className="mb-6"
           >
             <div className="flex flex-col items-center gap-4 sm:flex-row">
@@ -364,35 +361,19 @@ export default function TechExpertDashboard() {
                   <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" aria-hidden />
                   {activeExpert.trustRating} · {activeExpert.reviewsCount} reviews
                 </span>
+                <div className="flex gap-2">
+                  <span className="inline-flex flex-1 flex-col items-center rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-center backdrop-blur-sm">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-white/70">Projects</span>
+                    <span className="text-lg font-black tabular-nums">{stats.activeProjectsCount}</span>
+                  </span>
+                  <span className="inline-flex flex-1 flex-col items-center rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-center backdrop-blur-sm">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-white/70">Open weeks</span>
+                    <span className="text-lg font-black tabular-nums">{stats.availableWeeks}</span>
+                  </span>
+                </div>
               </div>
             </div>
           </DashboardHero>
-
-          <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_12px_40px_rgba(15,23,42,0.06)]">
-            <Avatar expert={activeExpert} size="md" />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-black text-[#0F1B3D]">{activeExpert.name}</span>
-                <ExpertResourceBadges expert={activeExpert} max={4} />
-                <StatusBadge status={activeExpert.availabilityStatus} />
-              </div>
-              <p className="mt-0.5 text-xs font-medium text-slate-500">
-                Next available {formatNextAvailable(activeExpert.nextAvailableDate, activeExpert.availabilityStatus)}
-              </p>
-            </div>
-            <div className="grid grid-cols-3 gap-3 sm:gap-4">
-              {[
-                { label: 'Utilization', value: `${activeExpert.utilizationPercent}%`, tone: 'text-[#0091F9]' },
-                { label: 'Projects', value: String(stats.activeProjectsCount), tone: 'text-[#0F1B3D]' },
-                { label: 'Open weeks', value: String(stats.availableWeeks), tone: 'text-emerald-600' },
-              ].map((stat) => (
-                <div key={stat.label} className="rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-2.5 text-center">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{stat.label}</div>
-                  <div className={cn('text-xl font-black tabular-nums', stat.tone)}>{stat.value}</div>
-                </div>
-              ))}
-            </div>
-          </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
