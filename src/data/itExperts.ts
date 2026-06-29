@@ -442,6 +442,7 @@ const RAW_MOCK_IT_EXPERTS: ITExpert[] = [
     trustRating: 4.6,
     reviewsCount: 20,
     yearsExperience: 9,
+    availability: 'Partially available',
     availabilityStatus: 'partially_allocated',
     allocationPercent: 60,
     nextAvailableDate: '2025-06-01',

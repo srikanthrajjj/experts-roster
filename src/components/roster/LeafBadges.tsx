@@ -1,3 +1,4 @@
+import React from 'react';
 import { Award, BadgeCheck, Building2, Leaf, Rocket, Zap } from 'lucide-react';
 import type { ITExpert } from '../../types/expert';
 import { cn } from '../../lib/utils';
@@ -185,7 +186,7 @@ export function ExpertStatusLeaf({
   return <ExpertResourceBadges expert={expert} size={size} variant={variant} className={className} />;
 }
 
-function LegendChip({ tone, label }: { tone: LeafTone; label: string }) {
+function LegendChip({ tone, label }: { tone: LeafTone; label: string; key?: React.Key }) {
   const Icon = ICON_BY_TONE[tone];
   return (
     <span

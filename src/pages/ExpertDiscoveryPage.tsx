@@ -13,7 +13,7 @@ import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
 import { DEFAULT_FILTERS, type FilterState, type ITExpert } from '../types/expert';
 import { countActiveFilters, filterExperts } from '../lib/filterExperts';
 import { sortExperts, type SortOrder } from '../lib/expertDisplay';
-import { ResourceBadgeLegend } from '../components/roster/LeafBadges';
+import type { RosterViewMode } from '../components/roster/ViewToggle';
 
 const VALID_LAYOUTS: RosterViewMode[] = ['list', 'cards'];
 
@@ -107,7 +107,6 @@ export default function ExpertDiscoveryPage() {
                   onViewModeChange={handleViewModeChange}
                   showSuggestions
                 />
-                <ResourceBadgeLegend compact className="mt-2 border-t border-slate-100 pt-2" />
               </div>
 
               <div className="flex min-h-0 flex-1 overflow-hidden">

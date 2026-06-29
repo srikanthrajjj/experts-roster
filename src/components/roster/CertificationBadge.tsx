@@ -37,6 +37,7 @@ export function CertificationThumbnail({
   className?: string;
   title?: string;
   showFallback?: boolean;
+  key?: React.Key;
 }) {
   const vendor = resolveCertificationVendor(name);
   const badgeUrl = certificationBadgeImageUrl(name);
@@ -102,6 +103,7 @@ type CertificationBadgeProps = {
   showAttachment?: boolean;
   onDownloadAttachment?: (certName: string, attachmentName: string) => void;
   className?: string;
+  key?: React.Key;
 };
 
 export default function CertificationBadge({

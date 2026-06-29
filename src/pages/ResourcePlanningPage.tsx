@@ -16,7 +16,7 @@ import { countActiveFilters, filterExperts } from '../lib/filterExperts';
 import { isExpertRole } from '../lib/userRole';
 import { sortExperts, type SortOrder } from '../lib/expertDisplay';
 import type { RosterViewMode } from '../components/roster/ViewToggle';
-import { ResourceBadgeLegend } from '../components/roster/LeafBadges';
+import { cn } from '../lib/utils';
 
 export default function ResourcePlanningPage() {
   const navigate = useNavigate();
@@ -109,7 +109,6 @@ export default function ResourcePlanningPage() {
             onViewModeChange={setListViewMode}
             showViewToggle={true}
           />
-          <ResourceBadgeLegend compact className="mt-2 border-t border-slate-100 pt-2" />
         </div>
 
         <div className="flex min-h-0 flex-1 overflow-hidden">

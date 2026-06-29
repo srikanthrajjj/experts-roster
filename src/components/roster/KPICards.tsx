@@ -5,7 +5,6 @@ import {
   CalendarCheck,
   Sparkles,
   TrendingDown,
-  TrendingUp,
   UserCheck,
   Users,
 } from 'lucide-react';

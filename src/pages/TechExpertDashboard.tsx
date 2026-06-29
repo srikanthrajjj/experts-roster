@@ -1,20 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   AlertCircle,
-  Calendar, 
+  Award,
+  Calendar,
   CheckCircle,
-  User,
+  PlusCircle,
   Star,
-  PlusCircle
+  User,
 } from 'lucide-react';
 import AppHeader from '../components/roster/AppHeader';
 import MonthlyCalendarView from '../components/roster/MonthlyCalendarView';
 import ExpertProfileEditModal from '../components/roster/ExpertProfileEditModal';
 import { CertificationsGrid } from '../components/roster/CertificationBadge';
+import { DashboardHero, InsightPanel, UtilizationRing } from '../components/roster/KPICards';
+import Avatar, { StatusBadge } from '../components/roster/SharedUI';
+import { ExpertResourceBadges } from '../components/roster/LeafBadges';
 import { MOCK_IT_EXPERTS, formatWeekLabel } from '../data/itExperts';
 import type { ITExpert, AllocationBlock } from '../types/expert';
 import { isExpertRole, isManagerLike } from '../lib/userRole';
+import { formatNextAvailable } from '../lib/availability';
+import { cn } from '../lib/utils';
 
 export default function TechExpertDashboard() {
   const navigate = useNavigate();
@@ -328,111 +334,97 @@ export default function TechExpertDashboard() {
   }, [activeExpert]);
 
   return (
-    <div className="h-screen bg-[#EEF5FC] text-slate-800 flex flex-col overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#EEF5FC] text-slate-800">
       <AppHeader />
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl px-4 py-6">
-        
-        {/* Navigation & Header Toggle */}
-        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <div>
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Expert Workspace
-              </span>
-              <div className="flex flex-wrap items-center gap-3 mt-1">
-                <h1 className="text-2xl font-black text-[#0F1B3D] md:text-3xl">
-                  Welcome back, {activeExpert.name}!
-                </h1>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-700">
-                  <Star className="h-4 w-4 fill-current" />
-                  {activeExpert.trustRating} ({activeExpert.reviewsCount} reviews)
-                </span>
+          <DashboardHero
+            eyebrow="Digital Advisor · Expert Workspace"
+            title={`Welcome back, ${activeExpert.name.split(' ')[0]}!`}
+            subtitle={`${activeExpert.role} · ${activeExpert.team}`}
+            className="mb-6"
+          >
+            <div className="flex flex-col items-center gap-4 sm:flex-row">
+              <UtilizationRing
+                value={activeExpert.utilizationPercent}
+                size={100}
+                label="Utilized"
+              />
+              <div className="flex flex-col gap-2">
                 <button
                   type="button"
                   onClick={() => setIsEditProfileOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-[#0072CE] hover:text-[#0055A6] bg-blue-50 hover:bg-blue-100/80 rounded-lg transition cursor-pointer border border-blue-100 shadow-sm"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#0072CE] shadow-lg transition hover:bg-sky-50"
                 >
-                  <User className="w-3.5 h-3.5" /> Edit Profile
+                  <User className="h-4 w-4" aria-hidden />
+                  Edit Profile
                 </button>
+                <span className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-xs font-black text-white backdrop-blur-sm">
+                  <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" aria-hidden />
+                  {activeExpert.trustRating} · {activeExpert.reviewsCount} reviews
+                </span>
               </div>
+            </div>
+          </DashboardHero>
+
+          <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_12px_40px_rgba(15,23,42,0.06)]">
+            <Avatar expert={activeExpert} size="md" />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-black text-[#0F1B3D]">{activeExpert.name}</span>
+                <ExpertResourceBadges expert={activeExpert} max={4} />
+                <StatusBadge status={activeExpert.availabilityStatus} />
+              </div>
+              <p className="mt-0.5 text-xs font-medium text-slate-500">
+                Next available {formatNextAvailable(activeExpert.nextAvailableDate, activeExpert.availabilityStatus)}
+              </p>
+            </div>
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
+              {[
+                { label: 'Utilization', value: `${activeExpert.utilizationPercent}%`, tone: 'text-[#0091F9]' },
+                { label: 'Projects', value: String(stats.activeProjectsCount), tone: 'text-[#0F1B3D]' },
+                { label: 'Open weeks', value: String(stats.availableWeeks), tone: 'text-emerald-600' },
+              ].map((stat) => (
+                <div key={stat.label} className="rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-2.5 text-center">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{stat.label}</div>
+                  <div className={cn('text-xl font-black tabular-nums', stat.tone)}>{stat.value}</div>
+                </div>
+              ))}
             </div>
           </div>
 
-        </div>
-
-        {/* Dashboard Panels */}
         <div className="grid gap-6 lg:grid-cols-3">
-          
-          {/* Left Panel: Gantt / Calendar Views (2/3 width) */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
-              
-              {/* Header */}
-              <div className="border-b border-slate-200 px-5 py-4 bg-slate-50/50">
-                <h3 className="text-sm font-black text-[#0F1B3D] uppercase tracking-wider">My Assignment Timeline</h3>
-                <p className="text-xs text-slate-500 mt-0.5">View and adjust your calendar commitments</p>
-              </div>
-
-              {/* View Output Wrapper */}
-              <div className="min-h-[360px] relative p-5 space-y-5 bg-slate-50/20">
-                {/* 3 KPI Cards Row (Matches User Profile Availability tab layout) */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <div className="rounded-lg bg-white border border-slate-200 p-3 text-center shadow-sm">
-                    <div className="text-xs font-bold text-slate-400">Utilization</div>
-                    <div className="text-2xl font-black text-[#0072CE]">{activeExpert.utilizationPercent}%</div>
-                  </div>
-                  <div className="rounded-lg bg-white border border-slate-200 p-3 text-center shadow-sm">
-                    <div className="text-xs font-bold text-slate-400">Active Projects</div>
-                    <div className="text-2xl font-black text-[#0F1B3D]">{activeExpert.activeProjectsCount}</div>
-                  </div>
-                  <div className="rounded-lg bg-white border border-slate-200 p-3 text-center shadow-sm">
-                    <div className="text-xs font-bold text-slate-400">Next Available</div>
-                    <div className="text-sm font-black text-[#0F1B3D]">{activeExpert.nextAvailableDate}</div>
-                  </div>
-                </div>
-
-                <MonthlyCalendarView 
-                  expert={activeExpert} 
+          <div className="lg:col-span-2">
+            <InsightPanel title="My Assignment Timeline" icon={Calendar} className="overflow-hidden">
+              <div className="space-y-5">
+                <MonthlyCalendarView
+                  expert={activeExpert}
                   selectedWeekStart={selectedWeek}
                   onSelectWeekStart={handleWeekChange}
                   selectedDateKeys={selectedDateKeys}
                   onSelectDateKey={handleDateKeyToggle}
                 />
               </div>
-            </div>
-
+            </InsightPanel>
           </div>
 
-          {/* Right Panel: Calendar Commitment Form (1/3 width) */}
-          <div className="lg:col-span-1 flex flex-col gap-6">
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col">
-              
-              <div className="mb-4">
-                <h3 className="text-sm font-black text-[#0F1B3D] uppercase tracking-wider flex items-center gap-1.5">
-                  <PlusCircle className="w-4 h-4 text-[#0072CE]" />
-                  Update Availability & Projects
-                </h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Adjust allocation percentage or log new projects for any week in the 8-week roster timeline.
-                </p>
-              </div>
-
+          <div className="flex flex-col gap-6">
+            <InsightPanel title="Update Availability" icon={PlusCircle}>
               {successMessage && (
-                <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs font-bold text-emerald-800 animate-fade-in">
-                  <CheckCircle className="w-4 h-4 text-emerald-600" />
+                <div className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800 animate-fade-in">
+                  <CheckCircle className="h-4 w-4 text-emerald-600" aria-hidden />
                   {successMessage}
                 </div>
               )}
 
               {selectedDateKeys.length > 0 && (
-                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 mb-4 text-xs font-bold text-emerald-800 animate-fade-in flex items-center justify-between shadow-sm">
+                <div className="mb-4 flex animate-fade-in items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-xs font-bold text-emerald-800 shadow-sm">
                   <span>Selected {selectedDateKeys.length} days for edit</span>
-                  <button 
-                    type="button" 
-                    onClick={() => setSelectedDateKeys([])} 
-                    className="text-[10px] font-black text-rose-600 hover:text-rose-800 cursor-pointer underline decoration-dotted"
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDateKeys([])}
+                    className="cursor-pointer text-[10px] font-black text-rose-600 underline decoration-dotted hover:text-rose-800"
                   >
                     Clear
                   </button>
@@ -544,41 +536,30 @@ export default function TechExpertDashboard() {
                 {/* Submit button */}
                 <button
                   type="submit"
-                  className="w-full mt-4 bg-[#0072CE] hover:bg-[#0055A6] text-white py-3 px-4 rounded-xl text-xs font-black transition-colors cursor-pointer shadow-md flex items-center justify-center gap-1.5"
+                  className="mt-4 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0091F9] to-[#0072CE] py-3 px-4 text-xs font-black text-white shadow-md transition hover:shadow-lg"
                 >
-                  <PlusCircle className="w-4 h-4" />
+                  <PlusCircle className="h-4 w-4" aria-hidden />
                   Update Week Schedule
                 </button>
-
               </form>
 
-              {/* Informative Help Alert */}
-              <div className="mt-6 p-4 rounded-xl border border-slate-100 bg-slate-50 flex gap-2.5 items-start">
-                <AlertCircle className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
-                <div className="text-[11px] leading-relaxed text-slate-500 font-semibold">
-                  Adjusting these blocks changes your availability status inside the **IT Talent Marketplace**. Managers search this live index to find staffing resources.
-                </div>
-              </div>
-
-            </div>
-
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-              <div className="mb-4">
-                <h3 className="text-sm font-black text-[#0F1B3D] uppercase tracking-wider">My Certifications</h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Credentials visible to hiring managers when they search the roster.
+              <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-sky-100 bg-sky-50/50 p-4">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#0091F9]" aria-hidden />
+                <p className="text-[11px] font-semibold leading-relaxed text-slate-500">
+                  Changes update your live availability in the IT Talent Marketplace so managers can find and book you.
                 </p>
               </div>
+            </InsightPanel>
+
+            <InsightPanel title="My Certifications" icon={Award} iconClassName="bg-[#00ADEF]/10 text-[#0072CE]">
               <CertificationsGrid
                 certifications={activeExpert.certifications}
                 emptyMessage="No certifications added yet. Use Edit Profile to add credentials."
                 size="md"
               />
-            </div>
+            </InsightPanel>
           </div>
-
         </div>
-
       </div>
       </div>
 

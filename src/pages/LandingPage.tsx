@@ -73,10 +73,41 @@ const FAQ_ITEMS = [
   },
 ] as const;
 
-const NAV_LINKS = [
-  { label: 'Find experts', to: '/roster/planning', description: 'Browse the IT talent roster' },
-  { label: 'Advisor dashboard', to: '/roster/expert-dashboard', description: 'Manage your expert profile' },
-] as const;
+type NavDropdownItem = { label: string; to: string; external?: boolean };
+type NavItem = 
+  | { type: 'link'; label: string; to: string; external?: boolean }
+  | { type: 'dropdown'; label: string; items: NavDropdownItem[] };
+
+const NAVIGATION_ITEMS: NavItem[] = [
+  { type: 'link', label: 'Home', to: '/' },
+  { type: 'link', label: 'Get support', to: '/roster' },
+  {
+    type: 'dropdown',
+    label: 'For Advisors',
+    items: [
+      { label: 'Advisor dashboard', to: '/roster/expert-dashboard' },
+      { label: 'Add Expert Roster', to: '/roster/add' },
+    ],
+  },
+  {
+    type: 'dropdown',
+    label: 'TeamOne resources',
+    items: [
+      { label: 'Find Expert Roster', to: '/roster' },
+      { label: 'Process & Scope', to: 'https://www.unicef.org/digital-impact/teamone', external: true },
+    ],
+  },
+  { type: 'link', label: 'Events', to: 'https://www.unicef.org/digital-impact/teamone', external: true },
+  {
+    type: 'dropdown',
+    label: 'What\'s happening in TeamOne',
+    items: [
+      { label: 'News & Updates', to: 'https://www.unicef.org/digital-impact/teamone', external: true },
+      { label: 'Announcements', to: 'https://www.unicef.org/digital-impact/teamone', external: true },
+    ],
+  },
+  { type: 'link', label: 'FAQs', to: '#faq-heading' },
+];
 
 function FaqItem({
   id,
