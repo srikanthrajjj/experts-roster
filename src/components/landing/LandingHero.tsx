@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Search, Sparkles, Users, Zap } from 'lucide-react';
 import type { FormEvent } from 'react';
-import UnicefDitOneBrand from '../roster/UnicefDitOneBrand';
 import { SUGGESTED_SEARCHES } from '../../data/constants';
 import { rosterPlanningPath } from '../../lib/rosterView';
 import { useLandingTheme } from '../../contexts/LandingThemeContext';
@@ -57,20 +56,9 @@ export default function LandingHero({
 
         <div className="relative mx-auto max-w-6xl px-5 py-14 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-8 flex justify-center">
-              <div className="rounded-2xl border border-white/15 bg-white/5 px-6 py-4 backdrop-blur-sm">
-                <UnicefDitOneBrand className="h-14 w-auto max-w-[min(100%,340px)] sm:h-16 sm:max-w-[380px]" />
-              </div>
-            </div>
-
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#00ADEF]/30 bg-[#00ADEF]/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-[#00ADEF]">
-              <Sparkles className="h-3.5 w-3.5" aria-hidden />
-              TeamOne · Midnight Command
-            </p>
-
             <h1
               id="hero-heading"
-              className="mt-6 text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl"
+              className="text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl"
             >
               Deploy digital expertise across every programme,{' '}
               <span className="bg-gradient-to-r from-[#00ADEF] to-[#0091F9] bg-clip-text text-transparent">
