@@ -54,7 +54,7 @@ export default function AddExpertRoster() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#F3F4F6] font-sans text-gray-800">
-      <AppHeader backTo="/roster/planning" backLabel="Back to planning" />
+      <AppHeader />
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl px-6 py-8">

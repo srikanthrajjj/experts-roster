@@ -1,33 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { getRoleDotClass, getRoleLabel, isExpertRole, isManagerLike } from '../../lib/userRole';
+import { getRoleDotClass, getRoleLabel, isExpertRole } from '../../lib/userRole';
 import { usePersonaModal } from '../../contexts/PersonaModalContext';
-import { cn } from '../../lib/utils';
 
 type AppHeaderProps = {
   backTo?: string;
-  backLabel?: string;
 };
 
-type NavLink = { label: string; to: string };
-
-function getNavLinks(role: string | null): NavLink[] {
-  const links: NavLink[] = [{ label: 'Home', to: '/' }];
-  if (isManagerLike(role)) {
-    links.push({ label: 'Planning', to: '/roster/planning' });
-    links.push({ label: 'Dashboard', to: '/roster/manager' });
-  } else if (isExpertRole(role)) {
-    links.push({ label: 'Dashboard', to: '/roster/expert-dashboard' });
-  }
-  return links;
+function getBackDestination(pathname: string): string | null {
+  if (pathname === '/roster/planning') return '/';
+  if (pathname === '/roster/expert-dashboard') return '/';
+  if (pathname === '/roster/manager') return '/';
+  if (pathname === '/roster/add') return '/roster/planning';
+  if (pathname.startsWith('/roster/expert/')) return '/roster/planning';
+  return null;
 }
 
-export default function AppHeader({ backTo, backLabel = 'Back' }: AppHeaderProps) {
+export default function AppHeader({ backTo: backToOverride }: AppHeaderProps) {
   const { userRole, openPersonaModal } = usePersonaModal();
-  const location = useLocation();
+  const { pathname } = useLocation();
   const [initials, setInitials] = useState('A');
-  const navLinks = getNavLinks(userRole);
+  const backTo = backToOverride ?? getBackDestination(pathname);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -57,43 +51,22 @@ export default function AppHeader({ backTo, backLabel = 'Back' }: AppHeaderProps
   return (
     <header className="sticky top-0 z-30 h-[66px] bg-[#0091F9] text-white shadow-[0_14px_30px_rgba(0,145,249,0.18)]">
       <div className="flex h-full items-center justify-between gap-3 px-4 sm:gap-5 sm:px-5 xl:px-8">
-        <div className="flex h-full min-w-0 items-center gap-2 sm:gap-3 md:gap-5">
+        <div className="flex h-full min-w-0 items-center gap-2 sm:gap-3">
           {backTo && (
-            <Link
-              to={backTo}
-              className="flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-xs font-bold text-white/90 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:gap-1.5 sm:px-2 sm:text-sm"
-            >
-              <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
-              <span className="max-w-[7rem] truncate sm:max-w-none">{backLabel}</span>
-            </Link>
+            <>
+              <Link
+                to={backTo}
+                className="flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-xs font-bold text-white/90 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:gap-1.5 sm:px-2 sm:text-sm"
+              >
+                <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+                <span>Back</span>
+              </Link>
+              <span className="hidden h-5 w-px shrink-0 bg-white/25 sm:block" aria-hidden />
+            </>
           )}
-          {backTo && <span className="hidden h-5 w-px shrink-0 bg-white/25 sm:block" aria-hidden />}
-          <Link
-            to="/"
-            className={cn(
-              'shrink-0 text-sm font-bold text-white transition hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 lg:text-base',
-              backTo && 'hidden sm:inline',
-            )}
-          >
+          <span className="truncate text-sm font-bold text-white lg:text-base">
             Resource availability & planning
-          </Link>
-          <nav className="hidden items-center gap-0.5 border-l border-white/25 pl-3 sm:flex md:gap-1 md:pl-4">
-            {navLinks.map((item) => {
-              const isActive = location.pathname === item.to;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={cn(
-                    'rounded-md px-2 py-1 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 md:px-2.5 md:text-sm',
-                    isActive ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white',
-                  )}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+          </span>
         </div>
 
         <div className="flex min-w-0 items-center justify-end gap-3 sm:gap-4">

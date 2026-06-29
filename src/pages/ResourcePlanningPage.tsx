@@ -81,8 +81,6 @@ export default function ResourcePlanningPage() {
     <RosterPlanningLayout
       title="Resource availability & planning"
       subtitle="View experts availability, plan engagements and manage allocations."
-      backTo="/"
-      backLabel="Back to home"
       kpis={<KPICards kpis={kpis} variant="planning" />}
       sidebar={
         <FilterSidebar

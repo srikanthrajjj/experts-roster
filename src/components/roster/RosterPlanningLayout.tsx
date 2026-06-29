@@ -10,8 +10,6 @@ type RosterPlanningLayoutProps = {
   subtitle?: string;
   kpis?: React.ReactNode;
   sidebar?: React.ReactNode;
-  backTo?: string;
-  backLabel?: string;
 };
 
 export default function RosterPlanningLayout({
@@ -20,12 +18,10 @@ export default function RosterPlanningLayout({
   subtitle,
   kpis,
   sidebar,
-  backTo,
-  backLabel = 'Back',
 }: RosterPlanningLayoutProps) {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#EEF5FC] text-slate-800">
-      <AppHeader backTo={backTo} backLabel={backLabel} />
+      <AppHeader />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {sidebar}

@@ -11,7 +11,7 @@ export default function ExpertProfilePage() {
   if (!expert) {
     return (
       <div className="min-h-screen bg-[#EEF5FC]">
-        <AppHeader backTo="/roster" backLabel="Back to discovery" />
+        <AppHeader />
         <div className="flex flex-col items-center justify-center py-32 text-center">
           <h2 className="text-xl font-black text-[#0F1B3D]">Expert not found</h2>
         </div>
@@ -21,7 +21,7 @@ export default function ExpertProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#EEF5FC] text-slate-800">
-      <AppHeader backTo="/roster" backLabel="Back to experts" />
+      <AppHeader />
 
       <div className="mx-auto max-w-6xl px-4 py-6">
         <ExpertProfileContent expert={expert} />
