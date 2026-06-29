@@ -131,7 +131,7 @@ const NAVIGATION_ITEMS: NavItem[] = [
 function navItemClassName(isMidnight: boolean, compact?: boolean) {
   return cn(
     'rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 whitespace-nowrap',
-    compact ? 'px-3 py-3 text-sm' : 'px-2 py-1.5 text-[13px] xl:px-2.5 xl:text-sm',
+    compact ? 'px-3 py-3 text-sm' : 'px-2 py-1.5 text-[13px] 2xl:px-2.5 2xl:text-sm',
     isMidnight
       ? 'text-slate-300 hover:bg-white/10 hover:text-[#00ADEF] focus-visible:ring-[#00ADEF]'
       : 'text-slate-600 hover:bg-slate-100 hover:text-[#0091F9] focus-visible:ring-[#0091F9]',
@@ -394,7 +394,7 @@ function LandingPageContent() {
           </Link>
 
           <nav
-            className="hidden min-w-0 flex-1 items-center justify-center gap-0 overflow-x-auto xl:flex [&::-webkit-scrollbar]:hidden"
+            className="hidden min-w-0 flex-1 items-center justify-center gap-0 overflow-x-auto 2xl:flex [&::-webkit-scrollbar]:hidden"
             aria-label="Primary"
             style={{ scrollbarWidth: 'none' }}
           >
@@ -406,7 +406,7 @@ function LandingPageContent() {
               type="button"
               onClick={openPersonaModal}
               className={cn(
-                'flex max-w-[7.5rem] items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition sm:max-w-[9rem] sm:px-3 xl:max-w-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                'flex max-w-[7.5rem] items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition sm:max-w-[9rem] sm:px-3 2xl:max-w-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                 isMidnight
                   ? 'bg-white/10 text-[#00ADEF] hover:bg-white/15 focus-visible:ring-[#00ADEF]'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80 focus-visible:ring-[#0091F9]',
@@ -419,7 +419,7 @@ function LandingPageContent() {
               type="button"
               onClick={() => setMobileNavOpen((v) => !v)}
               className={cn(
-                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg xl:hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2',
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg 2xl:hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2',
                 isMidnight
                   ? 'text-slate-200 hover:bg-white/10 focus-visible:ring-[#00ADEF]'
                   : 'text-slate-600 hover:bg-slate-100 focus-visible:ring-[#0091F9]',
@@ -437,7 +437,7 @@ function LandingPageContent() {
           <div
             id={mobileNavId}
             className={cn(
-              'max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain border-t px-4 py-4 sm:px-6 xl:hidden',
+              'max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain border-t px-4 py-4 sm:px-6 2xl:hidden',
               isMidnight ? 'border-white/10 bg-[#0B1220]' : 'border-slate-100 bg-white',
             )}
           >
