@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, Upload, FileSpreadsheet, User, Plus, X, CheckCircle, AlertCircle } from 'lucide-react';
 import UnicefLogo from '../components/roster/UnicefLogo';
+import BackLink from '../components/roster/BackLink';
 import { cn } from '../lib/utils';
 
 const SKILLS = ['WASH','Programme Scale-up Management','Humanitarian Action','Health','Programme Design','Digital Infrastructure','Early Childhood Development','Policy Reform','Child Protection','Social & Behaviour Change','Financing for Scale','Education'];
@@ -83,11 +84,7 @@ export default function AddExpertRoster() {
         <div className="max-w-4xl mx-auto px-6 py-8">
           {/* Page Title */}
           <div className="mb-8">
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-              <Link to="/roster" className="hover:text-[#0099FF]">Expert Roster</Link>
-              <span>/</span>
-              <span className="text-gray-800 font-medium">Add Expert</span>
-            </div>
+            <BackLink to="/roster/planning" label="Back to planning" className="mb-3" />
             <h1 className="text-2xl font-bold text-gray-900">Add Expert to Roster</h1>
             <p className="text-gray-500 mt-1">Upload an Excel file or fill in the form manually to add a new expert.</p>
           </div>

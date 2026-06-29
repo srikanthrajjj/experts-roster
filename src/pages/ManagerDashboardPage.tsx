@@ -12,6 +12,7 @@ import {
   Users,
 } from 'lucide-react';
 import AppHeader from '../components/roster/AppHeader';
+import BackLink from '../components/roster/BackLink';
 import { DashboardHero, InsightPanel, ManagerKPICards } from '../components/roster/KPICards';
 import GanttView from '../components/roster/GanttView';
 import CalendarView from '../components/roster/CalendarView';
@@ -94,6 +95,7 @@ export default function ManagerDashboardPage() {
       <AppHeader />
 
       <div className="mx-auto max-w-7xl px-4 py-6">
+        <BackLink to="/" label="Back to home" className="mb-4" />
         <DashboardHero
           eyebrow="TeamOne · Primary Digital Advisor"
           title="Resource Planning Dashboard"

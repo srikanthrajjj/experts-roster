@@ -1,8 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 import type { DashboardView } from '../../types/expert';
 import AppHeader from './AppHeader';
+import BackLink from './BackLink';
 import { cn } from '../../lib/utils';
 
 type RosterPlanningLayoutProps = {
@@ -40,13 +39,7 @@ export default function RosterPlanningLayout({
                   {title && (
                     <div className="min-w-0">
                       {backTo && (
-                        <Link
-                          to={backTo}
-                          className="mb-2 inline-flex items-center gap-1.5 rounded-lg text-sm font-bold text-[#0091F9] transition hover:text-[#0072CE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0091F9] focus-visible:ring-offset-2"
-                        >
-                          <ArrowLeft className="h-4 w-4" aria-hidden />
-                          {backLabel}
-                        </Link>
+                        <BackLink to={backTo} label={backLabel} className="mb-2" />
                       )}
                       <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#0091F9]">TeamOne Roster</p>
                       <h1 className="mt-1 text-2xl font-black text-[#0F1B3D] md:text-3xl">{title}</h1>
