@@ -91,7 +91,7 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#EEF5FC] text-slate-800">
-      <AppHeader backTo="/" backLabel="Back to home" />
+      <AppHeader />
 
       <div className="mx-auto max-w-7xl px-4 py-6">
         <DashboardHero

@@ -332,7 +332,7 @@ export default function TechExpertDashboard() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#EEF5FC] text-slate-800">
-      <AppHeader backTo="/" backLabel="Back to home" />
+      <AppHeader />
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl px-4 py-6">
