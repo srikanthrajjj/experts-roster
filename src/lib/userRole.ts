@@ -10,8 +10,8 @@ export function isExpertRole(role: string | null): role is 'expert' {
 
 export function getRoleLabel(role: string | null): string {
   if (role === 'manager') return 'Primary Digital Advisor';
-  if (role === 'normal_user') return 'Normal User';
-  if (role === 'expert') return 'Tech Expert';
+  if (role === 'normal_user') return 'End user';
+  if (role === 'expert') return 'Digital advisor';
   return '';
 }
 
@@ -30,5 +30,6 @@ export function getNextRole(role: string | null): UserRole {
 
 export function getRoleHomePath(role: string | null): string {
   if (role === 'expert') return '/roster/expert-dashboard';
+  if (role === 'normal_user') return '/';
   return '/roster/planning';
 }

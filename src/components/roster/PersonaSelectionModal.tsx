@@ -14,19 +14,16 @@ const PERSONAS = [
   {
     role: 'manager' as const,
     icon: Users,
-    title: 'Primary Digital Advisor',
     description: 'Search experts and staff programmes.',
   },
   {
     role: 'normal_user' as const,
     icon: User,
-    title: 'Normal User',
     description: 'Browse the roster and request support.',
   },
   {
     role: 'expert' as const,
     icon: Code,
-    title: 'Tech Expert',
     description: 'Manage your profile and availability.',
   },
 ] as const;
@@ -84,7 +81,7 @@ export default function PersonaSelectionModal({
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {PERSONAS.map(({ role, icon: Icon, title, description }) => (
+          {PERSONAS.map(({ role, icon: Icon, description }) => (
             <button
               key={role}
               type="button"
@@ -94,7 +91,7 @@ export default function PersonaSelectionModal({
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-sky-50 text-[#0091F9]">
                 <Icon className="h-5 w-5" aria-hidden />
               </div>
-              <h3 className="text-sm font-black text-slate-900">{title}</h3>
+              <h3 className="text-sm font-black text-slate-900">{getRoleLabel(role)}</h3>
               <p className="mt-1 flex-1 text-xs text-slate-500">{description}</p>
               <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#0091F9]">
                 Continue <ArrowRight className="h-3 w-3" aria-hidden />

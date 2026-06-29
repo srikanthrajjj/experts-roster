@@ -218,12 +218,14 @@ export function ManagerKPICards({
 export function DashboardHero({
   eyebrow,
   title,
+  titleAddon,
   subtitle,
   children,
   className,
 }: {
   eyebrow?: string;
   title: string;
+  titleAddon?: React.ReactNode;
   subtitle?: string;
   children?: React.ReactNode;
   className?: string;
@@ -249,7 +251,10 @@ export function DashboardHero({
           {eyebrow && (
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80">{eyebrow}</p>
           )}
-          <h1 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">{title}</h1>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">{title}</h1>
+            {titleAddon}
+          </div>
           {subtitle && <p className="mt-2 max-w-xl text-sm font-medium text-white/85 sm:text-base">{subtitle}</p>}
         </div>
         {children && <div className="flex shrink-0 flex-wrap gap-2">{children}</div>}

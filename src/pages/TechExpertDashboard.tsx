@@ -16,23 +16,24 @@ import { CertificationsGrid } from '../components/roster/CertificationBadge';
 import { DashboardHero, InsightPanel, UtilizationRing } from '../components/roster/KPICards';
 import { MOCK_IT_EXPERTS, formatWeekLabel } from '../data/itExperts';
 import type { ITExpert, AllocationBlock } from '../types/expert';
-import { isManagerLike } from '../lib/userRole';
+import { ExpertResourceBadges } from '../components/roster/LeafBadges';
+import { getRoleHomePath, isExpertRole } from '../lib/userRole';
 import { formatNextAvailable } from '../lib/availability';
 
 export default function TechExpertDashboard() {
   const navigate = useNavigate();
 
-  // Local storage listener for redirecting if role switches to manager
+  // Redirect non-expert roles to their home path
   useEffect(() => {
     const role = localStorage.getItem('userRole');
-    if (isManagerLike(role)) {
-      navigate('/roster/planning', { replace: true });
+    if (!isExpertRole(role)) {
+      navigate(getRoleHomePath(role), { replace: true });
     }
 
     const checkRole = () => {
       const currentRole = localStorage.getItem('userRole');
-      if (isManagerLike(currentRole)) {
-        navigate('/roster/planning', { replace: true });
+      if (!isExpertRole(currentRole)) {
+        navigate(getRoleHomePath(currentRole), { replace: true });
       }
     };
     window.addEventListener('storage', checkRole);
@@ -339,6 +340,9 @@ export default function TechExpertDashboard() {
           <DashboardHero
             eyebrow="Digital Advisor · Expert Workspace"
             title={`Welcome back, ${activeExpert.name.split(' ')[0]}!`}
+            titleAddon={
+              <ExpertResourceBadges expert={activeExpert} size="md" variant="onDark" max={5} />
+            }
             subtitle={`${activeExpert.role} · ${activeExpert.team} · ${activeExpert.availability} · Next available ${formatNextAvailable(activeExpert.nextAvailableDate, activeExpert.availabilityStatus)}`}
             className="mb-6"
           >
