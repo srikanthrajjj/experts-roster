@@ -182,7 +182,7 @@ export default function CalendarView({
         <div className="flex shrink-0 flex-wrap items-center gap-4 border-t border-slate-200 px-4 py-2 text-[10px] font-bold text-slate-600">
           <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-emerald-500" /> Available</span>
           <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-amber-500" /> Partially available</span>
-          <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-sky-500" /> Fully booked</span>
+          <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-rose-500" /> Fully booked</span>
           <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-violet-500" /> On leave</span>
         </div>
       )}

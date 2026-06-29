@@ -11,18 +11,27 @@ function weeksFrom(baseDate: string, count: number): string[] {
   return weeks;
 }
 
+function getCurrentWeekMondayStr(): string {
+  const now = new Date();
+  const day = now.getDay();
+  // Get Monday of the current week
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(now.setDate(diff));
+  return monday.toISOString().split('T')[0];
+}
+
 function buildAllocations(
   pattern: Array<{ type: AllocationBlock['type']; label: string; percentage: number; projectName?: string; hasConflict?: boolean }>,
   weekCount = 8,
 ): AllocationBlock[] {
-  const weeks = weeksFrom('2025-05-05', weekCount);
+  const weeks = weeksFrom(getCurrentWeekMondayStr(), weekCount);
   return weeks.map((weekStart, i) => ({
     weekStart,
     ...pattern[i % pattern.length],
   }));
 }
 
-export const MOCK_IT_EXPERTS: ITExpert[] = [
+const RAW_MOCK_IT_EXPERTS: ITExpert[] = [
   {
     id: '1',
     initials: 'AG',
@@ -62,8 +71,8 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { skill: 'DevOps', level: 'Advanced' },
     ],
     pastMissions: [
-      { title: 'ERP Implementation', organization: 'UNICEF HQ', role: 'Cloud Architect', rating: 4.9, technologies: ['Azure', 'SAP'], impact: 'Reduced infrastructure costs by 35%' },
-      { title: 'Digital Transformation', organization: 'Regional Office SA', role: 'Lead Consultant', rating: 4.7, technologies: ['ServiceNow'], impact: 'Automated 60% of IT service requests' },
+      { title: 'ERP Implementation', organization: 'UNICEF HQ', role: 'Cloud Architect', rating: 4.9, technologies: ['Azure', 'SAP'], impact: 'Reduced infrastructure costs by 35%', completedDate: 'Jan 2025' },
+      { title: 'Digital Transformation', organization: 'Regional Office SA', role: 'Lead Consultant', rating: 4.7, technologies: ['ServiceNow'], impact: 'Automated 60% of IT service requests', completedDate: 'Nov 2024' },
     ],
     certifications: ['Azure Solutions Architect Expert', 'ServiceNow Certified System Administrator', 'ITIL v4 Foundation'],
     contact: { email: 'ahmed.garcia@unicef.org', phone: '+92 300 1234567' },
@@ -87,6 +96,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     ],
     utilizationPercent: 50,
     benchAvailable: true,
+    skillsLastUpdated: '15 Jun 2026',
   },
   {
     id: '2',
@@ -108,7 +118,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     certificationLevel: 'Expert/Master',
     languages: ['English', 'French'],
     regions: ['Headquarters', 'Latin America & Caribbean'],
-    emergencyExperience: false,
+    emergencyExperience: true,
     previousUnicef: true,
     verified: true,
     trustRating: 4.9,
@@ -127,7 +137,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { skill: 'Automation', level: 'Advanced' },
     ],
     pastMissions: [
-      { title: 'Global ITSM Rollout', organization: 'UNICEF HQ', role: 'Lead Architect', rating: 5.0, technologies: ['ServiceNow'], impact: 'Unified ITSM across 190 countries' },
+      { title: 'Global ITSM Rollout', organization: 'UNICEF HQ', role: 'Lead Architect', rating: 5.0, technologies: ['ServiceNow'], impact: 'Unified ITSM across 190 countries', completedDate: 'Mar 2025' },
     ],
     certifications: ['ServiceNow Certified Master Architect', 'ITIL v4 Managing Professional'],
     contact: { email: 'sarah.chen@unicef.org', phone: '+1 212 555 0100' },
@@ -149,6 +159,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     ],
     utilizationPercent: 0,
     benchAvailable: true,
+    skillsLastUpdated: '15 Jun 2026',
   },
   {
     id: '3',
@@ -172,7 +183,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     regions: ['Headquarters', 'Latin America & Caribbean'],
     emergencyExperience: false,
     previousUnicef: true,
-    verified: true,
+    verified: false,
     trustRating: 4.7,
     reviewsCount: 18,
     yearsExperience: 9,
@@ -189,7 +200,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { skill: 'MuleSoft', level: 'Intermediate' },
     ],
     pastMissions: [
-      { title: 'Donor CRM Migration', organization: 'PFP', role: 'Lead Consultant', rating: 4.8, technologies: ['Salesforce'], impact: 'Unified donor data for 30 national committees' },
+      { title: 'Donor CRM Migration', organization: 'PFP', role: 'Lead Consultant', rating: 4.8, technologies: ['Salesforce'], impact: 'Unified donor data for 30 national committees', completedDate: 'Feb 2025' },
     ],
     certifications: ['Salesforce Certified Application Architect', 'Nonprofit Cloud Consultant'],
     contact: { email: 'maria.rodriguez@unicef.org', phone: '+45 33 555 0100' },
@@ -212,6 +223,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     ],
     utilizationPercent: 100,
     benchAvailable: false,
+    skillsLastUpdated: '15 Jun 2026',
   },
   {
     id: '4',
@@ -235,7 +247,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     regions: ['East & Southern Africa'],
     emergencyExperience: true,
     previousUnicef: false,
-    verified: true,
+    verified: false,
     trustRating: 4.5,
     reviewsCount: 12,
     yearsExperience: 6,
@@ -252,7 +264,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { skill: 'Terraform', level: 'Expert' },
     ],
     pastMissions: [
-      { title: 'Regional Cloud Setup', organization: 'ROSA', role: 'Cloud Engineer', rating: 4.6, technologies: ['AWS', 'Terraform'], impact: 'Deployed secure cloud environment in 8 countries' },
+      { title: 'Regional Cloud Setup', organization: 'ROSA', role: 'Cloud Engineer', rating: 4.6, technologies: ['AWS', 'Terraform'], impact: 'Deployed secure cloud environment in 8 countries', completedDate: 'Sep 2024' },
     ],
     certifications: ['AWS Solutions Architect Associate', 'Azure Administrator Associate', 'HashiCorp Terraform Associate'],
     contact: { email: 'james.okafor@unicef.org', phone: '+254 700 123456' },
@@ -275,6 +287,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     ],
     utilizationPercent: 40,
     benchAvailable: true,
+    skillsLastUpdated: '15 Jun 2026',
   },
   {
     id: '5',
@@ -315,7 +328,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { skill: 'Data Analytics', level: 'Advanced' },
     ],
     pastMissions: [
-      { title: 'Predictive Analytics POC', organization: 'Programme Division', role: 'AI Lead', rating: 4.9, technologies: ['Python', 'Azure ML'], impact: 'Improved supply forecasting accuracy by 25%' },
+      { title: 'Predictive Analytics POC', organization: 'Programme Division', role: 'AI Lead', rating: 4.9, technologies: ['Python', 'Azure ML'], impact: 'Improved supply forecasting accuracy by 25%', completedDate: 'Dec 2024' },
     ],
     certifications: ['Azure AI Engineer Associate', 'Google Professional ML Engineer'],
     contact: { email: 'li.peng@unicef.org', phone: '+66 2 555 0100' },
@@ -336,7 +349,8 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { date: 'May 12–Jun 30', label: 'Predictive Analytics POC (20%)', type: 'project', allocation: 20 },
     ],
     utilizationPercent: 20,
-    benchAvailable: true,
+    benchAvailable: false,
+    skillsLastUpdated: '15 Jun 2026',
   },
   {
     id: '6',
@@ -360,7 +374,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     regions: ['Headquarters', 'East & Southern Africa'],
     emergencyExperience: true,
     previousUnicef: true,
-    verified: true,
+    verified: false,
     trustRating: 4.9,
     reviewsCount: 28,
     yearsExperience: 15,
@@ -377,7 +391,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { skill: 'Compliance', level: 'Advanced' },
     ],
     pastMissions: [
-      { title: 'Global Security Assessment', organization: 'UNICEF HQ', role: 'Lead Assessor', rating: 5.0, technologies: ['SIEM'], impact: 'Identified and remediated 200+ critical vulnerabilities' },
+      { title: 'Global Security Assessment', organization: 'UNICEF HQ', role: 'Lead Assessor', rating: 5.0, technologies: ['SIEM'], impact: 'Identified and remediated 200+ critical vulnerabilities', completedDate: 'Apr 2025' },
     ],
     certifications: ['CISSP', 'CEH', 'Azure Security Engineer Expert'],
     contact: { email: 'elena.kowalski@unicef.org', phone: '+41 22 555 0100' },
@@ -400,6 +414,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     ],
     utilizationPercent: 0,
     benchAvailable: false,
+    skillsLastUpdated: '15 Jun 2026',
   },
   {
     id: '7',
@@ -421,13 +436,12 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     certificationLevel: 'Professional',
     languages: ['English', 'Hindi'],
     regions: ['South Asia', 'East Asia & Pacific'],
-    emergencyExperience: false,
+    emergencyExperience: true,
     previousUnicef: true,
-    verified: true,
+    verified: false,
     trustRating: 4.6,
     reviewsCount: 20,
     yearsExperience: 9,
-    availability: 'Partially available',
     availabilityStatus: 'partially_allocated',
     allocationPercent: 60,
     nextAvailableDate: '2025-06-01',
@@ -440,7 +454,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { skill: 'Databricks', level: 'Advanced' },
     ],
     pastMissions: [
-      { title: 'Programme Data Hub', organization: 'Programme Division', role: 'Data Lead', rating: 4.7, technologies: ['Azure', 'Power BI'], impact: 'Consolidated data from 50+ programme systems' },
+      { title: 'Programme Data Hub', organization: 'Programme Division', role: 'Data Lead', rating: 4.7, technologies: ['Azure', 'Power BI'], impact: 'Consolidated data from 50+ programme systems', completedDate: 'Oct 2024' },
     ],
     certifications: ['Azure Data Engineer Associate', 'Power BI Data Analyst Associate'],
     contact: { email: 'rajesh.nair@unicef.org', phone: '+91 98765 43210' },
@@ -463,6 +477,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     ],
     utilizationPercent: 60,
     benchAvailable: false,
+    skillsLastUpdated: '15 Jun 2026',
   },
   {
     id: '8',
@@ -503,7 +518,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { skill: 'S/4HANA', level: 'Advanced' },
     ],
     pastMissions: [
-      { title: 'S/4HANA Migration', organization: 'Operations', role: 'Functional Lead', rating: 4.8, technologies: ['SAP'], impact: 'Migrated 15 country offices to S/4HANA' },
+      { title: 'S/4HANA Migration', organization: 'Operations', role: 'Functional Lead', rating: 4.8, technologies: ['SAP'], impact: 'Migrated 15 country offices to S/4HANA', completedDate: 'Jun 2025' },
     ],
     certifications: ['SAP Certified Application Associate – S/4HANA', 'SAP FI Consultant'],
     contact: { email: 'fatima.traore@unicef.org', phone: '+221 33 555 0100' },
@@ -525,6 +540,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     ],
     utilizationPercent: 100,
     benchAvailable: false,
+    skillsLastUpdated: '15 Jun 2026',
   },
   {
     id: '9',
@@ -548,7 +564,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     regions: ['Headquarters', 'East & Southern Africa'],
     emergencyExperience: false,
     previousUnicef: false,
-    verified: true,
+    verified: false,
     trustRating: 4.4,
     reviewsCount: 9,
     yearsExperience: 5,
@@ -583,6 +599,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     upcomingCommitments: [],
     utilizationPercent: 0,
     benchAvailable: true,
+    skillsLastUpdated: '15 Jun 2026',
   },
   {
     id: '10',
@@ -605,8 +622,8 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     languages: ['English', 'French'],
     regions: ['Headquarters'],
     emergencyExperience: false,
-    previousUnicef: true,
-    verified: true,
+    previousUnicef: false,
+    verified: false,
     trustRating: 4.5,
     reviewsCount: 11,
     yearsExperience: 6,
@@ -623,7 +640,7 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
       { skill: 'Power BI', level: 'Advanced' },
     ],
     pastMissions: [
-      { title: 'HR Workflow Automation', organization: 'HR Division', role: 'Developer', rating: 4.6, technologies: ['Power Platform'], impact: 'Reduced manual HR processes by 70%' },
+      { title: 'HR Workflow Automation', organization: 'HR Division', role: 'Developer', rating: 4.6, technologies: ['Power Platform'], impact: 'Reduced manual HR processes by 70%', completedDate: 'Aug 2024' },
     ],
     certifications: ['Microsoft Power Platform Solution Architect', 'Power Apps Developer Associate'],
     contact: { email: 'yuki.bakker@unicef.org', phone: '+31 20 555 0100' },
@@ -645,11 +662,40 @@ export const MOCK_IT_EXPERTS: ITExpert[] = [
     ],
     utilizationPercent: 50,
     benchAvailable: true,
+    skillsLastUpdated: '15 Jun 2026',
   },
 ];
 
+export const MOCK_IT_EXPERTS: ITExpert[] = RAW_MOCK_IT_EXPERTS.map(expert => {
+  const firstAvail = expert.allocations.find(a => a.percentage < 100);
+  
+  const updatedCommitments = expert.upcomingCommitments.map((commitment, index) => {
+    const block = expert.allocations[index % expert.allocations.length];
+    if (!block) return commitment;
+    
+    const start = new Date(block.weekStart);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const formattedRange = `${fmt(start)}–${fmt(end)}`;
+    
+    return {
+      ...commitment,
+      date: formattedRange,
+    };
+  });
+
+  return {
+    ...expert,
+    nextAvailableDate: firstAvail ? firstAvail.weekStart : expert.nextAvailableDate,
+    upcomingCommitments: updatedCommitments,
+  };
+});
+
 export function getExpertById(id: string): ITExpert | undefined {
-  return MOCK_IT_EXPERTS.find((e) => e.id === id);
+  const saved = localStorage.getItem('expert_dashboard_data');
+  const list = saved ? JSON.parse(saved) : MOCK_IT_EXPERTS;
+  return list.find((e: any) => e.id === id);
 }
 
 export function computeKPIs(experts: ITExpert[]) {

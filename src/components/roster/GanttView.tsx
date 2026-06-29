@@ -4,6 +4,7 @@ import type { AllocationBlock, ITExpert } from '../../types/expert';
 import { blockShortLabel, blockTypeColors } from '../../lib/availability';
 import { formatWeekLabel, getGanttWeeks } from '../../data/itExperts';
 import Avatar, { Badge } from './SharedUI';
+import { ExpertResourceBadges, ResourceBadgeLegend } from './LeafBadges';
 import { cn } from '../../lib/utils';
 
 type GanttViewProps = {
@@ -129,13 +130,16 @@ export default function GanttView({
               <div className="flex items-center gap-2 py-1">
                 <Avatar expert={expert} size="sm" />
                 <div className="min-w-0">
-                  <div className="truncate text-xs font-black text-[#0F1B3D]">{expert.name}</div>
+                  <div className="flex min-w-0 items-center gap-1">
+                    <div className="truncate text-xs font-black text-[#0F1B3D]">{expert.name}</div>
+                    <ExpertResourceBadges expert={expert} max={compact ? 2 : 3} />
+                  </div>
                   {!compact && <div className="truncate text-[10px] text-slate-500">{expert.country}</div>}
                 </div>
               </div>
               {!compact && (
                 <div className="py-1">
-                  <div className="truncate text-[10px] font-semibold text-slate-700">{expert.role}</div>
+                  <p className="truncate text-[10px] font-semibold text-slate-700">{expert.role}</p>
                   <div className="mt-1 flex flex-wrap gap-0.5">
                     {expert.technologyStack.slice(0, 2).map((s) => (
                       <Badge key={s} className="h-5 border-sky-100 bg-sky-50 px-1 text-[9px] text-sky-700">{s}</Badge>
@@ -157,12 +161,16 @@ export default function GanttView({
       </div>
 
       {!compact && (
-        <div className="flex shrink-0 flex-wrap items-center gap-4 border-t border-slate-200 px-4 py-2 text-[10px] font-bold text-slate-600">
-          <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-emerald-500" /> Available</span>
-          <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-amber-500" /> Partially available</span>
-          <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-sky-500" /> Fully booked</span>
-          <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-violet-500" /> On leave</span>
-          <span className="flex items-center gap-1.5"><AlertTriangle className="h-3 w-3 text-red-500" /> Conflict</span>
+        <div className="shrink-0 space-y-2 border-t border-slate-200 bg-slate-50/40 px-4 py-2">
+          <ResourceBadgeLegend />
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-bold text-slate-600">
+            <span className="mr-1 text-[9px] font-black uppercase tracking-wider text-[#0072CE]">Timeline</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-emerald-500" /> Available</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-amber-500" /> Partial</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-rose-500" /> Booked</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-violet-500" /> Leave</span>
+            <span className="flex items-center gap-1.5"><AlertTriangle className="h-3 w-3 text-red-500" /> Conflict</span>
+          </div>
         </div>
       )}
     </div>

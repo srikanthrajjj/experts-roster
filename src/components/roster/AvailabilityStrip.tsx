@@ -31,6 +31,7 @@ function WeekCell({
   size: 'sm' | 'md';
   highlightCurrent?: boolean;
   showWeekDates?: boolean;
+  key?: string;
 }) {
   const colors = blockTypeColors(block.type);
   const status = blockStatusLabel(block);

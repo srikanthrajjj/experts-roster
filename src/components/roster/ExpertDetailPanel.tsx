@@ -2,8 +2,11 @@ import React from 'react';
 import { Calendar, ChevronLeft, ChevronRight, ExternalLink, X } from 'lucide-react';
 import type { ITExpert } from '../../types/expert';
 import { formatNextAvailable } from '../../lib/availability';
+import { getCertificationName } from '../../lib/certificationLogos';
 import { ExpertAvailabilityPreview } from './AvailabilityStrip';
 import Avatar, { StatusBadge } from './SharedUI';
+import { ExpertResourceBadges } from './LeafBadges';
+import CertificationBadge from './CertificationBadge';
 import { cn } from '../../lib/utils';
 
 type ExpertDetailPanelProps = {
@@ -31,8 +34,9 @@ export default function ExpertDetailPanel({
 
   if (!expert) return null;
 
+  const defaultMonth = expert.allocations.length > 0 ? new Date(expert.allocations[0].weekStart) : new Date();
   const calendarDays = Array.from({ length: 35 }, (_, i) => {
-    const d = new Date(2025, 4, 1);
+    const d = new Date(defaultMonth.getFullYear(), defaultMonth.getMonth(), 1);
     d.setDate(d.getDate() - d.getDay() + i);
     return d;
   });
@@ -44,7 +48,10 @@ export default function ExpertDetailPanel({
           <div className="flex items-center gap-3">
             <Avatar expert={expert} size="lg" />
             <div className="min-w-0">
-              <h3 className="text-sm font-black text-[#0F1B3D]">{expert.name}</h3>
+              <div className="flex items-center gap-1.5">
+                <h3 className="truncate text-sm font-black text-[#0F1B3D]">{expert.name}</h3>
+                <ExpertResourceBadges expert={expert} max={5} />
+              </div>
               <p className="text-xs font-semibold text-slate-500">{expert.role}</p>
               <p className="mt-0.5 text-[10px] font-bold text-slate-400">{expert.country} · {expert.timezone}</p>
             </div>
@@ -144,7 +151,9 @@ export default function ExpertDetailPanel({
 
             <div className="rounded-lg border border-slate-200 p-3">
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-black text-[#0F1B3D]">May 2025</span>
+                <span className="text-xs font-black text-[#0F1B3D]">
+                  {defaultMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </span>
                 <div className="flex gap-1">
                   <button type="button" className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-100"><ChevronLeft className="h-3 w-3" /></button>
                   <button type="button" className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-100"><ChevronRight className="h-3 w-3" /></button>
@@ -155,8 +164,9 @@ export default function ExpertDetailPanel({
               </div>
               <div className="mt-1 grid grid-cols-7 gap-0.5">
                 {calendarDays.map((d) => {
-                  const inMonth = d.getMonth() === 4;
-                  const isToday = d.getDate() === 12 && d.getMonth() === 4;
+                  const inMonth = d.getMonth() === defaultMonth.getMonth();
+                  const today = new Date();
+                  const isToday = d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
                   return (
                     <div
                       key={d.toISOString()}
@@ -224,9 +234,31 @@ export default function ExpertDetailPanel({
           <div className="space-y-3">
             {expert.pastMissions.map((m) => (
               <div key={m.title} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
-                <div className="text-xs font-black text-[#0F1B3D]">{m.title}</div>
-                <div className="text-[10px] text-slate-500">{m.organization} · {m.role}</div>
-                {m.impact && <div className="mt-1 text-[10px] font-semibold text-emerald-700">{m.impact}</div>}
+                <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                  <div className="text-xs font-black text-[#0F1B3D]">{m.title}</div>
+                  {m.rating && (
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-[8px] font-black text-amber-600 border border-amber-100">
+                      ★ {m.rating.toFixed(1)}
+                    </span>
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-500 flex flex-wrap items-center gap-1">
+                  <span>{m.organization} · {m.role}</span>
+                  {m.completedDate && (
+                    <>
+                      <span className="text-slate-300">·</span>
+                      <span className="inline-flex items-center gap-0.5 text-[#0072CE] font-black bg-sky-50 px-1.5 py-0.5 rounded-full border border-sky-200 text-[9px]">
+                        <Calendar className="w-2.5 h-2.5" />
+                        {m.completedDate}
+                      </span>
+                    </>
+                  )}
+                </div>
+                {m.impact && (
+                  <div className="mt-2 border-l border-emerald-500 pl-2 text-[10px] font-semibold text-emerald-800">
+                    {m.impact}
+                  </div>
+                )}
               </div>
             ))}
             {expert.pastMissions.length === 0 && (
@@ -250,10 +282,10 @@ export default function ExpertDetailPanel({
                 </div>
               </div>
             ))}
-            <div className="mt-4">
+            <div className="mt-4 space-y-2">
               <div className="mb-2 text-[10px] font-black uppercase text-slate-400">Certifications</div>
               {expert.certifications.map((c) => (
-                <div key={c} className="mb-1 text-xs font-semibold text-slate-600">· {c}</div>
+                <CertificationBadge key={getCertificationName(c)} certification={c} size="sm" />
               ))}
             </div>
           </div>

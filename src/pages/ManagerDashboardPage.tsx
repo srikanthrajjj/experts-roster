@@ -1,25 +1,74 @@
-import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle, CalendarDays, GanttChart, TrendingDown, TrendingUp, Users } from 'lucide-react';
 import AppHeader from '../components/roster/AppHeader';
-import { RosterViewTabs } from '../components/roster/ViewTabs';
 import { ManagerKPICards } from '../components/roster/KPICards';
 import GanttView from '../components/roster/GanttView';
 import CalendarView from '../components/roster/CalendarView';
 import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
+import type { ITExpert } from '../types/expert';
 import Avatar, { StatusBadge } from '../components/roster/SharedUI';
+import { CertificationsGrid, CertificationLogoStrip } from '../components/roster/CertificationBadge';
+import { getCertificationName } from '../lib/certificationLogos';
 import { formatNextAvailable } from '../lib/availability';
+import { isExpertRole } from '../lib/userRole';
 
 export default function ManagerDashboardPage() {
-  const kpis = useMemo(() => computeKPIs(MOCK_IT_EXPERTS), []);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isExpertRole(localStorage.getItem('userRole'))) {
+      navigate('/roster/expert-dashboard', { replace: true });
+    }
+
+    const handleStorageChange = () => {
+      if (isExpertRole(localStorage.getItem('userRole'))) {
+        navigate('/roster/expert-dashboard', { replace: true });
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [navigate]);
+
+  // Read expert data from localStorage so manager sees expert edits in real time
+  const [expertsData, setExpertsData] = useState<ITExpert[]>(() => {
+    const saved = localStorage.getItem('expert_dashboard_data');
+    return saved ? JSON.parse(saved) : MOCK_IT_EXPERTS;
+  });
+
+  useEffect(() => {
+    const syncData = () => {
+      const saved = localStorage.getItem('expert_dashboard_data');
+      if (saved) setExpertsData(JSON.parse(saved));
+    };
+    window.addEventListener('storage', syncData);
+    return () => window.removeEventListener('storage', syncData);
+  }, []);
+
+  const kpis = useMemo(() => computeKPIs(expertsData), [expertsData]);
   const [previewTab, setPreviewTab] = useState<'gantt' | 'calendar'>('gantt');
-  const [currentMonth] = useState(new Date(2025, 4, 1));
+  const [currentMonth] = useState(new Date());
   const [zoom] = useState<'weekly' | 'monthly'>('weekly');
 
-  const overallocated = MOCK_IT_EXPERTS.filter((e) => e.allocationPercent > 80);
-  const underutilized = MOCK_IT_EXPERTS.filter((e) => e.utilizationPercent < 30 && e.availabilityStatus !== 'on_leave');
-  const available = MOCK_IT_EXPERTS.filter((e) => e.availabilityStatus === 'available');
-  const previewExperts = MOCK_IT_EXPERTS.slice(0, 5);
+  const overallocated = expertsData.filter((e) => e.allocationPercent > 80);
+  const underutilized = expertsData.filter((e) => e.utilizationPercent < 30 && e.availabilityStatus !== 'on_leave');
+  const available = expertsData.filter((e) => e.availabilityStatus === 'available');
+  const previewExperts = expertsData.slice(0, 5);
+
+  const teamCertifications = useMemo(() => {
+    const map = new Map<string, { name: string; count: number }>();
+    expertsData.forEach((expert) => {
+      expert.certifications.forEach((cert) => {
+        const name = getCertificationName(cert);
+        const existing = map.get(name);
+        if (existing) existing.count += 1;
+        else map.set(name, { name, count: 1 });
+      });
+    });
+    return Array.from(map.values()).sort((a, b) => b.count - a.count);
+  }, [expertsData]);
 
   return (
     <div className="min-h-screen bg-[#EEF5FC] text-slate-800">
@@ -29,7 +78,7 @@ export default function ManagerDashboardPage() {
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-black text-[#0F1B3D] md:text-3xl">Resource Planning Dashboard</h1>
-            <p className="text-sm font-medium text-slate-500">Manager view · IT Talent Marketplace</p>
+            <p className="text-sm font-medium text-slate-500">Primary Digital Advisor · IT Talent Marketplace</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link to="/roster/planning?view=gantt" className="rounded-lg bg-[#0072CE] px-4 py-2 text-sm font-black text-white hover:bg-[#0055A6]">
@@ -45,7 +94,7 @@ export default function ManagerDashboardPage() {
           <ManagerKPICards kpis={kpis} />
         </div>
 
-        <RosterViewTabs className="mb-6 bg-white px-2 rounded-t-xl border border-b-0 border-slate-200" />
+
 
         <section className="mb-6 rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
@@ -110,6 +159,7 @@ export default function ManagerDashboardPage() {
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-black">{e.name}</div>
                     <div className="truncate text-xs text-slate-500">{e.technologyStack[0]} · Next {formatNextAvailable(e.nextAvailableDate)}</div>
+                    <CertificationLogoStrip certifications={e.certifications} max={4} size="sm" className="mt-1.5" />
                   </div>
                   <StatusBadge status={e.availabilityStatus} />
                 </Link>
@@ -160,6 +210,23 @@ export default function ManagerDashboardPage() {
             </div>
           </section>
         </div>
+
+        <section className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-black uppercase text-[#172554]">Team Certifications</h2>
+              <p className="mt-0.5 text-xs font-medium text-slate-500">Verified credentials across the IT talent pool</p>
+            </div>
+            <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-black text-[#0072CE]">
+              {teamCertifications.length} unique
+            </span>
+          </div>
+          <CertificationsGrid
+            certifications={teamCertifications.map((item) => item.name)}
+            emptyMessage="No team certifications on record."
+            size="md"
+          />
+        </section>
 
         <section className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center gap-2">

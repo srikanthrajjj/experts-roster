@@ -17,7 +17,7 @@ export default function UnicefLogo({ className }: UnicefLogoProps) {
         alt="UNICEF"
         width={120}
         height={36}
-        className={cn('block h-9 w-auto shrink-0 object-contain', className)}
+        className={cn('block h-9 w-auto shrink-0 object-contain object-left', className)}
       />
     </Link>
   );

@@ -66,3 +66,25 @@ export const STATUS_LABELS: Record<string, string> = {
   fully_booked: 'Fully booked',
   on_leave: 'On leave',
 };
+
+export type QuickLink = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
+/** Quick links for country offices seeking TeamOne support */
+export const QUICK_LINKS_CO: QuickLink[] = [
+  { label: 'New to TeamOne? → Frequently Asked Questions', href: '#faq-heading' },
+  { label: 'TeamOne support process', href: 'https://www.unicef.org/digital-impact/teamone', external: true },
+  { label: 'TeamOne support scope', href: 'https://www.unicef.org/digital-impact/teamone', external: true },
+  { label: 'Submit a request now', href: '/roster/planning' },
+];
+
+/** Quick links for Digital Advisors */
+export const QUICK_LINKS_ADVISORS: QuickLink[] = [
+  { label: 'Catch up on TeamOne Events', href: 'https://www.unicef.org/digital-impact/teamone', external: true },
+  { label: 'Just became a Digital Advisor? → Explore your role', href: '/roster/expert-dashboard' },
+  { label: 'Advising on a specific topic? → Focus Areas', href: 'https://www.unicef.org/digital-impact/teamone', external: true },
+  { label: 'Looking to contribute? → Service Gateway Training', href: 'https://www.unicef.org/digital-impact/teamone', external: true },
+];

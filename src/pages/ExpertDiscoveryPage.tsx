@@ -13,7 +13,7 @@ import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
 import { DEFAULT_FILTERS, type FilterState, type ITExpert } from '../types/expert';
 import { countActiveFilters, filterExperts } from '../lib/filterExperts';
 import { sortExperts, type SortOrder } from '../lib/expertDisplay';
-import type { RosterViewMode } from '../components/roster/ViewToggle';
+import { ResourceBadgeLegend } from '../components/roster/LeafBadges';
 
 const VALID_LAYOUTS: RosterViewMode[] = ['list', 'cards'];
 
@@ -31,9 +31,24 @@ export default function ExpertDiscoveryPage() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('A-Z');
   const { openProfile } = useExpertProfileModal();
 
-  const filteredExperts = useMemo(() => filterExperts(MOCK_IT_EXPERTS, filters), [filters]);
+  // Read expert data from localStorage so discovery page sees expert edits
+  const [expertsData, setExpertsData] = useState<ITExpert[]>(() => {
+    const saved = localStorage.getItem('expert_dashboard_data');
+    return saved ? JSON.parse(saved) : MOCK_IT_EXPERTS;
+  });
+
+  useEffect(() => {
+    const syncData = () => {
+      const saved = localStorage.getItem('expert_dashboard_data');
+      if (saved) setExpertsData(JSON.parse(saved));
+    };
+    window.addEventListener('storage', syncData);
+    return () => window.removeEventListener('storage', syncData);
+  }, []);
+
+  const filteredExperts = useMemo(() => filterExperts(expertsData, filters), [expertsData, filters]);
   const sortedExperts = useMemo(() => sortExperts(filteredExperts, sortOrder), [filteredExperts, sortOrder]);
-  const kpis = useMemo(() => computeKPIs(MOCK_IT_EXPERTS), []);
+  const kpis = useMemo(() => computeKPIs(expertsData), [expertsData]);
   const activeCount = countActiveFilters(filters);
 
   const handleViewModeChange = (mode: RosterViewMode) => {
@@ -92,6 +107,7 @@ export default function ExpertDiscoveryPage() {
                   onViewModeChange={handleViewModeChange}
                   showSuggestions
                 />
+                <ResourceBadgeLegend compact className="mt-2 border-t border-slate-100 pt-2" />
               </div>
 
               <div className="flex min-h-0 flex-1 overflow-hidden">

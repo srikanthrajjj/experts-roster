@@ -1,7 +1,6 @@
 import React from 'react';
 import type { DashboardView } from '../../types/expert';
 import AppHeader from './AppHeader';
-import { RosterViewTabs } from './ViewTabs';
 
 type RosterPlanningLayoutProps = {
   children: React.ReactNode;
@@ -40,8 +39,6 @@ export default function RosterPlanningLayout({
                 {kpis}
               </div>
             )}
-
-            <RosterViewTabs active={activeView} />
 
             {children}
           </section>

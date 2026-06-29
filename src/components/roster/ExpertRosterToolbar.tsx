@@ -63,7 +63,7 @@ export default function ExpertRosterToolbar({
         <select
           value={sortOrder}
           onChange={(e) => onSortChange(e.target.value as SortOrder)}
-          className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm outline-none focus:border-[#0072CE] focus:ring-2 focus:ring-[#0072CE]/15"
+          className="h-10 rounded-lg border border-slate-200 bg-white pl-3 pr-8 text-sm font-bold text-slate-700 shadow-sm outline-none focus:border-[#0072CE] focus:ring-2 focus:ring-[#0072CE]/15"
         >
           {SORT_OPTIONS.map((option) => (
             <option key={option} value={option}>{option}</option>

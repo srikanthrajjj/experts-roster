@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  BadgeCheck,
   Calendar,
   Eye,
   Mail,
@@ -8,7 +7,8 @@ import {
 } from 'lucide-react';
 import type { ITExpert } from '../../types/expert';
 import Avatar, { Badge } from './SharedUI';
-import SimpleGanttPreview from './SimpleGanttPreview';
+import { ExpertResourceBadges } from './LeafBadges';
+
 import { formatNextAvailable } from '../../lib/availability';
 import { cn } from '../../lib/utils';
 
@@ -19,6 +19,8 @@ type ExpertCardProps = {
   onContact?: () => void;
   onViewProfile?: () => void;
   compact?: boolean;
+  selectedExpertIds?: string[];
+  onToggleSelectExpert?: (id: string) => void;
   key?: React.Key;
 };
 
@@ -42,7 +44,8 @@ function uniqueSkillTags(expert: ITExpert, max = 3): string[] {
     if (tags.length >= max) return tags;
   }
   for (const cert of expert.certifications) {
-    const label = cert.split(' ')[0];
+    const certName = typeof cert === 'string' ? cert : cert.name;
+    const label = certName.split(' ')[0];
     const key = label.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
@@ -59,6 +62,8 @@ export default function ExpertCard({
   onContact,
   onViewProfile,
   compact,
+  selectedExpertIds,
+  onToggleSelectExpert,
 }: ExpertCardProps) {
   const skillTags = uniqueSkillTags(expert, 3);
 
@@ -86,14 +91,32 @@ export default function ExpertCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-3">
+          {onToggleSelectExpert && (
+            <input
+              type="checkbox"
+              checked={selectedExpertIds?.includes(expert.id) ?? false}
+              onChange={(e) => {
+                e.stopPropagation();
+                onToggleSelectExpert(expert.id);
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="h-4 w-4 shrink-0 rounded border-slate-300 text-[#0072CE] focus:ring-[#0072CE]/20 cursor-pointer mr-0.5"
+            />
+          )}
           <Avatar expert={expert} size={compact ? 'md' : 'lg'} />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <h3 className="truncate text-base font-black text-[#0F1B3D]">{expert.name}</h3>
-              {expert.verified && <BadgeCheck className="h-4 w-4 shrink-0 text-[#0072CE]" />}
+              <ExpertResourceBadges expert={expert} size="md" max={4} />
             </div>
             <p className="mt-0.5 truncate text-sm font-semibold text-slate-500">{expert.role}</p>
-            <p className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-slate-400">
+            <div className="mt-1 flex items-center gap-1.5 text-xs font-bold text-amber-600">
+              <span className="inline-flex items-center gap-0.5 bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded font-black text-amber-700">
+                ★ {expert.trustRating}
+              </span>
+              <span className="text-[10px] text-slate-400 font-semibold">({expert.reviewsCount} reviews)</span>
+            </div>
+            <p className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-slate-400">
               <MapPin className="h-3 w-3 shrink-0 text-[#0072CE]" />
               {expert.country}
               <span className="text-slate-300">·</span>
@@ -103,9 +126,7 @@ export default function ExpertCard({
         </div>
       </div>
 
-      <div className="mt-4">
-        <SimpleGanttPreview expert={expert} weeks={4} />
-      </div>
+
 
       {skillTags.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -117,14 +138,14 @@ export default function ExpertCard({
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+      <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3 w-full">
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             onViewProfile?.();
           }}
-          className="flex h-8 items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-black text-slate-600 transition hover:border-[#0072CE]/30 hover:text-[#0072CE]"
+          className="flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-bold text-slate-600 transition hover:border-[#0072CE]/30 hover:text-[#0072CE] w-full cursor-pointer shadow-sm hover:bg-slate-50"
         >
           <Eye className="h-3.5 w-3.5" />
           View Profile
@@ -135,7 +156,7 @@ export default function ExpertCard({
             e.stopPropagation();
             onContact?.();
           }}
-          className="flex h-8 items-center gap-1 rounded-md bg-[#0072CE] px-2.5 text-xs font-black text-white transition hover:bg-[#0055A6]"
+          className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[#0072CE] px-2.5 text-xs font-bold text-white transition hover:bg-[#0055A6] w-full cursor-pointer shadow-sm"
         >
           <Mail className="h-3.5 w-3.5" />
           Contact
@@ -167,12 +188,18 @@ export function ExpertListRow({
       <div className="flex min-w-0 items-center gap-3">
         <Avatar expert={expert} size="sm" />
         <div className="min-w-0">
-          <div className="truncate text-sm font-black text-[#0F1B3D]">{expert.name}</div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="truncate text-sm font-black text-[#0F1B3D]">{expert.name}</span>
+            <ExpertResourceBadges expert={expert} max={3} />
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-black text-amber-600 bg-amber-50 px-1 rounded border border-amber-200/50 shrink-0">
+              ★ {expert.trustRating}
+            </span>
+          </div>
           <div className="truncate text-xs text-slate-500">{expert.country} · {expert.timezone}</div>
         </div>
       </div>
       <div>
-        <div className="truncate text-xs font-semibold text-slate-700">{expert.role}</div>
+        <p className="truncate text-xs font-semibold text-slate-700">{expert.role}</p>
         <div className="mt-1 flex flex-wrap gap-1">
           {expert.technologyStack.slice(0, 2).map((s, i) => (
             <Badge key={s} className={skillClass(i)}>{s}</Badge>

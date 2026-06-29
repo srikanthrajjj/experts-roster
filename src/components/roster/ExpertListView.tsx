@@ -1,33 +1,64 @@
-import { BadgeCheck, Calendar, Eye, Globe, Mail } from 'lucide-react';
+import { Calendar, Eye, Globe, Mail } from 'lucide-react';
 import type { ITExpert } from '../../types/expert';
 import Avatar, { Badge } from './SharedUI';
+import { ExpertResourceBadges } from './LeafBadges';
 import { formatNextAvailable } from '../../lib/availability';
 import { countryFlagCode, languageClass, skillClass } from '../../lib/expertDisplay';
 import { cn } from '../../lib/utils';
 
-const GRID_COLS =
+const GRID_COLS_WITH_CHECKBOX =
+  'grid-cols-[40px_minmax(220px,1.2fr)_130px_minmax(160px,1fr)_140px_150px_140px_120px_170px]';
+
+const GRID_COLS_WITHOUT_CHECKBOX =
   'grid-cols-[minmax(220px,1.2fr)_130px_minmax(160px,1fr)_140px_150px_140px_120px_170px]';
 
 type ExpertListViewProps = {
   experts: ITExpert[];
   onContact?: (expert: ITExpert) => void;
   onViewProfile?: (expert: ITExpert) => void;
+  selectedExpertIds?: string[];
+  onToggleSelectExpert?: (id: string) => void;
+  onToggleSelectAll?: (ids: string[]) => void;
 };
 
 export default function ExpertListView({
   experts,
   onContact,
   onViewProfile,
+  selectedExpertIds = [],
+  onToggleSelectExpert,
+  onToggleSelectAll,
 }: ExpertListViewProps) {
+  const showCheckbox = !!onToggleSelectExpert && !!onToggleSelectAll;
+  const gridCols = showCheckbox ? GRID_COLS_WITH_CHECKBOX : GRID_COLS_WITHOUT_CHECKBOX;
+
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-[1100px]">
+      <div className="min-w-[1150px]">
         <div
           className={cn(
             'sticky top-0 z-10 grid items-center border-b border-slate-200 bg-slate-50 px-4 py-3 text-xs font-black uppercase text-[#172554] shadow-[0_1px_0_rgba(15,23,42,0.04)]',
-            GRID_COLS,
+            gridCols,
           )}
         >
+          {showCheckbox && (
+            <div className="flex justify-center">
+              <input
+                type="checkbox"
+                checked={experts.length > 0 && experts.every(e => selectedExpertIds.includes(e.id))}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    const newIds = Array.from(new Set([...selectedExpertIds, ...experts.map(ex => ex.id)]));
+                    onToggleSelectAll(newIds);
+                  } else {
+                    const idsToFilter = experts.map(ex => ex.id);
+                    onToggleSelectAll(selectedExpertIds.filter(id => !idsToFilter.includes(id)));
+                  }
+                }}
+                className="h-4 w-4 rounded border-slate-300 text-[#0072CE] focus:ring-[#0072CE]/20 cursor-pointer"
+              />
+            </div>
+          )}
           <div>Expert</div>
           <div>Country</div>
           <div>Technology Stack</div>
@@ -43,17 +74,30 @@ export default function ExpertListView({
             key={expert.id}
             className={cn(
               'grid items-center border-t border-slate-100 px-4 py-3 transition hover:bg-sky-50/70',
-              GRID_COLS,
+              gridCols,
             )}
           >
+            {showCheckbox && (
+              <div className="flex justify-center">
+                <input
+                  type="checkbox"
+                  checked={selectedExpertIds.includes(expert.id)}
+                  onChange={() => onToggleSelectExpert(expert.id)}
+                  className="h-4 w-4 rounded border-slate-300 text-[#0072CE] focus:ring-[#0072CE]/20 cursor-pointer"
+                />
+              </div>
+            )}
             <div className="flex min-w-0 items-center gap-3">
               <Avatar expert={expert} size="sm" />
               <div className="min-w-0">
-                <div className="flex min-w-0 items-center gap-1.5">
+                <div className="flex min-w-0 items-center gap-1.5 flex-wrap">
                   <span className="truncate text-sm font-black text-[#0F1B3D]">{expert.name}</span>
-                  {expert.verified && <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-[#0072CE]" />}
+                  <ExpertResourceBadges expert={expert} max={4} />
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-black text-amber-600 bg-amber-50 px-1 rounded border border-amber-200/50 shrink-0">
+                    ★ {expert.trustRating}
+                  </span>
                 </div>
-                <div className="mt-0.5 truncate text-xs font-semibold text-slate-500">{expert.role}</div>
+                <p className="mt-0.5 truncate text-xs font-semibold text-slate-500">{expert.role}</p>
               </div>
             </div>
 

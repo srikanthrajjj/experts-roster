@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { getExpertById } from '../../data/itExperts';
 import ExpertProfileContent from './ExpertProfileContent';
@@ -9,7 +9,14 @@ type ExpertProfileModalProps = {
 };
 
 export default function ExpertProfileModal({ expertId, onClose }: ExpertProfileModalProps) {
+  const [, setTick] = useState(0);
   const expert = expertId ? getExpertById(expertId) : null;
+
+  useEffect(() => {
+    const handleStorage = () => setTick((t) => t + 1);
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   useEffect(() => {
     if (!expertId) return;
@@ -39,7 +46,7 @@ export default function ExpertProfileModal({ expertId, onClose }: ExpertProfileM
       aria-labelledby="expert-profile-modal-title"
     >
       <div
-        className="relative flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-[#EEF5FC] shadow-[0_30px_90px_rgba(15,23,42,0.35)]"
+        className="relative flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-[0_30px_90px_rgba(15,23,42,0.35)]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -51,9 +58,9 @@ export default function ExpertProfileModal({ expertId, onClose }: ExpertProfileM
           <X className="h-5 w-5" />
         </button>
 
-        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 sm:px-6 sm:py-5 md:px-8">
+        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-0">
           {expert ? (
-            <ExpertProfileContent expert={expert} />
+            <ExpertProfileContent expert={expert} isModal />
           ) : (
             <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
               <h2 id="expert-profile-modal-title" className="text-xl font-black text-[#0F1B3D]">Expert not found</h2>

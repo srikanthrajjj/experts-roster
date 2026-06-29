@@ -5,23 +5,28 @@ import RosterRedirect from './pages/RosterRedirect';
 import ResourcePlanningPage from './pages/ResourcePlanningPage';
 import ExpertProfileDeepLink from './pages/ExpertProfileDeepLink';
 import ManagerDashboardPage from './pages/ManagerDashboardPage';
+import TechExpertDashboard from './pages/TechExpertDashboard';
 import Dashboard from './pages/Dashboard';
 import AddExpertRoster from './pages/AddExpertRoster';
 import { ExpertProfileModalProvider } from './contexts/ExpertProfileModalContext';
+import { PersonaModalProvider } from './contexts/PersonaModalContext';
 
 export default function App() {
   return (
+    <PersonaModalProvider>
     <ExpertProfileModalProvider>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/roster" element={<RosterRedirect />} />
         <Route path="/roster/planning" element={<ResourcePlanningPage />} />
         <Route path="/roster/manager" element={<ManagerDashboardPage />} />
+        <Route path="/roster/expert-dashboard" element={<TechExpertDashboard />} />
         <Route path="/roster/expert/:id" element={<ExpertProfileDeepLink />} />
         <Route path="/roster/legacy" element={<Dashboard />} />
         <Route path="/roster/add" element={<AddExpertRoster />} />
         <Route path="/roster/requests" element={<Navigate to="/roster/planning" replace />} />
       </Routes>
     </ExpertProfileModalProvider>
+    </PersonaModalProvider>
   );
 }

@@ -14,7 +14,7 @@ export function filterExperts(experts: ITExpert[], filters: FilterState): ITExpe
         expert.timezone,
         ...expert.skills,
         ...expert.technologyStack,
-        ...expert.certifications,
+        ...expert.certifications.map((c) => (typeof c === 'string' ? c : c.name)),
         ...expert.regions,
         expert.functionalArea,
         expert.businessUnit,

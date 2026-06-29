@@ -1,66 +1,84 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import FilterSidebar from '../components/roster/FilterSidebar';
 import KPICards from '../components/roster/KPICards';
 import RosterPlanningLayout from '../components/roster/RosterPlanningLayout';
-import GanttView from '../components/roster/GanttView';
-import ExpertDetailPanel from '../components/roster/ExpertDetailPanel';
 import ExpertCard from '../components/roster/ExpertCard';
 import ExpertListView from '../components/roster/ExpertListView';
 import ExpertRosterToolbar from '../components/roster/ExpertRosterToolbar';
-import CalendarView from '../components/roster/CalendarView';
-import CapacityOverview from '../components/roster/CapacityOverview';
+import { Mail, Send, X } from 'lucide-react';
 import SendEmailModal from '../components/roster/SendEmailModal';
+import SendMultiEmailModal from '../components/roster/SendMultiEmailModal';
 import { useExpertProfileModal } from '../contexts/ExpertProfileModalContext';
 import { MOCK_IT_EXPERTS, computeKPIs } from '../data/itExperts';
-import { DEFAULT_FILTERS, type DashboardView, type FilterState, type ITExpert } from '../types/expert';
+import { DEFAULT_FILTERS, type FilterState, type ITExpert } from '../types/expert';
 import { countActiveFilters, filterExperts } from '../lib/filterExperts';
+import { isExpertRole } from '../lib/userRole';
 import { sortExperts, type SortOrder } from '../lib/expertDisplay';
-import { DEFAULT_ROSTER_VIEW, parseRosterView } from '../lib/rosterView';
 import type { RosterViewMode } from '../components/roster/ViewToggle';
+import { ResourceBadgeLegend } from '../components/roster/LeafBadges';
 
 export default function ResourcePlanningPage() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const viewParam = searchParams.get('view');
   const initialSearch = searchParams.get('search') ?? '';
   const layoutParam = searchParams.get('layout') as RosterViewMode | null;
-  const parsedView = parseRosterView(viewParam);
-  const initialView = parsedView ?? DEFAULT_ROSTER_VIEW;
   const initialListViewMode: RosterViewMode =
     layoutParam === 'cards' || layoutParam === 'list' ? layoutParam : 'list';
 
   const [filters, setFilters] = useState<FilterState>({ ...DEFAULT_FILTERS, search: initialSearch });
+  const [userRole, setUserRole] = useState<string | null>(() => localStorage.getItem('userRole'));
+
+  useEffect(() => {
+    if (isExpertRole(localStorage.getItem('userRole'))) {
+      navigate('/roster/expert-dashboard', { replace: true });
+    }
+
+    const handleStorageChange = () => {
+      const role = localStorage.getItem('userRole');
+      setUserRole(role);
+      if (isExpertRole(role)) {
+        navigate('/roster/expert-dashboard', { replace: true });
+      }
+      
+      const savedData = localStorage.getItem('expert_dashboard_data');
+      if (savedData) {
+        setExpertsData(JSON.parse(savedData));
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [navigate]);
+
+  const [expertsData, setExpertsData] = useState<ITExpert[]>(() => {
+    const saved = localStorage.getItem('expert_dashboard_data');
+    return saved ? JSON.parse(saved) : MOCK_IT_EXPERTS;
+  });
+
+  const [selectedExpertIds, setSelectedExpertIds] = useState<string[]>([]);
+  const [isMultiEmailOpen, setIsMultiEmailOpen] = useState(false);
+
+  const handleToggleSelectExpert = (id: string) => {
+    setSelectedExpertIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
-  const [activeView, setActiveView] = useState<DashboardView>(initialView);
-  const [selectedExpert, setSelectedExpert] = useState<ITExpert | null>(MOCK_IT_EXPERTS[0]);
-  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 4, 1));
-  const [zoom, setZoom] = useState<'weekly' | 'monthly'>('weekly');
   const [emailExpert, setEmailExpert] = useState<ITExpert | null>(null);
   const [listViewMode, setListViewMode] = useState<RosterViewMode>(initialListViewMode);
   const [sortOrder, setSortOrder] = useState<SortOrder>('A-Z');
   const { openProfile } = useExpertProfileModal();
 
-  const filteredExperts = useMemo(() => filterExperts(MOCK_IT_EXPERTS, filters), [filters]);
+  const filteredExperts = useMemo(() => filterExperts(expertsData, filters), [expertsData, filters]);
   const sortedExperts = useMemo(() => sortExperts(filteredExperts, sortOrder), [filteredExperts, sortOrder]);
-  const kpis = useMemo(() => computeKPIs(MOCK_IT_EXPERTS), []);
+  const kpis = useMemo(() => computeKPIs(expertsData), [expertsData]);
   const activeCount = countActiveFilters(filters);
-
-  useEffect(() => {
-    const nextView = parseRosterView(viewParam) ?? DEFAULT_ROSTER_VIEW;
-    if (nextView !== activeView) {
-      setActiveView(nextView);
-    }
-  }, [viewParam, activeView]);
-
-  useEffect(() => {
-    if (activeView === 'list' && listViewMode === 'list') {
-      setSelectedExpert(null);
-    }
-  }, [activeView, listViewMode]);
 
   return (
     <RosterPlanningLayout
-      activeView={activeView}
       title="Resource availability & planning"
       subtitle="View experts availability, plan engagements and manage allocations."
       kpis={<KPICards kpis={kpis} variant="planning" />}
@@ -89,74 +107,123 @@ export default function ResourcePlanningPage() {
             onSortChange={setSortOrder}
             viewMode={listViewMode}
             onViewModeChange={setListViewMode}
-            showViewToggle={activeView === 'list'}
+            showViewToggle={true}
           />
+          <ResourceBadgeLegend compact className="mt-2 border-t border-slate-100 pt-2" />
         </div>
 
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <div className="min-w-0 flex-1 overflow-hidden">
-            {activeView === 'gantt' && (
-              <GanttView
-                experts={filteredExperts}
-                selectedExpertId={selectedExpert?.id}
-                onSelectExpert={setSelectedExpert}
-                currentMonth={currentMonth}
-                onMonthChange={setCurrentMonth}
-                zoom={zoom}
-                onZoomChange={setZoom}
-              />
-            )}
-            {activeView === 'list' && listViewMode === 'list' && (
-              <div className="custom-scrollbar h-full overflow-auto">
+            {listViewMode === 'list' ? (
+              <div className="custom-scrollbar h-full overflow-auto pb-16">
                 <ExpertListView
                   experts={sortedExperts}
                   onContact={(expert) => setEmailExpert(expert)}
                   onViewProfile={(expert) => openProfile(expert.id)}
+                  selectedExpertIds={selectedExpertIds}
+                  onToggleSelectExpert={handleToggleSelectExpert}
+                  onToggleSelectAll={setSelectedExpertIds}
                 />
               </div>
-            )}
-            {activeView === 'list' && listViewMode === 'cards' && (
-              <div className="custom-scrollbar h-full overflow-auto p-4">
+            ) : (
+              <div className="custom-scrollbar h-full overflow-auto p-4 pb-16">
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {sortedExperts.map((expert) => (
                     <ExpertCard
                       key={expert.id}
                       expert={expert}
-                      selected={selectedExpert?.id === expert.id}
-                      onSelect={() => setSelectedExpert(expert)}
+                      onSelect={() => openProfile(expert.id)}
                       onContact={() => setEmailExpert(expert)}
-                      onViewProfile={() => setSelectedExpert(expert)}
+                      onViewProfile={() => openProfile(expert.id)}
                       compact
+                      selectedExpertIds={selectedExpertIds}
+                      onToggleSelectExpert={handleToggleSelectExpert}
                     />
                   ))}
                 </div>
               </div>
             )}
-            {activeView === 'calendar' && (
-              <CalendarView
-                experts={filteredExperts}
-                selectedExpertId={selectedExpert?.id}
-                onSelectExpert={(expert) => setSelectedExpert(expert)}
-              />
-            )}
-            {activeView === 'capacity' && <CapacityOverview experts={filteredExperts} />}
           </div>
-
-          {selectedExpert &&
-            (activeView === 'gantt' ||
-              activeView === 'calendar' ||
-              (activeView === 'list' && listViewMode === 'cards')) && (
-            <ExpertDetailPanel
-              expert={selectedExpert}
-              onClose={() => setSelectedExpert(null)}
-              onViewProfile={() => openProfile(selectedExpert.id)}
-              managerMode
-            />
-          )}
         </div>
       </div>
 
       <SendEmailModal expert={emailExpert} onClose={() => setEmailExpert(null)} />
+
+      {isMultiEmailOpen && (
+        <SendMultiEmailModal
+          experts={expertsData.filter((ex) => selectedExpertIds.includes(ex.id))}
+          onClose={() => setIsMultiEmailOpen(false)}
+          onSent={() => setSelectedExpertIds([])}
+        />
+      )}
+
+      {selectedExpertIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-[0_10px_40px_rgba(15,23,42,0.15)] flex items-center gap-6 animate-slide-up max-w-[90vw] md:max-w-2xl">
+          <div className="flex items-center gap-3.5 min-w-0">
+            {/* Overlapping Avatars */}
+            <div className="flex -space-x-2.5 overflow-hidden shrink-0">
+              {expertsData
+                .filter((ex) => selectedExpertIds.includes(ex.id))
+                .slice(0, 5)
+                .map((ex) => {
+                  const palette = [
+                    'bg-rose-100 text-rose-700 border-rose-200',
+                    'bg-emerald-100 text-emerald-700 border-emerald-200',
+                    'bg-sky-100 text-sky-700 border-sky-200',
+                    'bg-violet-100 text-violet-700 border-violet-200',
+                    'bg-amber-100 text-amber-800 border-amber-200'
+                  ][Number(ex.id) % 5];
+                  return (
+                    <div
+                      key={ex.id}
+                      className={cn(
+                        "flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-black border border-white ring-1 ring-slate-200/50 shadow-sm",
+                        palette
+                      )}
+                      title={ex.name}
+                    >
+                      {ex.initials}
+                    </div>
+                  );
+                })}
+              {selectedExpertIds.length > 5 && (
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 border border-white text-[9px] font-black text-slate-600 ring-1 ring-slate-200/50 shadow-sm shrink-0">
+                  +{selectedExpertIds.length - 5}
+                </div>
+              )}
+            </div>
+            
+            {/* Text details */}
+            <div className="min-w-0">
+              <h4 className="text-sm font-black text-slate-900 leading-none">
+                {selectedExpertIds.length} {selectedExpertIds.length === 1 ? 'expert' : 'experts'} selected
+              </h4>
+              <p className="text-[10px] font-semibold text-slate-400 mt-1 leading-none">
+                Batch outreach ready
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 border-l border-slate-150 pl-4">
+            <button
+              type="button"
+              onClick={() => setIsMultiEmailOpen(true)}
+              className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[#0072CE] hover:bg-[#0055A6] px-4 text-xs font-black text-white transition shadow-sm cursor-pointer"
+            >
+              <Send className="h-3.5 w-3.5" />
+              Email selected
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedExpertIds([])}
+              title="Clear selection"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }

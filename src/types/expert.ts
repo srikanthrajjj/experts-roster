@@ -18,7 +18,7 @@ export type UpcomingCommitment = {
   allocation?: number;
 };
 
-export type ExpertiseLevel = { skill: string; level: 'Expert' | 'Advanced' | 'Intermediate' };
+export type ExpertiseLevel = { skill: string; level: 'Expert' | 'Advanced' | 'Intermediate' | 'Beginner' };
 
 export type PastMission = {
   title: string;
@@ -27,6 +27,7 @@ export type PastMission = {
   rating: number;
   technologies?: string[];
   impact?: string;
+  completedDate?: string;
 };
 
 export type ITExpert = {
@@ -64,7 +65,7 @@ export type ITExpert = {
   summary: string;
   expertiseLevels: ExpertiseLevel[];
   pastMissions: PastMission[];
-  certifications: string[];
+  certifications: (string | { name: string; attachmentName?: string })[];
   contact: { email: string; phone: string };
   assignmentDetails: {
     feeRange: string;
@@ -78,6 +79,13 @@ export type ITExpert = {
   upcomingCommitments: UpcomingCommitment[];
   utilizationPercent: number;
   benchAvailable: boolean;
+  skillsLastUpdated?: string;
+  dailyAllocations?: Record<string, {
+    type: AllocationBlockType;
+    percentage: number;
+    label: string;
+    projectName?: string;
+  }>;
 };
 
 export type FilterState = {

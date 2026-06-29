@@ -20,11 +20,11 @@ export function blockTypeColors(type: AllocationBlockType) {
       };
     case 'project':
       return {
-        bg: 'bg-sky-100',
-        text: 'text-sky-800',
-        border: 'border-sky-200',
-        dot: 'bg-sky-500',
-        solid: 'bg-sky-500',
+        bg: 'bg-rose-100',
+        text: 'text-rose-800',
+        border: 'border-rose-200',
+        dot: 'bg-rose-500',
+        solid: 'bg-rose-500',
       };
     case 'leave':
       return {
@@ -199,7 +199,7 @@ function parseCommitmentPart(part: string, refYear: number, refMonth?: number): 
   return new Date(refYear, refMonth ?? 0, 1);
 }
 
-function parseCommitmentRange(dateStr: string, refYear = 2025): { start: Date; end: Date } | null {
+function parseCommitmentRange(dateStr: string, refYear = new Date().getFullYear()): { start: Date; end: Date } | null {
   const normalized = dateStr.replace(/\u2013/g, '–');
   const parts = normalized.split('–');
   if (parts.length === 1) {
@@ -262,6 +262,17 @@ export function getAllocationBlockForDate(expert: ITExpert, date: Date): Allocat
 }
 
 export function getDayAvailability(expert: ITExpert, date: Date): DayAvailability {
+  const dateKey = toDateKey(date);
+  if (expert.dailyAllocations && expert.dailyAllocations[dateKey]) {
+    const daily = expert.dailyAllocations[dateKey];
+    return {
+      type: daily.type,
+      percentage: daily.percentage,
+      label: daily.label,
+      projectName: daily.projectName,
+    };
+  }
+
   const refYear = date.getFullYear();
   for (const commitment of expert.upcomingCommitments) {
     const range = parseCommitmentRange(commitment.date, refYear);
