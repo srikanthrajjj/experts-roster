@@ -147,7 +147,7 @@ export default function LandingHero({
 
   return (
     <section className="border-b border-sky-100 bg-white" aria-labelledby="hero-heading">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:px-8 lg:py-16">
+      <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16">
         <div>
           <p className="text-xs font-bold uppercase tracking-wider text-[#0091F9]">Digital Impact Team One</p>
           <h1
@@ -199,30 +199,6 @@ export default function LandingHero({
             </div>
           </form>
         </div>
-
-        <aside
-          className="rounded-2xl border border-sky-100 bg-sky-50/50 p-5 sm:p-6"
-          aria-label="Roster summary"
-        >
-          <h2 className="text-sm font-black uppercase tracking-wide text-slate-500">This week</h2>
-          <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-xl bg-white p-3 shadow-sm">
-              <dt className="text-[10px] font-bold uppercase text-slate-400">Available</dt>
-              <dd className="mt-1 text-2xl font-black text-emerald-600">{kpis.availableThisWeek}</dd>
-            </div>
-            <div className="rounded-xl bg-white p-3 shadow-sm">
-              <dt className="text-[10px] font-bold uppercase text-slate-400">Partial</dt>
-              <dd className="mt-1 text-2xl font-black text-amber-600">{kpis.partiallyAvailable}</dd>
-            </div>
-            <div className="rounded-xl bg-white p-3 shadow-sm">
-              <dt className="text-[10px] font-bold uppercase text-slate-400">Total pool</dt>
-              <dd className="mt-1 text-2xl font-black text-[#0091F9]">{kpis.total}</dd>
-            </div>
-          </dl>
-          <p className="mt-4 text-xs leading-relaxed text-slate-500">
-            {kpis.availableNext30} experts staffable within 30 days across {topSkillsCount}+ technology areas.
-          </p>
-        </aside>
       </div>
     </section>
   );
