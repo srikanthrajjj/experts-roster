@@ -387,7 +387,7 @@ function LandingPageContent() {
           >
             <UnicefDitOneBrand
               className={cn(
-                'h-[42px] w-auto max-w-[min(100%,208px)] sm:h-[52px] sm:max-w-[286px]',
+                'h-[63px] w-auto max-w-[min(100%,312px)] sm:h-[78px] sm:max-w-[429px]',
                 isMidnight && 'brightness-110 contrast-105',
               )}
             />
@@ -437,7 +437,7 @@ function LandingPageContent() {
           <div
             id={mobileNavId}
             className={cn(
-              'max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain border-t px-4 py-4 sm:px-6 2xl:hidden',
+              'max-h-[calc(100dvh-83px)] overflow-y-auto overscroll-contain border-t px-4 py-4 sm:max-h-[calc(100dvh-98px)] sm:px-6 2xl:hidden',
               isMidnight ? 'border-white/10 bg-[#0B1220]' : 'border-slate-100 bg-white',
             )}
           >
@@ -463,8 +463,8 @@ function LandingPageContent() {
         )}
       </header>
 
-      {/* Spacer for fixed header — matches header bar height */}
-      <div className="h-[52px] sm:h-[56px]" aria-hidden />
+      {/* Spacer for fixed header — matches header bar height (logo + py-2.5) */}
+      <div className="h-[83px] sm:h-[98px]" aria-hidden />
 
       <main id="main-content">
         <LandingHero
