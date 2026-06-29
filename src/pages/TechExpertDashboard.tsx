@@ -10,7 +10,6 @@ import {
   User,
 } from 'lucide-react';
 import AppHeader from '../components/roster/AppHeader';
-import BackLink from '../components/roster/BackLink';
 import MonthlyCalendarView from '../components/roster/MonthlyCalendarView';
 import ExpertProfileEditModal from '../components/roster/ExpertProfileEditModal';
 import { CertificationsGrid } from '../components/roster/CertificationBadge';
@@ -333,11 +332,10 @@ export default function TechExpertDashboard() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#EEF5FC] text-slate-800">
-      <AppHeader />
+      <AppHeader backTo="/" backLabel="Back to home" />
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl px-4 py-6">
-          <BackLink to="/" label="Back to home" className="mb-4" />
           <DashboardHero
             eyebrow="Digital Advisor · Expert Workspace"
             title={`Welcome back, ${activeExpert.name.split(' ')[0]}!`}

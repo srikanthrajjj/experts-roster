@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, Upload, FileSpreadsheet, User, Plus, X, CheckCircle, AlertCircle } from 'lucide-react';
-import UnicefLogo from '../components/roster/UnicefLogo';
-import BackLink from '../components/roster/BackLink';
+import { Upload, FileSpreadsheet, User, Plus, X, CheckCircle, AlertCircle } from 'lucide-react';
+import AppHeader from '../components/roster/AppHeader';
 import { cn } from '../lib/utils';
 
 const SKILLS = ['WASH','Programme Scale-up Management','Humanitarian Action','Health','Programme Design','Digital Infrastructure','Early Childhood Development','Policy Reform','Child Protection','Social & Behaviour Change','Financing for Scale','Education'];
@@ -29,7 +28,6 @@ export default function AddExpertRoster() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [showRosterDropdown, setShowRosterDropdown] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const toggle = (field: 'skills' | 'languages' | 'regions', val: string) => {
@@ -55,36 +53,12 @@ export default function AddExpertRoster() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#F3F4F6] font-sans text-gray-800 overflow-hidden">
-      {/* Header */}
-      <header className="bg-[#0091F9] text-white flex items-center justify-between px-6 py-3 shrink-0 relative z-30">
-        <div className="flex items-center gap-8">
-          <UnicefLogo className="h-8" />
-          <nav className="flex gap-6 text-sm font-medium items-center relative">
-            <div className="relative">
-              <button
-                onClick={() => setShowRosterDropdown(!showRosterDropdown)}
-                className="bg-white text-[#0091F9] px-4 py-1.5 rounded-full flex items-center gap-1 shadow-sm font-semibold hover:bg-gray-50"
-              >
-                Experts Roster <ChevronDown className="w-4 h-4" />
-              </button>
-              {showRosterDropdown && (
-                <div className="absolute top-10 left-0 bg-white shadow-lg rounded-md border border-gray-200 overflow-hidden text-gray-800 w-48 py-1 z-50">
-                  <Link to="/roster" className="block px-4 py-2 hover:bg-gray-50 text-sm font-medium" onClick={() => setShowRosterDropdown(false)}>Find Expert Roster</Link>
-                  <Link to="/roster/add" className="block px-4 py-2 hover:bg-gray-50 text-sm font-medium text-[#0091F9]" onClick={() => setShowRosterDropdown(false)}>Add Expert Roster</Link>
-                </div>
-              )}
-            </div>
-          </nav>
-        </div>
-        <div className="w-8 h-8 rounded-full bg-white/20 border border-white/40 flex items-center justify-center font-semibold text-sm">A</div>
-      </header>
+    <div className="flex h-screen flex-col overflow-hidden bg-[#F3F4F6] font-sans text-gray-800">
+      <AppHeader backTo="/roster/planning" backLabel="Back to planning" />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          {/* Page Title */}
+        <div className="mx-auto max-w-4xl px-6 py-8">
           <div className="mb-8">
-            <BackLink to="/roster/planning" label="Back to planning" className="mb-3" />
             <h1 className="text-2xl font-bold text-gray-900">Add Expert to Roster</h1>
             <p className="text-gray-500 mt-1">Upload an Excel file or fill in the form manually to add a new expert.</p>
           </div>

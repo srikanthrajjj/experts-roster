@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { getRoleDotClass, getRoleLabel, isExpertRole, isManagerLike } from '../../lib/userRole';
 import { usePersonaModal } from '../../contexts/PersonaModalContext';
 import { cn } from '../../lib/utils';
+
+type AppHeaderProps = {
+  backTo?: string;
+  backLabel?: string;
+};
 
 type NavLink = { label: string; to: string };
 
@@ -17,7 +23,7 @@ function getNavLinks(role: string | null): NavLink[] {
   return links;
 }
 
-export default function AppHeader() {
+export default function AppHeader({ backTo, backLabel = 'Back' }: AppHeaderProps) {
   const { userRole, openPersonaModal } = usePersonaModal();
   const location = useLocation();
   const [initials, setInitials] = useState('A');
@@ -51,10 +57,23 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-30 h-[66px] bg-[#0091F9] text-white shadow-[0_14px_30px_rgba(0,145,249,0.18)]">
       <div className="flex h-full items-center justify-between gap-3 px-4 sm:gap-5 sm:px-5 xl:px-8">
-        <div className="flex h-full min-w-0 items-center gap-3 sm:gap-5">
+        <div className="flex h-full min-w-0 items-center gap-2 sm:gap-3 md:gap-5">
+          {backTo && (
+            <Link
+              to={backTo}
+              className="flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-xs font-bold text-white/90 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:gap-1.5 sm:px-2 sm:text-sm"
+            >
+              <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="max-w-[7rem] truncate sm:max-w-none">{backLabel}</span>
+            </Link>
+          )}
+          {backTo && <span className="hidden h-5 w-px shrink-0 bg-white/25 sm:block" aria-hidden />}
           <Link
             to="/"
-            className="shrink-0 text-sm font-bold text-white transition hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 lg:text-base"
+            className={cn(
+              'shrink-0 text-sm font-bold text-white transition hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 lg:text-base',
+              backTo && 'hidden sm:inline',
+            )}
           >
             Resource availability & planning
           </Link>

@@ -1,7 +1,6 @@
 import React from 'react';
 import type { DashboardView } from '../../types/expert';
 import AppHeader from './AppHeader';
-import BackLink from './BackLink';
 import { cn } from '../../lib/utils';
 
 type RosterPlanningLayoutProps = {
@@ -26,7 +25,7 @@ export default function RosterPlanningLayout({
 }: RosterPlanningLayoutProps) {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#EEF5FC] text-slate-800">
-      <AppHeader />
+      <AppHeader backTo={backTo} backLabel={backLabel} />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {sidebar}
@@ -38,9 +37,6 @@ export default function RosterPlanningLayout({
                 <div className="flex flex-col gap-4 p-4 xl:flex-row xl:items-end xl:justify-between xl:p-5">
                   {title && (
                     <div className="min-w-0">
-                      {backTo && (
-                        <BackLink to={backTo} label={backLabel} className="mb-2" />
-                      )}
                       <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#0091F9]">TeamOne Roster</p>
                       <h1 className="mt-1 text-2xl font-black text-[#0F1B3D] md:text-3xl">{title}</h1>
                       {subtitle && <p className="mt-1 text-sm font-medium text-slate-500">{subtitle}</p>}
