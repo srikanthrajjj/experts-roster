@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Experts Roster</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            unicef: { blue: '#0096FF', dark: '#0058AB', deep: '#003F7F', accent: '#1CABE2', light: '#80D5F1' },
+          },
+          fontFamily: {
+            montserrat: ['Montserrat', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .font-heading { font-family: 'Montserrat', sans-serif; }
+    @keyframes slide-in { 0% { opacity: 0; transform: translateX(100%); } 100% { opacity: 1; transform: translateX(0); } }
+    @keyframes slide-out { 0% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(100%); } }
+    .animate-slide-in { animation: .3s ease-out slide-in; }
+    .animate-slide-out { animation: .3s ease-in slide-out; }
+    .sidebar-item.active { background: #f0f7ff; color: #0058AB; border-right: 3px solid #0058AB; }
+    .tab-btn.active { color: #0058AB; border-bottom: 2px solid #0058AB; }
+    tr:hover { background: #f9fafb; }
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef9c3; color: #854d0e; }
+    .status-inactive { background: #fee2e2; color: #991b1b; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen overflow-hidden">
+  <div class="flex flex-col h-full">
+    <!-- Top Header -->
+    <header class="bg-unicef-blue h-14 flex items-center justify-between px-4 shrink-0 z-20">
+      <div class="flex items-center gap-3">
+        <img src="/assets/unicef-logo-dxya9f98.png" alt="UNICEF" class="h-7" />
+        <div class="relative" id="nav-dropdown-wrapper">
+          <button onclick="toggleNavDropdown()" class="flex items-center gap-1.5 text-white font-heading font-bold text-[15px] tracking-wide bg-white/10 hover:bg-white/20 rounded-lg px-3 py-1.5 transition-colors">
+            Admin Dashboard
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="nav-dropdown" class="hidden absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-48 z-50">
+            <a href="/index.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              Find Experts
+            </a>
+            <a href="/admin.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+              Add Experts
+            </a>
+          </div>
+        </div>
+        <a href="#" class="text-white/80 hover:text-white text-sm font-medium ml-2">My Requests</a>
+        <a href="#" class="text-white/80 hover:text-white text-sm font-medium">Resources</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <svg class="w-5 h-5 text-white cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">3</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-unicef-dark flex items-center justify-center text-white text-sm font-semibold">A</div>
+          <div class="text-white text-sm">
+            <div class="font-semibold leading-tight">Admin User</div>
+            <div class="text-white/70 text-xs leading-tight">Administrator</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Sidebar -->
+      <aside class="w-56 bg-white border-r border-gray-200 shrink-0 overflow-y-auto">
+        <nav class="py-3">
+          <!-- Admin Dashboard -->
+          <a href="#" class="sidebar-item active flex items-center gap-3 px-4 py-2.5 text-sm font-medium cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            Admin Dashboard
+          </a>
+
+          <!-- Experts Management -->
+          <div class="mt-4">
+            <div class="px-4 py-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Experts Management</div>
+            <a href="#" class="sidebar-item active flex items-center gap-3 px-4 py-2.5 text-sm font-medium cursor-pointer" onclick="showSection('all-experts')">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              All Experts
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer" onclick="openAddPanel()">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+              Add New Expert
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer" onclick="openBulkUpload()">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Bulk Upload
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Import History
+            </a>
+          </div>
+
+          <!-- Reports -->
+          <div class="mt-4">
+            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              Reports & Analytics
+            </a>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 overflow-y-auto p-6">
+        <!-- Page Header -->
+        <div class="mb-6">
+          <h1 class="font-heading font-bold text-2xl text-gray-900">Experts Management</h1>
+          <p class="text-sm text-gray-500 mt-1">Manage expert profiles, review information, and maintain the roster</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-4 gap-4 mb-6" id="stats-cards">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Search and Actions Bar -->
+        <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+          <div class="flex items-center justify-between mb-4">
+            <div class="relative flex-1 max-w-md">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" id="search-input" placeholder="Search experts by name, skill, or country..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent focus:border-transparent" oninput="filterExperts()" />
+            </div>
+            <div class="flex items-center gap-3">
+              <button class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Export
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <button onclick="openAddPanel()" class="flex items-center gap-2 px-4 py-2 bg-unicef-blue text-white rounded-lg text-sm font-semibold hover:bg-unicef-dark transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                Add Expert
+              </button>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="flex items-center gap-3">
+            <select id="filter-country" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-unicef-accent" onchange="filterExperts()">
+              <option value="">All Countries</option>
+            </select>
+            <select id="filter-skill" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-unicef-accent" onchange="filterExperts()">
+              <option value="">All Skills</option>
+            </select>
+            <select id="filter-status" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-unicef-accent" onchange="filterExperts()">
+              <option value="">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Pending">Pending</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+            <button class="flex items-center gap-1.5 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+              More Filters
+            </button>
+          </div>
+        </div>
+
+        <!-- Experts Table -->
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200 bg-gray-50">
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Expert Details</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role / Title</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Country</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Experience</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Daily Fee</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="experts-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add/Edit Expert Slide-out Panel -->
+  <div id="expert-panel" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/30" onclick="closePanel()"></div>
+    <div class="absolute right-0 top-0 h-full w-[676px] bg-white shadow-2xl animate-slide-in flex flex-col" id="panel-content">
+      <!-- Panel Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
+        <h2 class="font-heading font-bold text-lg text-gray-900" id="panel-title">Add / Edit Expert</h2>
+        <button onclick="closePanel()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex border-b border-gray-200 px-6 shrink-0">
+        <button class="tab-btn active px-4 py-3 text-sm font-medium border-b-2 border-transparent" onclick="switchTab(this, 'tab-basic')">Basic Information</button>
+        <button class="tab-btn px-4 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent" onclick="switchTab(this, 'tab-education')">Education</button>
+        <button class="tab-btn px-4 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent" onclick="switchTab(this, 'tab-skills')">Skills & Languages</button>
+        <button class="tab-btn px-4 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent" onclick="switchTab(this, 'tab-docs')">Documents</button>
+      </div>
+
+      <!-- Panel Body (scrollable) -->
+      <div class="flex-1 overflow-y-auto px-6 py-5">
+        <!-- Basic Information Tab -->
+        <div id="tab-basic" class="tab-content space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+              <input type="text" id="form-name" placeholder="e.g. Ana Haq" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Role / Title <span class="text-red-500">*</span></label>
+              <input type="text" id="form-role" placeholder="e.g. WASH Specialist" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+              <input type="email" id="form-email" placeholder="e.g. a.haq@org.org" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <input type="tel" id="form-phone" placeholder="e.g. +225 07 123 4567" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Country <span class="text-red-500">*</span></label>
+              <select id="form-country" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-unicef-accent">
+                <option value="">Select Country</option>
+                <option>Canada</option>
+                <option>Colombia</option>
+                <option>Cote d'Ivoire</option>
+                <option>Egypt</option>
+                <option>Ethiopia</option>
+                <option>France</option>
+                <option>India</option>
+                <option>Kenya</option>
+                <option>Nigeria</option>
+                <option>Pakistan</option>
+                <option>Uganda</option>
+                <option>USA</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Years of Experience <span class="text-red-500">*</span></label>
+              <input type="text" id="form-experience" placeholder="e.g. 10 years" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Daily Fee (USD)</label>
+              <input type="text" id="form-fee" placeholder="e.g. $601-700" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
+              <input type="url" id="form-linkedin" placeholder="https://linkedin.com/in/..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Languages</label>
+            <input type="text" id="form-languages" placeholder="e.g. English, French, Arabic" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
+            <textarea id="form-summary" rows="3" placeholder="Brief professional background..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent resize-none"></textarea>
+          </div>
+
+          <!-- Availability -->
+          <div class="pt-2">
+            <h3 class="text-sm font-semibold text-gray-900 mb-3">Availability</h3>
+            <div class="flex items-center gap-3 mb-3">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="form-available" class="sr-only peer" checked />
+                <div class="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-unicef-blue"></div>
+              </label>
+              <span class="text-sm text-gray-700">Available for Assignments</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Available From</label>
+                <input type="date" id="form-available-from" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Available To</label>
+                <input type="date" id="form-available-to" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Education Tab -->
+        <div id="tab-education" class="tab-content hidden space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Highest Degree</label>
+            <input type="text" id="form-degree" placeholder="e.g. Master's in Public Health" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+            <input type="text" id="form-institution" placeholder="e.g. Harvard University" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Year of Graduation</label>
+            <input type="text" id="form-graduation" placeholder="e.g. 2015" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Additional Certifications</label>
+            <textarea id="form-certifications" rows="3" placeholder="List relevant certifications..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent resize-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Skills & Languages Tab -->
+        <div id="tab-skills" class="tab-content hidden space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Core Skills</label>
+            <input type="text" id="form-skills" placeholder="e.g. WASH, Water Supply, Sanitation" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Global Practice Area</label>
+            <select id="form-practice" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-unicef-accent">
+              <option value="">Select Practice Area</option>
+              <option>Adolescent Development</option>
+              <option>Child Protection</option>
+              <option>Communication for Development</option>
+              <option>Early Childhood Development</option>
+              <option>Education</option>
+              <option>Financing for Scale</option>
+              <option>Health</option>
+              <option>Humanitarian Action</option>
+              <option>Nutrition</option>
+              <option>Policy Reform</option>
+              <option>Programme Management</option>
+              <option>Social & Behaviour Change</option>
+              <option>WASH</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Languages Spoken</label>
+            <input type="text" id="form-spoken-languages" placeholder="e.g. English, French, Arabic, Spanish" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Regional Experience</label>
+            <input type="text" id="form-regional" placeholder="e.g. East & Southern Africa, South Asia" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" />
+          </div>
+        </div>
+
+        <!-- Documents Tab -->
+        <div id="tab-docs" class="tab-content hidden space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">CV / Resume</label>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-unicef-accent transition-colors cursor-pointer">
+              <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              <p class="text-sm text-gray-500">Drag & drop or click to upload</p>
+              <p class="text-xs text-gray-400 mt-1">PDF, DOC up to 10MB</p>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Additional Documents</label>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-unicef-accent transition-colors cursor-pointer">
+              <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              <p class="text-sm text-gray-500">Drag & drop or click to upload</p>
+              <p class="text-xs text-gray-400 mt-1">PDF, DOC, JPG, PNG up to 10MB</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel Footer -->
+      <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
+        <label class="flex items-center gap-2 text-sm text-gray-600">
+          <input type="checkbox" id="form-welcome" class="rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" checked />
+          Send welcome email
+        </label>
+        <div class="flex items-center gap-3">
+          <button onclick="closePanel()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+          <button onclick="saveAsDraft()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Save as Draft</button>
+          <button onclick="saveExpert()" class="px-5 py-2 bg-unicef-blue text-white rounded-lg text-sm font-semibold hover:bg-unicef-dark transition-colors" id="save-btn">Add to Roster</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Upload Modal -->
+  <div id="bulk-upload-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40" onclick="closeBulkUpload()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl animate-slide-in" id="bulk-panel">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <div>
+            <h2 class="font-heading font-bold text-lg text-gray-900">Bulk Upload Experts</h2>
+            <p class="text-sm text-gray-500 mt-0.5">Upload a CSV or JSON file with expert data</p>
+          </div>
+          <button onclick="closeBulkUpload()" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="px-6 py-5">
+          <!-- Upload Zone -->
+          <div id="upload-zone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-unicef-accent transition-colors cursor-pointer" onclick="document.getElementById('file-input').click()" ondragover="event.preventDefault(); this.classList.add('border-unicef-accent','bg-blue-50')" ondragleave="this.classList.remove('border-unicef-accent','bg-blue-50')" ondrop="event.preventDefault(); this.classList.remove('border-unicef-accent','bg-blue-50'); handleFileDrop(event)">
+            <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <p class="text-sm font-medium text-gray-700">Drag & drop your file here, or <span class="text-unicef-blue font-semibold">browse</span></p>
+            <p class="text-xs text-gray-400 mt-1">Supports CSV and JSON files up to 5MB</p>
+            <input type="file" id="file-input" accept=".csv,.json" class="hidden" onchange="handleFileSelect(event)" />
+          </div>
+
+          <!-- File Info (hidden initially) -->
+          <div id="file-info" class="hidden mt-4 flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+            <svg class="w-5 h-5 text-unicef-blue shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate" id="file-name">-</p>
+              <p class="text-xs text-gray-500" id="file-size">-</p>
+            </div>
+            <button onclick="clearFile()" class="text-gray-400 hover:text-red-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+
+          <!-- Preview Table (hidden initially) -->
+          <div id="preview-section" class="hidden mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-sm font-medium text-gray-700">Preview (<span id="preview-count">0</span> experts found)</p>
+              <button onclick="downloadSampleCSV()" class="text-xs text-unicef-blue hover:underline font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Download Sample CSV
+              </button>
+            </div>
+            <div class="max-h-48 overflow-y-auto border border-gray-200 rounded-lg">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 sticky top-0">
+                  <tr>
+                    <th class="text-left px-3 py-2 text-xs font-semibold text-gray-500">Name</th>
+                    <th class="text-left px-3 py-2 text-xs font-semibold text-gray-500">Role</th>
+                    <th class="text-left px-3 py-2 text-xs font-semibold text-gray-500">Country</th>
+                    <th class="text-left px-3 py-2 text-xs font-semibold text-gray-500">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="preview-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Progress Bar (hidden initially) -->
+          <div id="progress-section" class="hidden mt-4">
+            <div class="flex items-center justify-between mb-1">
+              <p class="text-sm font-medium text-gray-700">Uploading...</p>
+              <p class="text-sm text-gray-500" id="progress-text">0%</p>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="progress-bar" class="bg-unicef-blue h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Result (hidden initially) -->
+          <div id="result-section" class="hidden mt-4 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <p class="text-sm font-medium text-green-800" id="result-text">-</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between">
+          <button onclick="downloadSampleCSV()" class="text-sm text-unicef-blue hover:underline font-medium flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Download Template
+          </button>
+          <div class="flex items-center gap-3">
+            <button onclick="closeBulkUpload()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button onclick="processUpload()" id="upload-btn" disabled class="px-5 py-2 bg-unicef-blue text-white rounded-lg text-sm font-semibold hover:bg-unicef-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Upload Experts</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-20 right-4 z-50 space-y-2"></div>
+
+  <script>
+    // Expert data (same as dashboard)
+    const defaultExperts = [
+      { id: "1", name: "William Singh", role: "Social & Behaviour Change Specialist", country: "Nigeria", experience: "11 years", dailyFee: "$501-600", status: "Active", email: "william.singh@unicef-roster.org", phone: "+234 801 234 5678", languages: ["English", "Hindi", "Yoruba"], summary: "Experienced SBC specialist with over 11 years working across West and Central Africa on behaviour change communication programs for child survival and development.", linkedIn: "https://linkedin.com/in/william-singh", skills: ["SBC", "Community Engagement", "BCC", "Health Communication"], practiceArea: "Social & Behaviour Change" },
+      { id: "2", name: "Elena Johnson", role: "Early Childhood Development Specialist", country: "Canada", experience: "13 years", dailyFee: "$601-700", status: "Active", email: "elena.johnson@unicef-roster.org", phone: "+1 416 555 0123", languages: ["English", "French", "Spanish"], summary: "ECD specialist with 13 years of experience in early learning program design, parent coaching, and child development assessment across North America and Latin America.", linkedIn: "https://linkedin.com/in/elena-johnson", skills: ["ECD", "Parenting Programs", "Child Development", "Early Learning"], practiceArea: "Early Childhood Development" },
+      { id: "3", name: "Chloe Jensen", role: "Digital Infrastructure & Health Specialist", country: "Ethiopia", experience: "9 years", dailyFee: "$501-600", status: "Active", email: "chloe.jensen@unicef-roster.org", phone: "+251 91 234 5678", languages: ["English", "Amharic"], summary: "Digital health specialist focused on building resilient digital infrastructure for health systems in East Africa. Expert in DHIS2, mHealth solutions, and data-driven decision making.", linkedIn: "https://linkedin.com/in/chloe-jensen", skills: ["Digital Health", "DHIS2", "mHealth", "Data Analytics"], practiceArea: "Digital Infrastructure" },
+      { id: "4", name: "Julia Costa", role: "Health & WASH Specialist", country: "Nigeria", experience: "8 years", dailyFee: "$401-500", status: "Active", email: "julia.costa@unicef-roster.org", phone: "+234 802 345 6789", languages: ["English", "Portuguese", "French"], summary: "Health and WASH specialist with 8 years of field experience implementing integrated water, sanitation, and hygiene programs in humanitarian settings.", linkedIn: "https://linkedin.com/in/julia-costa", skills: ["WASH", "Water Supply", "Sanitation", "Hygiene Promotion"], practiceArea: "Health" },
+      { id: "5", name: "Helene Garcia", role: "Humanitarian Action & Health Specialist", country: "Uganda", experience: "12 years", dailyFee: "$601-700", status: "Active", email: "helene.garcia@unicef-roster.org", phone: "+256 701 234 567", languages: ["English", "French", "Swahili", "Arabic"], summary: "Seasoned humanitarian professional with 12 years of experience leading emergency health response operations across multiple crisis zones in Africa and the Middle East.", linkedIn: "https://linkedin.com/in/helene-garcia", skills: ["Emergency Response", "Health Systems", "Nutrition", "Camp Management"], practiceArea: "Humanitarian Action" },
+      { id: "6", name: "Farah Lopez", role: "Policy Reform & Health Specialist", country: "Pakistan", experience: "7 years", dailyFee: "$401-500", status: "Active", email: "farah.lopez@unicef-roster.org", phone: "+92 300 123 4567", languages: ["English", "Urdu", "Spanish"], summary: "Health policy specialist with expertise in policy reform, health system strengthening, and advocacy for universal health coverage in South Asian contexts.", linkedIn: "https://linkedin.com/in/farah-lopez", skills: ["Policy Analysis", "Health Systems", "Advocacy", "UHC"], practiceArea: "Policy Reform" },
+      { id: "7", name: "Zoe Haddad", role: "Child Protection & WASH Specialist", country: "Nigeria", experience: "10 years", dailyFee: "$501-600", status: "Pending", email: "zoe.haddad@unicef-roster.org", phone: "+234 803 456 7890", languages: ["English", "Arabic", "French"], summary: "Dual specialist in child protection and WASH with a decade of experience implementing integrated programs that address child safeguarding and water access.", linkedIn: "https://linkedin.com/in/zoe-haddad", skills: ["Child Protection", "WASH", "GBV", "Case Management"], practiceArea: "Child Protection" },
+      { id: "8", name: "Yara Traore", role: "Financing for Scale & Economic Policy Specialist", country: "Ethiopia", experience: "14 years", dailyFee: "$701-800", status: "Active", email: "yara.traore@unicef-roster.org", phone: "+251 92 345 6789", languages: ["English", "French", "Amharic", "Bambara"], summary: "Senior economist with 14 years of experience in public finance, social protection financing, and economic policy analysis for child-focused development programs.", linkedIn: "https://linkedin.com/in/yara-traore", skills: ["Public Finance", "Economic Analysis", "Social Protection", "Budgeting"], practiceArea: "Financing for Scale" },
+      { id: "9", name: "Mariam Smith", role: "Policy Reform & Adolescent Development Specialist", country: "Nigeria", experience: "8 years", dailyFee: "$501-600", status: "Active", email: "mariam.smith@unicef-roster.org", phone: "+234 804 567 8901", languages: ["English", "Hausa", "Yoruba"], summary: "Adolescent development specialist focused on youth empowerment, life skills education, and policy reform for adolescent-friendly health services.", linkedIn: "https://linkedin.com/in/mariam-smith", skills: ["Adolescent Health", "Youth Engagement", "Life Skills", "Policy Reform"], practiceArea: "Adolescent Development" },
+      { id: "10", name: "Ana Haq", role: "WASH Specialist", country: "Cote d'Ivoire", experience: "6 years", dailyFee: "$401-500", status: "Inactive", email: "ana.haq@unicef-roster.org", phone: "+225 07 123 4567", languages: ["English", "French", "Arabic"], summary: "WASH specialist with 6 years of experience implementing water supply and sanitation projects in West Africa, with a focus on community-led total sanitation.", linkedIn: "https://linkedin.com/in/ana-haq", skills: ["WASH", "CLTS", "Water Supply", "Sanitation"], practiceArea: "WASH" }
+    ];
+
+    // Load from localStorage or use defaults
+    let experts = JSON.parse(localStorage.getItem('roster-experts')) || [...defaultExperts];
+    let editingId = null;
+
+    const countryFlags = {
+      'Nigeria': '🇳🇬', 'Canada': '🇨🇦', 'Ethiopia': '🇪🇹', 'Uganda': '🇺🇬', 'Pakistan': '🇵🇰',
+      'Cote d\'Ivoire': '🇨🇮', "Cote d'Ivoire": '🇨🇮', 'France': '🇫🇷', 'Egypt': '🇪🇬',
+      'USA': '🇺🇸', 'Colombia': '🇨🇴', 'India': '🇮🇳', 'Kenya': '🇰🇪'
+    };
+
+    function getInitials(name) {
+      return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    const avatarColors = ['#0058AB', '#003F7F', '#0096FF', '#1CABE2', '#005A9C'];
+    function getAvatarColor(name) {
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      return avatarColors[Math.abs(hash) % avatarColors.length];
+    }
+
+    function getStatusClass(status) {
+      return status === 'Active' ? 'status-active' : status === 'Pending' ? 'status-pending' : 'status-inactive';
+    }
+
+    function renderStats() {
+      const total = experts.length;
+      const active = experts.filter(e => e.status === 'Active').length;
+      const pending = experts.filter(e => e.status === 'Pending').length;
+      const countries = new Set(experts.map(e => e.country)).size;
+
+      document.getElementById('stats-cards').innerHTML = `
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center"><svg class="w-5 h-5 text-unicef-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+            <div><p class="text-xs text-gray-500">Total Experts</p><p class="text-2xl font-bold text-gray-900">${total}</p><p class="text-xs text-green-600 font-medium">+12 this month</p></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center"><svg class="w-5 h-5 text-unicef-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+            <div><p class="text-xs text-gray-500">Active Experts</p><p class="text-2xl font-bold text-gray-900">${active}</p><p class="text-xs text-green-600 font-medium">${total > 0 ? Math.round(active/total*100) : 0}% active</p></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center"><svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <div><p class="text-xs text-gray-500">Pending Review</p><p class="text-2xl font-bold text-gray-900">${pending}</p><p class="text-xs text-orange-500 font-medium">Needs attention</p></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <div><p class="text-xs text-gray-500">Total Countries</p><p class="text-2xl font-bold text-gray-900">${countries}</p><p class="text-xs text-gray-500 font-medium">Global coverage</p></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function populateFilters() {
+      const countries = [...new Set(experts.map(e => e.country))].sort();
+      const skills = [...new Set(experts.flatMap(e => e.skills || []))].sort();
+
+      const countrySelect = document.getElementById('filter-country');
+      countries.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c;
+        countrySelect.appendChild(opt);
+      });
+
+      const skillSelect = document.getElementById('filter-skill');
+      skills.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        skillSelect.appendChild(opt);
+      });
+    }
+
+    function filterExperts() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const country = document.getElementById('filter-country').value;
+      const skill = document.getElementById('filter-skill').value;
+      const status = document.getElementById('filter-status').value;
+
+      const filtered = experts.filter(e => {
+        if (search && !e.name.toLowerCase().includes(search) && !e.role.toLowerCase().includes(search) && !(e.skills || []).some(s => s.toLowerCase().includes(search)) && !e.country.toLowerCase().includes(search)) return false;
+        if (country && e.country !== country) return false;
+        if (skill && !(e.skills || []).includes(skill)) return false;
+        if (status && e.status !== status) return false;
+        return true;
+      });
+
+      renderTable(filtered);
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('experts-table-body');
+      if (!data) data = experts;
+
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-12 text-center text-gray-400">No experts found matching your criteria.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(expert => `
+        <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style="background:${getAvatarColor(expert.name)}">${getInitials(expert.name)}</div>
+              <div>
+                <div class="text-sm font-semibold text-gray-900">${expert.name}</div>
+                <div class="text-xs text-gray-500">${expert.email}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-700">${expert.role}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">${countryFlags[expert.country] || ''} ${expert.country}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">${expert.experience}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">${expert.dailyFee}</td>
+          <td class="px-4 py-3"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusClass(expert.status)}">${expert.status}</span></td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-1">
+              <button onclick="viewExpert('${expert.id}')" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-unicef-blue" title="View"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+              <button onclick="editExpert('${expert.id}')" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-unicef-blue" title="Edit"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+              <button onclick="deleteExpert('${expert.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-gray-500 hover:text-red-500" title="Delete"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openAddPanel() {
+      editingId = null;
+      document.getElementById('panel-title').textContent = 'Add / Edit Expert';
+      document.getElementById('save-btn').textContent = 'Add to Roster';
+      clearForm();
+      document.getElementById('expert-panel').classList.remove('hidden');
+      switchTab(document.querySelector('.tab-btn'), 'tab-basic');
+    }
+
+    function editExpert(id) {
+      const expert = experts.find(e => e.id === id);
+      if (!expert) return;
+      editingId = id;
+      document.getElementById('panel-title').textContent = 'Add / Edit Expert';
+      document.getElementById('save-btn').textContent = 'Save Changes';
+      document.getElementById('form-name').value = expert.name;
+      document.getElementById('form-role').value = expert.role;
+      document.getElementById('form-email').value = expert.email || '';
+      document.getElementById('form-phone').value = expert.phone || '';
+      document.getElementById('form-country').value = expert.country;
+      document.getElementById('form-experience').value = expert.experience;
+      document.getElementById('form-fee').value = expert.dailyFee;
+      document.getElementById('form-linkedin').value = expert.linkedIn || '';
+      document.getElementById('form-languages').value = (expert.languages || []).join(', ');
+      document.getElementById('form-summary').value = expert.summary || '';
+      document.getElementById('form-skills').value = (expert.skills || []).join(', ');
+      document.getElementById('form-practice').value = expert.practiceArea || '';
+      document.getElementById('expert-panel').classList.remove('hidden');
+      switchTab(document.querySelector('.tab-btn'), 'tab-basic');
+    }
+
+    function viewExpert(id) {
+      editExpert(id);
+    }
+
+    function deleteExpert(id) {
+      if (!confirm('Are you sure you want to delete this expert?')) return;
+      experts = experts.filter(e => e.id !== id);
+      saveToStorage();
+      renderStats();
+      filterExperts();
+      showToast('Expert deleted successfully', 'success');
+    }
+
+    function saveExpert() {
+      const name = document.getElementById('form-name').value.trim();
+      const role = document.getElementById('form-role').value.trim();
+      const email = document.getElementById('form-email').value.trim();
+      const country = document.getElementById('form-country').value;
+
+      if (!name || !role || !email || !country) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+
+      const expertData = {
+        name, role, email,
+        phone: document.getElementById('form-phone').value.trim(),
+        country,
+        experience: document.getElementById('form-experience').value.trim() || '5 years',
+        dailyFee: document.getElementById('form-fee').value.trim() || '$401-500',
+        linkedIn: document.getElementById('form-linkedin').value.trim(),
+        languages: document.getElementById('form-languages').value.split(',').map(s => s.trim()).filter(Boolean),
+        summary: document.getElementById('form-summary').value.trim(),
+        skills: document.getElementById('form-skills').value.split(',').map(s => s.trim()).filter(Boolean),
+        practiceArea: document.getElementById('form-practice').value,
+        status: document.getElementById('form-available').checked ? 'Active' : 'Inactive'
+      };
+
+      if (editingId) {
+        const idx = experts.findIndex(e => e.id === editingId);
+        if (idx !== -1) experts[idx] = { ...experts[idx], ...expertData };
+        showToast('Expert updated successfully', 'success');
+      } else {
+        expertData.id = String(Date.now());
+        experts.push(expertData);
+        showToast('Expert added to roster', 'success');
+      }
+
+      saveToStorage();
+      renderStats();
+      filterExperts();
+      closePanel();
+    }
+
+    function saveAsDraft() {
+      showToast('Saved as draft', 'info');
+      closePanel();
+    }
+
+    function clearForm() {
+      ['form-name','form-role','form-email','form-phone','form-experience','form-fee','form-linkedin','form-languages','form-summary','form-skills','form-practice','form-degree','form-institution','form-graduation','form-certifications','form-spoken-languages','form-regional'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.getElementById('form-country').value = '';
+      document.getElementById('form-available').checked = true;
+    }
+
+    function closePanel() {
+      const panel = document.getElementById('panel-content');
+      panel.classList.remove('animate-slide-in');
+      panel.classList.add('animate-slide-out');
+      setTimeout(() => {
+        document.getElementById('expert-panel').classList.add('hidden');
+        panel.classList.remove('animate-slide-out');
+        panel.classList.add('animate-slide-in');
+      }, 280);
+    }
+
+    function switchTab(btn, tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.classList.add('text-gray-500'); });
+      btn.classList.add('active'); btn.classList.remove('text-gray-500');
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+    }
+
+    function saveToStorage() {
+      localStorage.setItem('roster-experts', JSON.stringify(experts));
+    }
+
+    function showToast(message, type) {
+      const container = document.getElementById('toast-container');
+      const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-unicef-blue' };
+      const toast = document.createElement('div');
+      toast.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2 animate-slide-in`;
+      toast.innerHTML = `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>${message}`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+
+    // Nav dropdown
+    function toggleNavDropdown() {
+      document.getElementById('nav-dropdown').classList.toggle('hidden');
+    }
+    document.addEventListener('click', function(e) {
+      var wrapper = document.getElementById('nav-dropdown-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        document.getElementById('nav-dropdown').classList.add('hidden');
+      }
+    });
+
+    // Bulk Upload
+    let parsedExperts = [];
+
+    function openBulkUpload() {
+      clearFile();
+      document.getElementById('bulk-upload-modal').classList.remove('hidden');
+      // Reset all sections
+      document.getElementById('upload-zone').classList.remove('hidden');
+      document.getElementById('file-info').classList.add('hidden');
+      document.getElementById('preview-section').classList.add('hidden');
+      document.getElementById('progress-section').classList.add('hidden');
+      document.getElementById('result-section').classList.add('hidden');
+      document.getElementById('upload-btn').disabled = true;
+      parsedExperts = [];
+    }
+
+    function closeBulkUpload() {
+      document.getElementById('bulk-upload-modal').classList.add('hidden');
+    }
+
+    function handleFileDrop(e) {
+      const file = e.dataTransfer.files[0];
+      if (file) readFile(file);
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) readFile(file);
+    }
+
+    function readFile(file) {
+      if (!file.name.match(/\.(csv|json)$/i)) {
+        showToast('Please upload a CSV or JSON file', 'error');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('File size must be under 5MB', 'error');
+        return;
+      }
+
+      // Show file info
+      document.getElementById('file-name').textContent = file.name;
+      document.getElementById('file-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+      document.getElementById('file-info').classList.remove('hidden');
+      document.getElementById('upload-zone').classList.add('hidden');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const content = e.target.result;
+        if (file.name.endsWith('.json')) {
+          parseJSON(content);
+        } else {
+          parseCSV(content);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function parseCSV(content) {
+      const lines = content.trim().split('\n');
+      if (lines.length < 2) { showToast('CSV must have a header row and at least one data row', 'error'); return; }
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
+      parsedExperts = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        if (values.length < headers.length) continue;
+        const obj = {};
+        headers.forEach((h, idx) => obj[h] = values[idx]);
+        parsedExperts.push({
+          id: String(Date.now() + i),
+          name: obj.name || obj.fullname || obj.full_name || '',
+          role: obj.role || obj.title || obj.position || '',
+          email: obj.email || '',
+          phone: obj.phone || obj.telephone || '',
+          country: obj.country || obj.location || '',
+          experience: obj.experience || obj.years || '5 years',
+          dailyFee: obj.dailyfee || obj.daily_fee || obj.fee || '$401-500',
+          languages: (obj.languages || obj.language || '').split('/').map(s => s.trim()).filter(Boolean),
+          summary: obj.summary || obj.bio || '',
+          skills: (obj.skills || obj.skill || '').split('/').map(s => s.trim()).filter(Boolean),
+          practiceArea: obj.practicearea || obj.practice_area || obj.practice || '',
+          status: obj.status || 'Active',
+          linkedIn: obj.linkedin || obj.linked_in || ''
+        });
+      }
+      showPreview();
+    }
+
+    function parseJSON(content) {
+      try {
+        const data = JSON.parse(content);
+        const arr = Array.isArray(data) ? data : [data];
+        parsedExperts = arr.map((obj, i) => ({
+          id: String(Date.now() + i),
+          name: obj.name || obj.full_name || '',
+          role: obj.role || obj.title || '',
+          email: obj.email || '',
+          phone: obj.phone || '',
+          country: obj.country || obj.location || '',
+          experience: obj.experience || '5 years',
+          dailyFee: obj.dailyFee || obj.daily_fee || '$401-500',
+          languages: Array.isArray(obj.languages) ? obj.languages : (obj.languages || '').split('/').map(s => s.trim()).filter(Boolean),
+          summary: obj.summary || obj.bio || '',
+          skills: Array.isArray(obj.skills) ? obj.skills : (obj.skills || '').split('/').map(s => s.trim()).filter(Boolean),
+          practiceArea: obj.practiceArea || obj.practice_area || '',
+          status: obj.status || 'Active',
+          linkedIn: obj.linkedIn || obj.linkedin || ''
+        }));
+        showPreview();
+      } catch (e) {
+        showToast('Invalid JSON format', 'error');
+      }
+    }
+
+    function showPreview() {
+      document.getElementById('preview-count').textContent = parsedExperts.length;
+      const tbody = document.getElementById('preview-body');
+      tbody.innerHTML = parsedExperts.slice(0, 5).map(e => `
+        <tr class="border-t border-gray-100">
+          <td class="px-3 py-2 text-gray-900 font-medium">${e.name}</td>
+          <td class="px-3 py-2 text-gray-600">${e.role}</td>
+          <td class="px-3 py-2 text-gray-600">${e.country}</td>
+          <td class="px-3 py-2"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusClass(e.status)}">${e.status}</span></td>
+        </tr>
+      `).join('');
+      if (parsedExperts.length > 5) {
+        tbody.innerHTML += `<tr class="border-t border-gray-100"><td colspan="4" class="px-3 py-2 text-center text-xs text-gray-400">...and ${parsedExperts.length - 5} more</td></tr>`;
+      }
+      document.getElementById('preview-section').classList.remove('hidden');
+      document.getElementById('upload-btn').disabled = false;
+    }
+
+    function processUpload() {
+      if (parsedExperts.length === 0) return;
+      document.getElementById('upload-btn').disabled = true;
+      document.getElementById('progress-section').classList.remove('hidden');
+      document.getElementById('upload-zone').classList.add('hidden');
+      document.getElementById('file-info').classList.add('hidden');
+      document.getElementById('preview-section').classList.add('hidden');
+
+      let progress = 0;
+      const bar = document.getElementById('progress-bar');
+      const text = document.getElementById('progress-text');
+      const interval = setInterval(() => {
+        progress += Math.random() * 25;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setTimeout(() => finishUpload(), 300);
+        }
+        bar.style.width = progress + '%';
+        text.textContent = Math.round(progress) + '%';
+      }, 200);
+    }
+
+    function finishUpload() {
+      experts = [...experts, ...parsedExperts];
+      saveToStorage();
+      renderStats();
+      filterExperts();
+      document.getElementById('progress-section').classList.add('hidden');
+      document.getElementById('result-section').classList.remove('hidden');
+      document.getElementById('result-text').textContent = `${parsedExperts.length} experts uploaded successfully and added to the roster!`;
+      showToast(`${parsedExperts.length} experts uploaded successfully`, 'success');
+      parsedExperts = [];
+    }
+
+    function clearFile() {
+      document.getElementById('file-input').value = '';
+      document.getElementById('upload-zone').classList.remove('hidden');
+      document.getElementById('file-info').classList.add('hidden');
+      document.getElementById('preview-section').classList.add('hidden');
+      document.getElementById('progress-section').classList.add('hidden');
+      document.getElementById('result-section').classList.add('hidden');
+      document.getElementById('upload-btn').disabled = true;
+      parsedExperts = [];
+    }
+
+    function downloadSampleCSV() {
+      const csv = `Name,Role,Email,Phone,Country,Experience,DailyFee,Languages,Skills,PracticeArea,Status
+Dr. Ahmed Hassan,WASH Engineer,ahmed.hassan@unicef-roster.org,+20 100 123 4567,Egypt,15 years,$600,English/Arabic,FWASH/Sanitation Engineering/Water Supply/WASH Systems,WASH,Active
+Sarah Johnson,Health Policy Expert,sarah.j@unicef-roster.org,+1 202 555 0199,USA,7 years,$750,English/Spanish,HPolicy Analysis/Health Systems/Advocacy/UHC,Health,Active
+Carlos Mendez,Sanitation Specialist,carlos.m@unicef-roster.org,+57 310 123 4567,Colombia,9 years,$500,English/Spanish/Portuguese,FSanitation/CLTS/WASH/Hygiene Promotion,WASH,Inactive
+Priya Sharma,Health Education Expert,priya.sharma@unicef-roster.org,+91 98765 43210,India,6 years,$450,English/Hindi/Tamil,HEducation/Community Health/BCC/SBC,Health,Active
+John Smith,Public Health Advisor,john.smith@unicef-roster.org,+254 712 345 678,Kenya,10 years,$700,English/Swahili,PPublic Health/Epidemiology/Disease Surveillance/Surveillance,Health,Active
+Marie Dubois,Health Program Manager,marie.dubois@unicef-roster.org,+33 6 12 34 56 78,France,8 years,$550,English/French/Arabic,Programme Management/Health Systems/M&E/Reporting,Programme Management,Active
+Fatima Al-Rashid,Nutrition Specialist,fatima.r@unicef-roster.org,+971 50 123 4567,UAE,11 years,$650,English/Arabic/Urdu,UNutrition/CMAM/Infant Feeding/Nutrition Assessment,Nutrition,Active
+Liu Wei,Data Analytics Specialist,liu.w@unicef-roster.org,+86 138 1234 5678,China,8 years,$500,English/Mandarin,HData Analytics/DHIS2/M&E/Visualization,Health,Active
+Amina Okafor,Child Protection Expert,amina.o@unicef-roster.org,+234 805 678 9012,Nigeria,12 years,$600,English/Igbo/French,CChild Protection/GBV/Case Management/CPMS,Child Protection,Active
+Carlos Rivera,Education Specialist,carlos.r@unicef-roster.org,+52 55 1234 5678,Mexico,9 years,$525,English/Spanish,PEducation/Teacher Training/School Management/Literacy,Education,Active`;
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'experts_sample.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Init
+    renderStats();
+    populateFilters();
+    filterExperts();
+  </script>
+</body>
+</html>

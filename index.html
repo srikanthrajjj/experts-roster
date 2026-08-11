@@ -12,6 +12,23 @@
 
     <body>
       <div id="root"></div>
+      <script>
+        (function() {
+          document.addEventListener('click', function(e) {
+            var el = e.target;
+            while (el && el !== document.body) {
+              var txt = (el.textContent || '').trim();
+              if (txt === 'Add Experts' || txt === '+ Add Experts') {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = '/admin.html';
+                return;
+              }
+              el = el.parentElement;
+            }
+          }, true);
+        })();
+      </script>
     </body>
   </html>
   
