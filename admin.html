@@ -31,33 +31,9 @@
     .animate-slide-in { animation: .3s ease-out slide-in; }
     .animate-slide-out { animation: .3s ease-in slide-out; }
     .sidebar-item.active { background: #f0f7ff; color: #0058AB; border-right: 3px solid #0058AB; }
-    .menu {
-      position: absolute;
-      right: 0;
-      margin-top: 0.75rem;
-      min-width: 140px;
-      padding: 0.5rem 0;
-      background-color: white;
-      border: 1px solid #d1d5db;
-      border-radius: 0.375rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      z-index: 100;
-      display: none;
-    }
-
-    .menu a {
-      display: block;
-      padding: 0.5rem 1rem;
-      color: #374151;
-      text-align: left;
-      text-decoration: none;
-      font-size: 0.875rem;
-    }
-
-    .menu a:hover {
-      background-color: #f3f4f6;
-      color: #1f2937;
-    }
+    .action-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; color: #6b7280; transition: color .15s ease, background .15s ease, border-color .15s ease; }
+    .action-btn:hover { border-color: #0058AB; background: #f0f7ff; color: #0058AB; }
+    .action-btn.danger:hover { border-color: #ef4444; background: #fef2f2; color: #ef4444; }
     .status-pending { background: #fef9c3; color: #854d0e; }
     .status-inactive { background: #fee2e2; color: #991b1b; }
     ::-webkit-scrollbar { width: 6px; }
@@ -442,16 +418,9 @@
           <td class="px-3 py-2.5 min-w-[160px]"><span class="text-xs text-gray-600">${(expert.regionalExperience || []).join(', ') || '-'}</span></td>
           <td class="px-3 py-2.5 w-[150px]">
             <div class="flex items-center gap-1.5">
-              <div class="relative">
-                <button onclick="event.stopPropagation(); toggleMenu(this)" class="icon-btn rounded-lg hover:bg-gray-50 p-1.5" aria-label="Actions" data-expert-id="${expert.id}">
-                  <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2zm10-6h2m4-4v4m0-12v1m-5-4h5m-5 10h5m-1-9L12 6l-8 8 8 8"/></svg>
-                </button>
-                <div id="menu-expert-${expert.id}" class="menu hidden absolute right-0 mt-2 w-40 rounded-bg border border-gray-200 py-1 z-20 shadow-md min-w">
-                  <a href="javascript:void(0)" onclick="viewExpert('${expert.id}')" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-50">View</a>
-                  <a href="javascript:void(0)" onclick="editExpert('${expert.id}')" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-50">Edit</a>
-                  <a href="javascript:void(0)" onclick="deleteExpert('${expert.id}')" class="block px-4 py-1.5 text-sm text-red-600 hover:bg-red-50">Delete</a>
-                </div>
-              </button>
+              <button onclick="event.stopPropagation(); viewExpert('${expert.id}')" class="action-btn" title="View" aria-label="View ${expert.name}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5s8.577 3.01 9.964 7.183c.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5s-8.577-3.01-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></button>
+              <button onclick="event.stopPropagation(); editExpert('${expert.id}')" class="action-btn" title="Edit" aria-label="Edit ${expert.name}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v4.5a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18.75V6.75a2.25 2.25 0 012.25-2.25h4.5"/></svg></button>
+              <button onclick="event.stopPropagation(); deleteExpert('${expert.id}')" class="action-btn danger" title="Delete" aria-label="Delete ${expert.name}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673A2.25 2.25 0 0115.916 21.75H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg></button>
             </div>
           </td>
         </tr>
@@ -571,18 +540,6 @@
     function sendEmail(id) {
       const expert = experts.find(e => e.id === id);
       if (expert) showToast(`Email draft opened for ${expert.name}`, 'info');
-    }
-
-    function toggleMenu(btn) {
-      const expertId = btn.dataset.expertId;
-      const menu = document.getElementById(`menu-expert-${expertId}`);
-      menu.classList.toggle('hidden');
-      // Close other open menus
-      document.querySelectorAll('.menu').forEach(m => {
-        if (m !== menu) m.classList.add('hidden');
-      });
-      // Prevent closing when clicking inside the menu
-      menu.addEventListener('click', (e) => e.stopPropagation());
     }
 
     function deleteExpert(id) {
