@@ -34,6 +34,19 @@
     .action-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; color: #6b7280; transition: color .15s ease, background .15s ease, border-color .15s ease; }
     .action-btn:hover { border-color: #0058AB; background: #f0f7ff; color: #0058AB; }
     .action-btn.danger:hover { border-color: #ef4444; background: #fef2f2; color: #ef4444; }
+    .sub-tab-btn { display: inline-flex; align-items: center; gap: .375rem; padding: .5rem .75rem; font-size: .8125rem; font-weight: 500; color: #6b7280; border-bottom: 2px solid transparent; white-space: nowrap; }
+    .sub-tab-btn:hover { color: #374151; }
+    .sub-tab-btn.active { color: #0058AB; border-bottom-color: #0058AB; font-weight: 600; }
+    .sub-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #e5e7eb; color: #6b7280; font-size: 10px; font-weight: 600; }
+    .sub-tab-btn.active .sub-count { background: #0058AB; color: #fff; }
+    .entry-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; background: #fcfcfd; }
+    .entry-card + .entry-card { margin-top: 12px; }
+    .fld { width: 100%; padding: .5rem .75rem; border: 1px solid #d1d5db; border-radius: .5rem; font-size: .875rem; background: #fff; }
+    .fld:focus { outline: none; box-shadow: 0 0 0 2px rgba(28,171,226,.45); border-color: #1CABE2; }
+    .fld-label { display: block; font-size: .75rem; font-weight: 500; color: #4b5563; margin-bottom: .25rem; }
+    .ghost-btn { display: inline-flex; align-items: center; gap: .375rem; padding: .5rem .875rem; border: 1px dashed #9ca3af; border-radius: .5rem; font-size: .8125rem; font-weight: 600; color: #0058AB; background: #fff; }
+    .ghost-btn:hover:not(:disabled) { border-color: #0058AB; background: #f0f7ff; }
+    .ghost-btn:disabled { opacity: .45; cursor: not-allowed; color: #6b7280; }
     .status-pending { background: #fef9c3; color: #854d0e; }
     .status-inactive { background: #fee2e2; color: #991b1b; }
     ::-webkit-scrollbar { width: 6px; }
@@ -186,6 +199,17 @@
 
           <!-- Single Add Tab -->
           <div id="add-tab-single" class="px-6 py-5">
+            <!-- Section tabs -->
+            <div class="flex items-center gap-1 border-b border-gray-200 -mx-6 px-6 mb-5 overflow-x-auto">
+              <button type="button" class="sub-tab-btn active" data-sub="basic" onclick="switchSubTab('basic')">Basic Info</button>
+              <button type="button" class="sub-tab-btn" data-sub="experience" onclick="switchSubTab('experience')">Experience <span class="sub-count" id="count-experience">0</span></button>
+              <button type="button" class="sub-tab-btn" data-sub="skills" onclick="switchSubTab('skills')">Skills &amp; Languages</button>
+              <button type="button" class="sub-tab-btn" data-sub="education" onclick="switchSubTab('education')">Education <span class="sub-count" id="count-education">0</span></button>
+              <button type="button" class="sub-tab-btn" data-sub="attachments" onclick="switchSubTab('attachments')">Attachments <span class="sub-count" id="count-attachments">0</span></button>
+            </div>
+
+            <!-- Basic Info -->
+            <div id="sub-basic" class="sub-pane">
             <div class="grid grid-cols-2 gap-4 mb-4">
               <div><label class="block text-xs font-medium text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label><input type="text" id="form-name" placeholder="e.g. Ana Haq" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" /></div>
               <div><label class="block text-xs font-medium text-gray-600 mb-1">Role / Title <span class="text-red-500">*</span></label><input type="text" id="form-role" placeholder="e.g. WASH Specialist" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" /></div>
@@ -195,13 +219,108 @@
               <div><label class="block text-xs font-medium text-gray-600 mb-1">Experience <span class="text-red-500">*</span></label><input type="text" id="form-experience" placeholder="e.g. 10 years" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" /></div>
               <div><label class="block text-xs font-medium text-gray-600 mb-1">Daily Fee</label><input type="text" id="form-fee" placeholder="e.g. $601-700" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" /></div>
               <div><label class="block text-xs font-medium text-gray-600 mb-1">LinkedIn</label><input type="url" id="form-linkedin" placeholder="https://linkedin.com/in/..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" /></div>
-              <div><label class="block text-xs font-medium text-gray-600 mb-1">Languages</label><input type="text" id="form-languages" placeholder="English, French, Arabic" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" /></div>
-              <div><label class="block text-xs font-medium text-gray-600 mb-1">Skills</label><input type="text" id="form-skills" placeholder="WASH, Sanitation" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent" /></div>
               <div><label class="block text-xs font-medium text-gray-600 mb-1">Practice Area</label><select id="form-practice" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-unicef-accent"><option value="">Select</option><option>Adolescent Development</option><option>Child Protection</option><option>Education</option><option>Financing for Scale</option><option>Health</option><option>Humanitarian Action</option><option>Nutrition</option><option>Policy Reform</option><option>Programme Management</option><option>Social & Behaviour Change</option><option>WASH</option></select></div>
               <div><label class="block text-xs font-medium text-gray-600 mb-1">Status</label><select id="form-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-unicef-accent"><option>Active</option><option>Pending</option><option>Inactive</option></select></div>
             </div>
             <div class="mb-4"><label class="block text-xs font-medium text-gray-600 mb-1">Summary</label><textarea id="form-summary" rows="2" placeholder="Brief professional background..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-unicef-accent resize-none"></textarea></div>
-            <div class="flex items-center justify-between">
+            </div><!-- /sub-basic -->
+
+            <!-- Experience -->
+            <div id="sub-experience" class="sub-pane hidden">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <p class="text-sm font-semibold text-gray-800">Professional Experience</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Up to 4 assignments, most recent first. Flag humanitarian postings &mdash; these drive emergency surge matching.</p>
+                </div>
+                <button type="button" id="add-experience-btn" onclick="addExperienceRow()" class="ghost-btn shrink-0">+ Add Experience</button>
+              </div>
+              <div id="experience-list"></div>
+              <p id="experience-empty" class="text-center text-xs text-gray-400 border border-dashed border-gray-300 rounded-lg py-8">No assignments added yet. Add up to 4 entries.</p>
+            </div>
+
+            <!-- Skills &amp; Languages -->
+            <div id="sub-skills" class="sub-pane hidden">
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label class="fld-label">Technical Skills</label>
+                  <input type="text" id="form-skills" placeholder="WASH, Sanitation, Water Quality" class="fld" />
+                  <p class="text-[11px] text-gray-400 mt-1">Comma-separated &mdash; used for roster matching</p>
+                </div>
+                <div>
+                  <label class="fld-label">Languages</label>
+                  <input type="text" id="form-languages" placeholder="English, French, Arabic" class="fld" />
+                  <p class="text-[11px] text-gray-400 mt-1">UN working languages first</p>
+                </div>
+                <div>
+                  <label class="fld-label">Programme Offer</label>
+                  <select id="form-programme" class="fld"><option value="">Select</option><option>Equity &amp; Demand Generation</option><option>Communication for Action (C4A)</option><option>Digital Infrastructure</option><option>Financing for Scale</option><option>Policy Reform &amp; Programme Design</option><option>Programme Scale-up Management</option><option>Workforce Development</option></select>
+                </div>
+                <div>
+                  <label class="fld-label">Previous UNICEF Assignments</label>
+                  <input type="text" id="form-prev-unicef" placeholder="e.g. 3 assignments (2020&ndash;2025)" class="fld" />
+                </div>
+                <div>
+                  <label class="fld-label">Availability</label>
+                  <select id="form-availability" class="fld"><option value="">Select</option><option>Within 4 weeks</option><option>1-3 months</option><option>3-6 months</option><option>6+ months</option><option>Currently Not Available</option></select>
+                </div>
+                <div>
+                  <label class="fld-label">Work Modality</label>
+                  <select id="form-modality" class="fld"><option value="">Select</option><option>Full Time (40+ hours/week)</option><option>Part Time (15-20 hours/week)</option><option>Full Time or Part Time</option><option>Remote only</option></select>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="fld-label">Regional Experience</label>
+                <div id="form-regions" class="grid grid-cols-2 gap-x-4 gap-y-2 mt-1">
+                  <label class="flex items-center gap-2 text-[13px] text-gray-600"><input type="checkbox" class="region-cb rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" value="East Asia &amp; Pacific" /> East Asia &amp; Pacific</label>
+                  <label class="flex items-center gap-2 text-[13px] text-gray-600"><input type="checkbox" class="region-cb rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" value="Europe &amp; Central Asia" /> Europe &amp; Central Asia</label>
+                  <label class="flex items-center gap-2 text-[13px] text-gray-600"><input type="checkbox" class="region-cb rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" value="Eastern &amp; Southern Africa" /> Eastern &amp; Southern Africa</label>
+                  <label class="flex items-center gap-2 text-[13px] text-gray-600"><input type="checkbox" class="region-cb rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" value="Latin America &amp; Caribbean" /> Latin America &amp; Caribbean</label>
+                  <label class="flex items-center gap-2 text-[13px] text-gray-600"><input type="checkbox" class="region-cb rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" value="Middle East &amp; North Africa" /> Middle East &amp; North Africa</label>
+                  <label class="flex items-center gap-2 text-[13px] text-gray-600"><input type="checkbox" class="region-cb rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" value="South Asia" /> South Asia</label>
+                  <label class="flex items-center gap-2 text-[13px] text-gray-600"><input type="checkbox" class="region-cb rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" value="West &amp; Central Africa" /> West &amp; Central Africa</label>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-6 border-t border-gray-100 pt-4">
+                <label class="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" id="form-emergency" class="rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" /> Emergency / surge ready</label>
+                <label class="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" id="form-mobile" class="rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" /> Willing to be mobile / deploy</label>
+              </div>
+            </div>
+
+            <!-- Education -->
+            <div id="sub-education" class="sub-pane hidden">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <p class="text-sm font-semibold text-gray-800">Education</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Up to 4 qualifications, highest first. An advanced degree is required for most UNICEF consultancies.</p>
+                </div>
+                <button type="button" id="add-education-btn" onclick="addEducationRow()" class="ghost-btn shrink-0">+ Add Education</button>
+              </div>
+              <div id="education-list"></div>
+              <p id="education-empty" class="text-center text-xs text-gray-400 border border-dashed border-gray-300 rounded-lg py-8">No qualifications added yet. Add up to 4 entries.</p>
+              <div class="mt-4">
+                <label class="fld-label">Certifications &amp; Mandatory Training</label>
+                <textarea id="form-certifications" rows="2" placeholder="e.g. BSAFE, HEAT, PSEA, Ethics in Evidence Generation, PMP" class="fld resize-none"></textarea>
+                <p class="text-[11px] text-gray-400 mt-1">BSAFE and PSEA are prerequisites for field deployment</p>
+              </div>
+            </div>
+
+            <!-- Attachments -->
+            <div id="sub-attachments" class="sub-pane hidden">
+              <div class="mb-3">
+                <p class="text-sm font-semibold text-gray-800">Supporting Documents</p>
+                <p class="text-xs text-gray-500 mt-0.5">CV or UN P11, academic certificates, reference letters and clearance records.</p>
+              </div>
+              <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-unicef-accent transition-colors cursor-pointer" onclick="document.getElementById('attachment-input').click()" ondragover="event.preventDefault(); this.classList.add('border-unicef-accent','bg-blue-50')" ondragleave="this.classList.remove('border-unicef-accent','bg-blue-50')" ondrop="event.preventDefault(); this.classList.remove('border-unicef-accent','bg-blue-50'); handleAttachmentDrop(event)">
+                <svg class="w-9 h-9 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                <p class="text-sm font-medium text-gray-700">Drag &amp; drop files here, or <span class="text-unicef-blue font-semibold">browse</span></p>
+                <p class="text-xs text-gray-400 mt-1">PDF, DOC or DOCX &mdash; up to 8 documents</p>
+                <input type="file" id="attachment-input" multiple accept=".pdf,.doc,.docx" class="hidden" onchange="handleAttachmentSelect(event)" />
+              </div>
+              <div id="attachment-list" class="mt-3"></div>
+              <p class="text-[11px] text-gray-400 mt-3">Only the file name, size and document type are recorded in this prototype &mdash; file contents are not uploaded or stored.</p>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-gray-100 pt-4 mt-5">
               <label class="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" id="form-welcome" class="rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" checked /> Send welcome email</label>
               <div class="flex items-center gap-3">
                 <button onclick="clearForm(); hideAddSection()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
@@ -502,6 +621,179 @@
       document.getElementById('add-tab-bulk').classList.toggle('hidden', tab !== 'bulk');
     }
 
+    /* ---- Add / Edit form: sections, repeatable entries, attachments ---- */
+    const MAX_EXPERIENCE = 4;
+    const MAX_EDUCATION = 4;
+    const MAX_ATTACHMENTS = 8;
+    const PRACTICE_AREAS = ['Adolescent Development','Child Protection','Education','Financing for Scale','Health','Humanitarian Action','Nutrition','Policy Reform','Programme Management','Social & Behaviour Change','WASH'];
+    const WORK_CONTEXTS = ['Development','Humanitarian / Emergency','Both'];
+    const DEGREE_LEVELS = ['Doctorate / PhD', "Master's", "Bachelor's", 'Diploma', 'Professional Certificate'];
+    const DOC_TYPES = ['CV / Resume','UN P11 Form','Academic Certificate','Reference Letter','Training Certificate','Other'];
+    const REMOVE_ICON = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
+    let attachments = [];
+
+    function escHtml(v) {
+      return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    function optionList(values, selected) {
+      return ['<option value="">Select</option>']
+        .concat(values.map(v => `<option${v === selected ? ' selected' : ''}>${escHtml(v)}</option>`))
+        .join('');
+    }
+
+    function switchSubTab(name) {
+      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.sub === name));
+      document.querySelectorAll('.sub-pane').forEach(p => p.classList.toggle('hidden', p.id !== 'sub-' + name));
+    }
+
+    function addExperienceRow(data) {
+      data = data || {};
+      const list = document.getElementById('experience-list');
+      if (list.children.length >= MAX_EXPERIENCE) {
+        showToast(`Up to ${MAX_EXPERIENCE} assignments can be added`, 'error');
+        return;
+      }
+      const card = document.createElement('div');
+      card.className = 'entry-card exp-entry';
+      card.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+          <span class="entry-index text-[11px] font-semibold text-unicef-blue uppercase tracking-wider">Assignment</span>
+          <button type="button" onclick="removeEntry(this)" class="action-btn danger" title="Remove assignment">${REMOVE_ICON}</button>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="fld-label">Organization</label><input type="text" data-f="organization" value="${escHtml(data.organization)}" placeholder="e.g. UNICEF Nigeria" class="fld" /></div>
+          <div><label class="fld-label">Role / Title</label><input type="text" data-f="role" value="${escHtml(data.role)}" placeholder="e.g. WASH Specialist" class="fld" /></div>
+          <div><label class="fld-label">Duty Station / Country</label><input type="text" data-f="location" value="${escHtml(data.location)}" placeholder="e.g. Abuja, Nigeria" class="fld" /></div>
+          <div><label class="fld-label">Practice Area</label><select data-f="practiceArea" class="fld">${optionList(PRACTICE_AREAS, data.practiceArea)}</select></div>
+          <div><label class="fld-label">Context</label><select data-f="context" class="fld">${optionList(WORK_CONTEXTS, data.context)}</select></div>
+          <div>
+            <label class="fld-label">Dates</label>
+            <div class="flex items-center gap-2">
+              <input type="month" data-f="start" value="${escHtml(data.start)}" class="fld" />
+              <span class="text-xs text-gray-400">to</span>
+              <input type="month" data-f="end" value="${escHtml(data.end)}" class="fld"${data.current ? ' disabled' : ''} />
+            </div>
+            <label class="flex items-center gap-2 text-[12px] text-gray-500 mt-1.5"><input type="checkbox" data-f="current"${data.current ? ' checked' : ''} onchange="toggleCurrentRole(this)" class="rounded border-gray-300 text-unicef-blue focus:ring-unicef-accent" /> Currently in this role</label>
+          </div>
+        </div>
+        <div class="mt-3"><label class="fld-label">Key Deliverables / Achievements</label><textarea data-f="achievements" rows="2" placeholder="e.g. Led borehole rehabilitation reaching 45,000 people across 3 LGAs" class="fld resize-none">${escHtml(data.achievements)}</textarea></div>`;
+      list.appendChild(card);
+      updateEntryUI();
+    }
+
+    function addEducationRow(data) {
+      data = data || {};
+      const list = document.getElementById('education-list');
+      if (list.children.length >= MAX_EDUCATION) {
+        showToast(`Up to ${MAX_EDUCATION} qualifications can be added`, 'error');
+        return;
+      }
+      const card = document.createElement('div');
+      card.className = 'entry-card edu-entry';
+      card.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+          <span class="entry-index text-[11px] font-semibold text-unicef-blue uppercase tracking-wider">Qualification</span>
+          <button type="button" onclick="removeEntry(this)" class="action-btn danger" title="Remove qualification">${REMOVE_ICON}</button>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="fld-label">Degree Level</label><select data-f="degree" class="fld">${optionList(DEGREE_LEVELS, data.degree)}</select></div>
+          <div><label class="fld-label">Field of Study</label><input type="text" data-f="field" value="${escHtml(data.field)}" placeholder="e.g. Public Health" class="fld" /></div>
+          <div><label class="fld-label">Institution</label><input type="text" data-f="institution" value="${escHtml(data.institution)}" placeholder="e.g. LSHTM" class="fld" /></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="fld-label">Country</label><input type="text" data-f="country" value="${escHtml(data.country)}" placeholder="e.g. UK" class="fld" /></div>
+            <div><label class="fld-label">Year</label><input type="number" data-f="year" value="${escHtml(data.year)}" min="1950" max="2035" placeholder="2015" class="fld" /></div>
+          </div>
+        </div>`;
+      list.appendChild(card);
+      updateEntryUI();
+    }
+
+    function removeEntry(btn) {
+      btn.closest('.entry-card').remove();
+      updateEntryUI();
+    }
+
+    function toggleCurrentRole(cb) {
+      const end = cb.closest('.exp-entry').querySelector('[data-f="end"]');
+      end.disabled = cb.checked;
+      if (cb.checked) end.value = '';
+    }
+
+    function updateEntryUI() {
+      const expList = document.getElementById('experience-list');
+      const eduList = document.getElementById('education-list');
+      if (!expList || !eduList) return;
+      const expCount = expList.children.length;
+      const eduCount = eduList.children.length;
+
+      [...expList.children].forEach((c, i) => { c.querySelector('.entry-index').textContent = `Assignment ${i + 1}`; });
+      [...eduList.children].forEach((c, i) => { c.querySelector('.entry-index').textContent = `Qualification ${i + 1}`; });
+
+      document.getElementById('count-experience').textContent = expCount;
+      document.getElementById('count-education').textContent = eduCount;
+      document.getElementById('count-attachments').textContent = attachments.length;
+      document.getElementById('experience-empty').classList.toggle('hidden', expCount > 0);
+      document.getElementById('education-empty').classList.toggle('hidden', eduCount > 0);
+      document.getElementById('add-experience-btn').disabled = expCount >= MAX_EXPERIENCE;
+      document.getElementById('add-education-btn').disabled = eduCount >= MAX_EDUCATION;
+    }
+
+    function collectEntries(selector, fields) {
+      return [...document.querySelectorAll(selector)].map(card => {
+        const entry = {};
+        fields.forEach(f => {
+          const el = card.querySelector(`[data-f="${f}"]`);
+          entry[f] = el ? (el.type === 'checkbox' ? el.checked : el.value.trim()) : '';
+        });
+        return entry;
+      });
+    }
+
+    function collectExperience() {
+      return collectEntries('#experience-list .exp-entry',
+        ['organization','role','location','practiceArea','context','start','end','current','achievements'])
+        .map(e => ({ ...e, end: e.current ? '' : e.end }))
+        .filter(e => e.organization || e.role);
+    }
+
+    function collectEducation() {
+      return collectEntries('#education-list .edu-entry', ['degree','field','institution','country','year'])
+        .filter(e => e.degree || e.institution || e.field);
+    }
+
+    function handleAttachmentSelect(e) { addAttachments(e.target.files); e.target.value = ''; }
+    function handleAttachmentDrop(e) { addAttachments(e.dataTransfer.files); }
+
+    function addAttachments(fileList) {
+      let skipped = 0;
+      [...fileList].forEach(f => {
+        if (attachments.length >= MAX_ATTACHMENTS) { skipped++; return; }
+        attachments.push({ name: f.name, size: f.size, docType: '' });
+      });
+      if (skipped) showToast(`Up to ${MAX_ATTACHMENTS} documents can be attached`, 'error');
+      renderAttachments();
+    }
+
+    function removeAttachment(i) { attachments.splice(i, 1); renderAttachments(); }
+    function setAttachmentType(i, value) { if (attachments[i]) attachments[i].docType = value; }
+
+    function renderAttachments() {
+      const box = document.getElementById('attachment-list');
+      if (!box) return;
+      box.innerHTML = attachments.map((a, i) => `
+        <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-2">
+          <svg class="w-5 h-5 text-unicef-blue shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <div class="flex-1 min-w-0">
+            <p class="text-[13px] font-medium text-gray-900 truncate">${escHtml(a.name)}</p>
+            <p class="text-[11px] text-gray-500">${(a.size / 1024).toFixed(1)} KB</p>
+          </div>
+          <select onchange="setAttachmentType(${i}, this.value)" class="fld w-auto text-xs py-1.5">${optionList(DOC_TYPES, a.docType)}</select>
+          <button type="button" onclick="removeAttachment(${i})" class="action-btn danger" title="Remove document">${REMOVE_ICON}</button>
+        </div>`).join('');
+      updateEntryUI();
+    }
+
     function openAddPanel() {
       editingId = null;
       document.getElementById('save-btn').textContent = 'Add to Roster';
@@ -531,6 +823,25 @@
       document.getElementById('form-summary').value = expert.summary || '';
       document.getElementById('form-skills').value = (expert.skills || []).join(', ');
       document.getElementById('form-practice').value = expert.practiceArea || '';
+      document.getElementById('form-programme').value = expert.programmeOffer || '';
+      document.getElementById('form-prev-unicef').value = expert.previousUnicefExperience || '';
+      document.getElementById('form-availability').value = expert.availabilityStatus || '';
+      document.getElementById('form-modality').value = expert.fullOrPartTime || '';
+      document.getElementById('form-certifications').value = expert.certifications || '';
+      document.getElementById('form-emergency').checked = !!expert.emergencyExperience;
+      document.getElementById('form-mobile').checked = !!expert.willingToBeMobile;
+
+      const regions = expert.regionalExperience || [];
+      document.querySelectorAll('.region-cb').forEach(cb => { cb.checked = regions.includes(cb.value); });
+
+      document.getElementById('experience-list').innerHTML = '';
+      (expert.experiences || []).forEach(e => addExperienceRow(e));
+      document.getElementById('education-list').innerHTML = '';
+      (expert.education || []).forEach(e => addEducationRow(e));
+      attachments = (expert.attachments || []).map(a => ({ ...a }));
+      renderAttachments();
+
+      switchSubTab('basic');
       showAddSection('single');
     }
 
@@ -574,6 +885,17 @@
         summary: document.getElementById('form-summary').value.trim(),
         skills: document.getElementById('form-skills').value.split(',').map(s => s.trim()).filter(Boolean),
         practiceArea: document.getElementById('form-practice').value,
+        programmeOffer: document.getElementById('form-programme').value,
+        previousUnicefExperience: document.getElementById('form-prev-unicef').value.trim(),
+        availabilityStatus: document.getElementById('form-availability').value,
+        fullOrPartTime: document.getElementById('form-modality').value,
+        regionalExperience: [...document.querySelectorAll('.region-cb:checked')].map(cb => cb.value),
+        emergencyExperience: document.getElementById('form-emergency').checked,
+        willingToBeMobile: document.getElementById('form-mobile').checked,
+        experiences: collectExperience(),
+        education: collectEducation(),
+        certifications: document.getElementById('form-certifications').value.trim(),
+        attachments: attachments.map(a => ({ ...a })),
         status: document.getElementById('form-status').value || 'Active'
       };
 
@@ -595,12 +917,20 @@
     }
 
     function clearForm() {
-      ['form-name','form-role','form-email','form-phone','form-experience','form-fee','form-linkedin','form-languages','form-summary','form-skills','form-practice'].forEach(id => {
+      ['form-name','form-role','form-email','form-phone','form-experience','form-fee','form-linkedin','form-languages','form-summary','form-skills','form-practice','form-programme','form-prev-unicef','form-availability','form-modality','form-certifications'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
       });
       document.getElementById('form-country').value = '';
       document.getElementById('form-status').value = 'Active';
+      document.getElementById('form-emergency').checked = false;
+      document.getElementById('form-mobile').checked = false;
+      document.querySelectorAll('.region-cb').forEach(cb => { cb.checked = false; });
+      document.getElementById('experience-list').innerHTML = '';
+      document.getElementById('education-list').innerHTML = '';
+      attachments = [];
+      renderAttachments();
+      switchSubTab('basic');
     }
 
     function saveToStorage() {
