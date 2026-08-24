@@ -49,6 +49,33 @@
     .ghost-btn:disabled { opacity: .45; cursor: not-allowed; color: #6b7280; }
     .status-pending { background: #fef9c3; color: #854d0e; }
     .status-inactive { background: #fee2e2; color: #991b1b; }
+    .status-active { background: #dcfce7; color: #166534; }
+    /* ---- Expert profile ---- */
+    .pf-tab { display: inline-flex; align-items: center; gap: .375rem; padding: .625rem .125rem; font-size: .8125rem; font-weight: 500; color: #6b7280; border-bottom: 2px solid transparent; white-space: nowrap; }
+    .pf-tab:hover { color: #374151; }
+    .pf-tab.active { color: #0058AB; border-bottom-color: #0058AB; font-weight: 600; }
+    .pf-tab .sub-count { background: #e5e7eb; color: #6b7280; }
+    .pf-tab.active .sub-count { background: #0058AB; color: #fff; }
+    .pf-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; }
+    .pf-section-title { font-size: .8125rem; font-weight: 700; color: #111827; letter-spacing: .01em; }
+    .pf-label { font-size: 11px; color: #9ca3af; font-weight: 500; }
+    .pf-value { font-size: 13px; color: #1f2937; }
+    .chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 500; line-height: 1.5; }
+    .chip-blue { background: #e8f6fd; color: #0058AB; border: 1px solid #b3e4f7; }
+    .chip-gray { background: #f3f4f6; color: #4b5563; }
+    .chip-green { background: #e6f7f0; color: #00836a; }
+    .chip-amber { background: #fef3c7; color: #92400e; }
+    .chip-red { background: #fee2e2; color: #991b1b; }
+    .pill { padding: 4px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 500; color: #4b5563; background: #fff; border: 1px solid #d1d5db; white-space: nowrap; }
+    .pill:hover { background: #f9fafb; }
+    .pill.active { background: #0058AB; border-color: #0058AB; color: #fff; font-weight: 600; }
+    .mission-card { position: relative; padding-left: 22px; }
+    .mission-card::before { content: ''; position: absolute; left: 4px; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: #0096FF; box-shadow: 0 0 0 3px #e8f6fd; }
+    .mission-card::after { content: ''; position: absolute; left: 8px; top: 20px; bottom: -18px; width: 1px; background: #e5e7eb; }
+    .mission-card:last-child::after { display: none; }
+    .clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .star-btn { color: #d1d5db; transition: color .12s ease; }
+    .star-btn:hover, .star-btn.on { color: #f59e0b; }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
     ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
@@ -358,6 +385,11 @@
           </div>
           </div><!-- /add card -->
         </div><!-- /add-section -->
+        <!-- Expert Profile (read-only) -->
+        <div id="profile-section" class="hidden">
+          <div class="max-w-5xl mx-auto my-2" id="profile-root"></div>
+        </div>
+
       </main>
     </div>
   </div>
@@ -600,6 +632,7 @@
     function showAddSection(tab) {
       document.getElementById('dashboard-view').classList.add('hidden');
       document.getElementById('dashboard-header').classList.add('hidden');
+      document.getElementById('profile-section').classList.add('hidden');
       document.getElementById('add-section').classList.remove('hidden');
       if (tab === 'bulk') switchAddTab('bulk');
       else switchAddTab('single');
@@ -607,6 +640,8 @@
 
     function hideAddSection() {
       document.getElementById('add-section').classList.add('hidden');
+      document.getElementById('profile-section').classList.add('hidden');
+      viewingId = null;
       document.getElementById('dashboard-view').classList.remove('hidden');
       document.getElementById('dashboard-header').classList.remove('hidden');
     }
@@ -845,9 +880,803 @@
       showAddSection('single');
     }
 
-    function viewExpert(id) {
-      editExpert(id);
+    /* ================== Expert Profile: past missions & feedback ================== */
+
+    const SEED_MISSIONS = {
+      '1': [
+        { id: 'm1a', role: 'SBC Specialist', organization: 'UNICEF Nigeria Country Office', location: 'Maiduguri, Nigeria', practiceArea: 'Social & Behaviour Change', context: 'Humanitarian / Emergency', start: '2023-02', end: '2024-08', achievements: 'Designed the community mobilisation strategy for the polio campaign, reaching 1.2M caregivers across 4 LGAs.' },
+        { id: 'm1b', role: 'C4D Consultant', organization: 'UNICEF West & Central Africa RO', location: 'Dakar, Senegal', practiceArea: 'Social & Behaviour Change', context: 'Development', start: '2021-05', end: '2022-11', achievements: 'Rolled out the regional SBC capacity package; trained 140 staff across 9 country offices.' }
+      ],
+      '2': [
+        { id: 'm2a', role: 'ECD Consultant', organization: 'UNICEF Latin America & Caribbean RO', location: 'Panama City, Panama', practiceArea: 'Education', context: 'Development', start: '2022-09', end: '2024-03', achievements: 'Developed a parenting curriculum adopted by 6 country offices and trained 80 facilitators.' },
+        { id: 'm2b', role: 'Early Learning Specialist', organization: 'UNICEF Colombia', location: 'Bogota, Colombia', practiceArea: 'Education', context: 'Development', start: '2020-01', end: '2022-06', achievements: 'Scaled a play-based learning pilot to 220 preschools serving 18,000 children.' }
+      ],
+      '3': [
+        { id: 'm3a', role: 'Digital Health Adviser', organization: 'UNICEF Ethiopia', location: 'Addis Ababa, Ethiopia', practiceArea: 'Health', context: 'Development', start: '2023-04', end: '', current: true, achievements: 'Leading the DHIS2 upgrade covering 1,100 health facilities and building routine dashboards for the Ministry of Health.' },
+        { id: 'm3b', role: 'mHealth Consultant', organization: 'UNICEF Eastern & Southern Africa RO', location: 'Nairobi, Kenya', practiceArea: 'Health', context: 'Development', start: '2021-03', end: '2023-01', achievements: 'Deployed a RapidPro maternal messaging service to 340,000 subscribers across 3 countries.' }
+      ],
+      '4': [
+        { id: 'm4a', role: 'WASH Officer', organization: 'UNICEF Nigeria', location: 'Yola, Nigeria', practiceArea: 'WASH', context: 'Humanitarian / Emergency', start: '2022-06', end: '2024-01', achievements: 'Managed emergency water trucking and rehabilitated 38 boreholes serving 62,000 displaced people.' },
+        { id: 'm4b', role: 'Hygiene Promotion Consultant', organization: 'UNICEF Mozambique', location: 'Beira, Mozambique', practiceArea: 'WASH', context: 'Humanitarian / Emergency', start: '2020-04', end: '2021-12', achievements: 'Ran the post-cyclone cholera response hygiene campaign across 14 displacement camps.' }
+      ],
+      '5': [
+        { id: 'm5a', role: 'Emergency Health Coordinator', organization: 'UNICEF Uganda', location: 'Bidibidi, Uganda', practiceArea: 'Humanitarian Action', context: 'Humanitarian / Emergency', start: '2023-01', end: '2024-06', achievements: 'Coordinated the measles and cholera response across settlements hosting 270,000 refugees.' },
+        { id: 'm5b', role: 'Health Surge Lead', organization: 'UNICEF Yemen', location: 'Aden, Yemen', practiceArea: 'Health', context: 'Humanitarian / Emergency', start: '2021-02', end: '2022-09', achievements: 'Stood up 22 mobile health teams and integrated nutrition screening into routine outreach.' }
+      ],
+      '6': [
+        { id: 'm6a', role: 'Health Policy Consultant', organization: 'UNICEF Pakistan', location: 'Islamabad, Pakistan', practiceArea: 'Policy Reform', context: 'Development', start: '2023-03', end: '2024-09', achievements: 'Drafted the UHC benefit package advocacy brief adopted in the provincial health strategy.' },
+        { id: 'm6b', role: 'Health Systems Analyst', organization: 'UNICEF South Asia RO', location: 'Kathmandu, Nepal', practiceArea: 'Health', context: 'Development', start: '2021-08', end: '2023-01', achievements: 'Produced a five-country health financing analysis used in regional programme planning.' }
+      ],
+      '7': [
+        { id: 'm7a', role: 'Child Protection Specialist', organization: 'UNICEF Lebanon', location: 'Beirut, Lebanon', practiceArea: 'Child Protection', context: 'Humanitarian / Emergency', start: '2022-01', end: '2023-11', achievements: 'Set up the case management system for 4,200 unaccompanied and separated children.' },
+        { id: 'm7b', role: 'GBV Programme Consultant', organization: 'UNICEF Nigeria', location: 'Maiduguri, Nigeria', practiceArea: 'Child Protection', context: 'Humanitarian / Emergency', start: '2020-05', end: '2021-10', achievements: 'Established 9 safe spaces and trained 60 social workers on PSEA and referral pathways.' }
+      ],
+      '8': [
+        { id: 'm8a', role: 'Public Finance Consultant', organization: 'UNICEF Ethiopia', location: 'Addis Ababa, Ethiopia', practiceArea: 'Financing for Scale', context: 'Development', start: '2023-06', end: '', current: true, achievements: 'Leading child-focused budget analysis feeding the national social protection financing dialogue.' },
+        { id: 'm8b', role: 'Social Protection Economist', organization: 'UNICEF West & Central Africa RO', location: 'Dakar, Senegal', practiceArea: 'Financing for Scale', context: 'Development', start: '2020-09', end: '2023-02', achievements: 'Modelled shock-responsive cash transfer costing for 7 Sahel countries.' }
+      ],
+      '9': [
+        { id: 'm9a', role: 'Adolescent Development Consultant', organization: 'UNICEF Nigeria', location: 'Abuja, Nigeria', practiceArea: 'Adolescent Development', context: 'Development', start: '2023-02', end: '2024-07', achievements: 'Designed a life skills package delivered to 26,000 adolescents through youth centres.' },
+        { id: 'm9b', role: 'Youth Engagement Officer', organization: 'UNICEF Ghana', location: 'Accra, Ghana', practiceArea: 'Adolescent Development', context: 'Development', start: '2021-04', end: '2022-12', achievements: 'Launched the U-Report expansion, adding 90,000 young subscribers.' }
+      ],
+      '10': [
+        { id: 'm10a', role: 'WASH Consultant', organization: "UNICEF Cote d'Ivoire", location: "Abidjan, Cote d'Ivoire", practiceArea: 'WASH', context: 'Development', start: '2022-03', end: '2023-09', achievements: 'Supported the CLTS scale-up, certifying 180 villages open-defecation free.' }
+      ]
+    };
+
+    const SEED_FEEDBACK = {
+      '1': [
+        { id: 'f1a', missionId: 'm1a', author: 'Aisha Bello', authorRole: 'Chief of Field Office, UNICEF Maiduguri', rating: 5, date: '2024-09-02', comment: 'Exceptional at community entry — built trust with traditional leaders quickly and campaign uptake reflected it. Reporting was clear and always on time.' },
+        { id: 'f1b', missionId: 'm1a', author: 'Daniel Okoro', authorRole: 'Health Manager, UNICEF Nigeria', rating: 4, date: '2024-08-19', comment: 'Strong technical grounding in behaviour change and smooth coordination with the health cluster. Field mission documentation sometimes arrived late.' },
+        { id: 'f1c', missionId: 'm1b', author: 'Marie Sow', authorRole: 'Regional SBC Adviser, WCARO', rating: 5, date: '2022-12-05', comment: 'Led the training design end to end. Excellent facilitator, and his capacity building materials are still in use across the region.' }
+      ],
+      '2': [
+        { id: 'f2a', missionId: 'm2a', author: 'Carlos Mendez', authorRole: 'Education Manager, LACRO', rating: 5, date: '2024-04-11', comment: 'Rigorous, evidence-driven and genuinely collaborative. The curriculum she built has held up well after handover.' },
+        { id: 'f2b', missionId: 'm2a', author: 'Priya Nair', authorRole: 'Programme Officer, UNICEF Panama', rating: 4, date: '2024-03-28', comment: 'Very strong technical work and clear presentations to government partners. Needed some support navigating procurement timelines.' },
+        { id: 'f2c', missionId: 'm2b', author: 'Ana Restrepo', authorRole: 'ECD Officer, UNICEF Colombia', rating: 5, date: '2022-07-14', comment: 'Hands-on in the field and spent real time with teachers. Data collection and monitoring were the best I have seen on a pilot this size.' }
+      ],
+      '3': [
+        { id: 'f3a', missionId: 'm3a', author: 'Selam Tadesse', authorRole: 'Health Specialist, UNICEF Ethiopia', rating: 5, date: '2025-02-20', comment: 'Deep technical expertise on DHIS2 and patient about explaining it to non-technical counterparts. The MoH team asked for her by name on the follow-on.' },
+        { id: 'f3b', missionId: 'm3a', author: 'Peter Ochieng', authorRole: 'ICT Manager, UNICEF Ethiopia', rating: 4, date: '2024-11-08', comment: 'Solid architecture decisions and good documentation. Timelines slipped once due to vendor delays outside her control.' },
+        { id: 'f3c', missionId: 'm3b', author: 'Fatuma Ali', authorRole: 'Regional Health Adviser, ESARO', rating: 4, date: '2023-02-16', comment: 'Reliable delivery across three country offices. Would have liked more frequent written updates during the scale-up phase.' }
+      ],
+      '4': [
+        { id: 'f4a', missionId: 'm4a', author: 'Ibrahim Musa', authorRole: 'WASH Manager, UNICEF Nigeria', rating: 5, date: '2024-02-06', comment: 'Calm under pressure and highly practical. Turned around the water trucking contract issues within a week of arriving.' },
+        { id: 'f4b', missionId: 'm4a', author: 'Grace Adeyemi', authorRole: 'Emergency Specialist, UNICEF Nigeria', rating: 4, date: '2024-01-22', comment: 'Very strong field presence and good analysis. Budget tracking needed closer supervision towards the end of the assignment.' },
+        { id: 'f4c', missionId: 'm4b', author: 'Joao Silva', authorRole: 'WASH Cluster Coordinator', rating: 4, date: '2022-01-30', comment: 'Effective coordinator with partners on the ground. Communication back to the cluster could have been more regular.' }
+      ],
+      '5': [
+        { id: 'f5a', missionId: 'm5a', author: 'Sarah Nakato', authorRole: 'Chief of Health, UNICEF Uganda', rating: 5, date: '2024-07-03', comment: 'Twelve years of surge experience shows. She stabilised a chaotic response in weeks and mentored two national officers along the way.' },
+        { id: 'f5b', missionId: 'm5a', author: 'Robert Kimani', authorRole: 'Nutrition Specialist, UNICEF Uganda', rating: 5, date: '2024-06-25', comment: 'Outstanding coordination with WHO and MSF. Decisive, evidence-based and unflappable.' },
+        { id: 'f5c', missionId: 'm5b', author: 'Layla Hassan', authorRole: 'Emergency Manager, UNICEF Yemen', rating: 4, date: '2022-10-10', comment: 'Excellent operationally. Handover documentation at the end of the mission was thinner than we needed.' }
+      ],
+      '6': [
+        { id: 'f6a', missionId: 'm6a', author: 'Hassan Raza', authorRole: 'Health Manager, UNICEF Pakistan', rating: 4, date: '2024-10-02', comment: 'Sharp policy analyst with strong government relationships. Writing is excellent; sometimes over-scopes what can be done in the time available.' },
+        { id: 'f6b', missionId: 'm6a', author: 'Nadia Khan', authorRole: 'Social Policy Specialist, UNICEF Pakistan', rating: 5, date: '2024-09-18', comment: 'Her briefs landed with the provincial secretary in a way ours had not. Very responsive throughout.' },
+        { id: 'f6c', missionId: 'm6b', author: 'Dipesh Sharma', authorRole: 'Regional Health Adviser, ROSA', rating: 4, date: '2023-02-01', comment: 'Thorough comparative analysis delivered on schedule. Would benefit from more field validation of desk findings.' }
+      ],
+      '7': [
+        { id: 'f7a', missionId: 'm7a', author: 'Rania Khoury', authorRole: 'Chief of Child Protection, UNICEF Lebanon', rating: 5, date: '2023-12-04', comment: 'Excellent case management design and deeply ethical in her practice. Trusted by partners and by children.' },
+        { id: 'f7b', missionId: 'm7b', author: 'Amina Yusuf', authorRole: 'CP Officer, UNICEF Nigeria', rating: 4, date: '2021-11-15', comment: 'Strong safeguarding instincts and a good trainer. Monthly reporting occasionally needed chasing.' }
+      ],
+      '8': [
+        { id: 'f8a', missionId: 'm8a', author: 'Bereket Alemu', authorRole: 'Chief of Social Policy, UNICEF Ethiopia', rating: 5, date: '2025-03-12', comment: 'Formidable technical economist. The budget brief she produced is now the reference document for our advocacy with the Ministry of Finance.' },
+        { id: 'f8b', missionId: 'm8a', author: 'Helen Mekonnen', authorRole: 'Programme Specialist, UNICEF Ethiopia', rating: 4, date: '2024-12-09', comment: 'Rigorous and well organised. The modelling is complex — she could simplify how she presents it to non-economists.' },
+        { id: 'f8c', missionId: 'm8b', author: 'Ousmane Diallo', authorRole: 'Regional Adviser, WCARO', rating: 5, date: '2023-03-07', comment: 'Delivered a seven-country costing on a tight deadline without dropping quality. Highly recommended.' }
+      ],
+      '9': [
+        { id: 'f9a', missionId: 'm9a', author: 'Chidi Nwosu', authorRole: 'Adolescent Development Specialist, UNICEF Nigeria', rating: 4, date: '2024-08-01', comment: 'Genuinely good with young people and strong programme design. Documentation of results lagged behind implementation.' },
+        { id: 'f9b', missionId: 'm9b', author: 'Akosua Mensah', authorRole: 'C4D Specialist, UNICEF Ghana', rating: 5, date: '2023-01-20', comment: 'Creative, energetic and very effective at partnership building with youth networks.' }
+      ],
+      '10': [
+        { id: 'f10a', missionId: 'm10a', author: 'Kouadio Yao', authorRole: "WASH Specialist, UNICEF Cote d'Ivoire", rating: 4, date: '2023-10-11', comment: 'Diligent on CLTS follow-up and good with community facilitators. Still building confidence on donor reporting.' },
+        { id: 'f10b', missionId: 'm10a', author: 'Sylvie Konan', authorRole: "Programme Assistant, UNICEF Cote d'Ivoire", rating: 4, date: '2023-09-29', comment: 'Easy to work with and responsive. Field visit planning improved a lot over the course of the assignment.' }
+      ]
+    };
+
+    const MAX_FEEDBACK_CHARS = 280;
+    let viewingId = null;
+    let profileTab = 'overview';
+    let feedbackFilter = 'all';
+    let feedbackFormOpen = false;
+    let feedbackFormMission = 'general';
+    let feedbackRating = 0;
+    let expandedFeedback = {};
+
+    function hydrateProfileData() {
+      let changed = false;
+      experts.forEach(e => {
+        if (!Array.isArray(e.missions) && SEED_MISSIONS[e.id] && !(e.experiences || []).length) {
+          e.missions = SEED_MISSIONS[e.id].map(m => ({ ...m }));
+          changed = true;
+        }
+        if (!Array.isArray(e.feedback)) {
+          e.feedback = (SEED_FEEDBACK[e.id] || []).map(f => ({ ...f }));
+          changed = true;
+        }
+      });
+      if (changed) saveToStorage();
     }
+
+    function getMissions(expert) {
+      if (Array.isArray(expert.missions) && expert.missions.length) return expert.missions;
+      return (expert.experiences || []).map((x, i) => ({ id: 'exp-' + i, ...x }));
+    }
+
+    function getFeedback(expert) {
+      return Array.isArray(expert.feedback) ? expert.feedback : [];
+    }
+
+    const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    function fmtMonth(v) {
+      if (!v) return '';
+      const parts = String(v).split('-');
+      const m = parseInt(parts[1], 10);
+      return (m >= 1 && m <= 12 ? MONTH_NAMES[m - 1] + ' ' : '') + parts[0];
+    }
+
+    function fmtDate(v) {
+      if (!v) return '';
+      const parts = String(v).split('-');
+      if (parts.length < 3) return fmtMonth(v);
+      const m = parseInt(parts[1], 10);
+      return parseInt(parts[2], 10) + ' ' + (MONTH_NAMES[m - 1] || '') + ' ' + parts[0];
+    }
+
+    function missionDates(m) {
+      const s = fmtMonth(m.start);
+      const e = m.current ? 'Present' : fmtMonth(m.end);
+      if (!s && !e) return 'Dates not recorded';
+      return [s, e].filter(Boolean).join(' – ');
+    }
+
+    function missionTitle(m) {
+      return m.role || m.organization || 'Assignment';
+    }
+
+    /* ---- Feedback summarisation (deterministic, kept deliberately short) ---- */
+
+    const FEEDBACK_THEMES = [
+      { theme: 'technical depth', words: ['technical','expertise','expert ','specialist','rigor','rigour','methodolog','architecture','economist','analyst','modelling','analysis'] },
+      { theme: 'partner coordination', words: ['coordinat','partner','stakeholder','government','cluster','ministry','counterpart','who ','msf','secretary','network'] },
+      { theme: 'delivery on time', words: ['on time','timely','deadline','on schedule','turnaround','punctual','within a week','tight deadline'] },
+      { theme: 'reporting & documentation', words: ['report','document','writing','write','brief','deliverable','handover','curriculum'] },
+      { theme: 'field presence', words: ['field','community','ground','village','teacher','facilitator','duty station','hands-on','camp'] },
+      { theme: 'capacity building', words: ['train','coach','mentor','capacity','workshop','facilitator','materials'] },
+      { theme: 'communication', words: ['communicat','present','responsive','clear','explain','articulate','collaborat','easy to work'] },
+      { theme: 'data & evidence', words: ['data','evidence','monitor','indicator','dashboard','dhis','m&e','costing','budget analysis'] },
+      { theme: 'leadership under pressure', words: ['calm','pressure','decisive','stabilis','stabiliz','led the','leadership','ownership','unflappable','surge'] }
+    ];
+
+    // Word-boundary matched so 'thin' does not fire on 'within', 'late' on 'related', etc.
+    const CONCERN_RE = /\b(late|lagged|lags|lagging|slipped|slips|delay|delays|delayed|thin|thinner|chasing|needed|lacked|lacking|missing|struggled|simplify|over-scope|over-scopes|could have|should have|would have liked|would benefit|more frequent|more regular|closer supervision|still building|room for improvement|not enough|too slow)\b/i;
+
+    function detectThemes(text) {
+      const t = ' ' + String(text || '').toLowerCase() + ' ';
+      return FEEDBACK_THEMES.filter(g => g.words.some(w => t.indexOf(w) !== -1)).map(g => g.theme);
+    }
+
+    // Themes are ranked over sentences, not whole reviews, so a praise sentence
+    // in a review that also raises a concern does not colour the watch-outs.
+    function rankThemesFromTexts(texts) {
+      const counts = {};
+      texts.forEach(t => detectThemes(t).forEach(th => { counts[th] = (counts[th] || 0) + 1; }));
+      return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
+    }
+
+    function splitSentences(text) {
+      return String(text || '').split(/[.!?;]+/).map(x => x.trim()).filter(Boolean);
+    }
+
+    function isConcern(sentence) {
+      return CONCERN_RE.test(sentence);
+    }
+
+    function concernFragments(items) {
+      const out = [];
+      items.forEach(f => splitSentences(f.comment).forEach(x => { if (isConcern(x)) out.push(x); }));
+      return out;
+    }
+
+    function praiseFragments(items) {
+      const out = [];
+      items.forEach(f => splitSentences(f.comment).forEach(x => { if (!isConcern(x)) out.push(x); }));
+      return out;
+    }
+
+    function joinList(arr) {
+      if (!arr.length) return '';
+      if (arr.length === 1) return arr[0];
+      return arr.slice(0, -1).join(', ') + ' and ' + arr[arr.length - 1];
+    }
+
+    // The most representative concern, quoted rather than reduced to a theme label —
+    // a theme can be both a strength and a watch-out, which reads as a contradiction.
+    function topConcernQuote(items, maxLen) {
+      const cap = maxLen || 95;
+      const byRating = items.slice().sort((a, b) => (Number(a.rating) || 0) - (Number(b.rating) || 0));
+      for (let i = 0; i < byRating.length; i++) {
+        const frags = concernFragments([byRating[i]]);
+        if (frags.length) {
+          let q = frags[0];
+          q = q.charAt(0).toLowerCase() + q.slice(1);
+          if (q.length > cap) q = q.slice(0, cap - 1).trim() + '…';
+          return q;
+        }
+      }
+      return '';
+    }
+
+    function avgRating(items) {
+      if (!items.length) return 0;
+      return items.reduce((s, f) => s + (Number(f.rating) || 0), 0) / items.length;
+    }
+
+    // Returns a compact, 1-2 sentence read of everything reviewers said.
+    function summarizeFeedback(items, expert) {
+      const count = items.length;
+      if (!count) {
+        return { count: 0, avg: 0, missions: 0, text: 'No feedback recorded yet. Add a review once this expert completes an assignment.', strengths: [], watchOuts: [] };
+      }
+      const avg = avgRating(items);
+      const missions = new Set(items.map(f => f.missionId || 'general')).size;
+      const positives = items.filter(f => Number(f.rating) >= 4);
+      const strengths = rankThemesFromTexts(praiseFragments(positives.length ? positives : items)).slice(0, 3);
+      const watchOuts = rankThemesFromTexts(concernFragments(items)).filter(t => strengths.slice(0, 2).indexOf(t) === -1).slice(0, 2);
+      const quote = topConcernQuote(items);
+      const first = (expert && expert.name ? expert.name.split(' ')[0] : 'This expert');
+
+      let text = count + (count === 1 ? ' reviewer' : ' reviewers') + ' across ' + missions +
+        (missions === 1 ? ' mission rate ' : ' missions rate ') + first + ' ' + avg.toFixed(1) + '/5.';
+      if (strengths.length) text += ' Consistently strong on ' + joinList(strengths.slice(0, 2)) + '.';
+      if (quote) text += ' Watch-out raised: ' + quote + '.';
+      return { count, avg, missions, text, strengths, watchOuts };
+    }
+
+    // One-line roll-up shown on each mission card.
+    function missionSummaryLine(items) {
+      if (!items.length) return 'No feedback yet for this mission.';
+      const avg = avgRating(items);
+      const strengths = rankThemesFromTexts(praiseFragments(items.filter(f => Number(f.rating) >= 4))).slice(0, 2);
+      const quote = topConcernQuote(items, 70);
+      let s = items.length + (items.length === 1 ? ' review' : ' reviews') + ' · ' + avg.toFixed(1) + '/5';
+      if (strengths.length) s += ' — strong on ' + joinList(strengths);
+      s += '.';
+      if (quote) s += ' Noted: ' + quote + '.';
+      return s;
+    }
+
+    /* ---- Profile rendering ---- */
+
+    function starsHtml(rating, px) {
+      const size = px || 14;
+      let out = '';
+      for (let i = 1; i <= 5; i++) {
+        out += '<svg width="' + size + '" height="' + size + '" viewBox="0 0 20 20" fill="' + (i <= Math.round(rating) ? '#f59e0b' : '#e5e7eb') + '"><path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1.99 5.79L10 14.78l-5.2 2.73.99-5.79L1.58 7.62l5.82-.85L10 1.5z"/></svg>';
+      }
+      return '<span class="inline-flex items-center gap-0.5 align-middle">' + out + '</span>';
+    }
+
+    function viewExpert(id) {
+      const expert = experts.find(e => e.id === id);
+      if (!expert) return;
+      viewingId = id;
+      profileTab = 'overview';
+      feedbackFilter = 'all';
+      feedbackFormOpen = false;
+      expandedFeedback = {};
+      renderProfile();
+      showProfileSection();
+    }
+
+    function showProfileSection() {
+      document.getElementById('dashboard-view').classList.add('hidden');
+      document.getElementById('dashboard-header').classList.add('hidden');
+      document.getElementById('add-section').classList.add('hidden');
+      document.getElementById('profile-section').classList.remove('hidden');
+      const main = document.querySelector('main');
+      if (main) main.scrollTop = 0;
+    }
+
+    function backToRoster() {
+      viewingId = null;
+      document.getElementById('profile-section').classList.add('hidden');
+      document.getElementById('dashboard-view').classList.remove('hidden');
+      document.getElementById('dashboard-header').classList.remove('hidden');
+    }
+
+    function switchProfileTab(tab) {
+      profileTab = tab;
+      renderProfile();
+    }
+
+    function filterFeedbackBy(missionId) {
+      feedbackFilter = missionId;
+      profileTab = 'feedback';
+      renderProfile();
+    }
+
+    function toggleFeedbackExpand(fid) {
+      expandedFeedback[fid] = !expandedFeedback[fid];
+      renderProfile();
+    }
+
+    function renderProfile() {
+      const expert = experts.find(e => e.id === viewingId);
+      if (!expert) { backToRoster(); return; }
+      const missions = getMissions(expert);
+      const feedback = getFeedback(expert).slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      const summary = summarizeFeedback(feedback, expert);
+      const docs = expert.attachments || [];
+
+      const tabs = [
+        { key: 'overview', label: 'Overview' },
+        { key: 'missions', label: 'Past Missions', count: missions.length },
+        { key: 'feedback', label: 'Feedback', count: feedback.length },
+        { key: 'documents', label: 'Documents', count: docs.length }
+      ];
+
+      let pane = '';
+      if (profileTab === 'overview') pane = renderOverviewPane(expert, missions, feedback, summary);
+      else if (profileTab === 'missions') pane = renderMissionsPane(expert, missions, feedback);
+      else if (profileTab === 'feedback') pane = renderFeedbackPane(expert, missions, feedback, summary);
+      else pane = renderDocumentsPane(docs);
+
+      document.getElementById('profile-root').innerHTML = `
+        <button onclick="backToRoster()" class="inline-flex items-center gap-1.5 text-[13px] font-medium text-gray-500 hover:text-unicef-dark mb-3">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          Back to roster
+        </button>
+
+        <div class="pf-card p-5 mb-3">
+          <div class="flex items-start gap-4 flex-wrap">
+            <div class="w-14 h-14 rounded-full shrink-0 flex items-center justify-center font-bold text-lg text-white" style="background:${getAvatarColor(expert.name)}">${getInitials(expert.name)}</div>
+            <div class="flex-1 min-w-[220px]">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h1 class="font-heading font-bold text-xl text-gray-900 leading-tight">${escHtml(expert.name)}</h1>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${getStatusClass(expert.status)}">${escHtml(expert.status || 'Active')}</span>
+              </div>
+              <p class="text-[13px] text-gray-600 mt-0.5">${escHtml(expert.role || '')}</p>
+              <div class="flex items-center gap-2 flex-wrap mt-1.5 text-[12px] text-gray-500">
+                <span>${countryFlags[expert.country] || ''} ${escHtml(expert.country || '')}</span>
+                <span class="text-gray-300">|</span><span>${escHtml(expert.experience || '')}</span>
+                <span class="text-gray-300">|</span><span class="font-medium text-gray-700">${escHtml(expert.dailyFee || '')}</span>
+                ${expert.availabilityStatus ? `<span class="text-gray-300">|</span><span>Available ${escHtml(expert.availabilityStatus.toLowerCase())}</span>` : ''}
+              </div>
+              <div class="flex items-center gap-1.5 flex-wrap mt-2">
+                ${expert.practiceArea ? `<span class="chip chip-blue">${escHtml(expert.practiceArea)}</span>` : ''}
+                ${expert.programmeOffer ? `<span class="chip chip-green">${escHtml(expert.programmeOffer)}</span>` : ''}
+                ${expert.emergencyExperience ? '<span class="chip chip-amber">Surge ready</span>' : ''}
+                ${expert.willingToBeMobile ? '<span class="chip chip-gray">Mobile / deployable</span>' : ''}
+              </div>
+            </div>
+            <div class="shrink-0 text-right border-l border-gray-100 pl-4 ml-auto">
+              <p class="text-2xl font-bold text-gray-900 leading-none">${summary.count ? summary.avg.toFixed(1) : '—'}<span class="text-sm font-normal text-gray-400">${summary.count ? '/5' : ''}</span></p>
+              <div class="mt-1">${starsHtml(summary.avg, 13)}</div>
+              <button onclick="switchProfileTab('feedback')" class="text-[11px] text-unicef-blue hover:underline mt-1">${summary.count} review${summary.count === 1 ? '' : 's'}</button>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button onclick="editExpert('${expert.id}')" class="action-btn" title="Edit"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v4.5a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18.75V6.75a2.25 2.25 0 012.25-2.25h4.5"/></svg></button>
+              <button onclick="deleteExpertFromProfile('${expert.id}')" class="action-btn danger" title="Delete"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166M18.16 19.673A2.25 2.25 0 0115.916 21.75H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-5 border-b border-gray-200 mb-3 px-1 overflow-x-auto">
+          ${tabs.map(t => `<button class="pf-tab${profileTab === t.key ? ' active' : ''}" onclick="switchProfileTab('${t.key}')">${t.label}${t.count !== undefined ? ` <span class="sub-count">${t.count}</span>` : ''}</button>`).join('')}
+        </div>
+
+        ${pane}
+      `;
+    }
+
+    function deleteExpertFromProfile(id) {
+      if (!confirm('Are you sure you want to delete this expert?')) return;
+      experts = experts.filter(e => e.id !== id);
+      saveToStorage();
+      renderStats();
+      filterExperts();
+      backToRoster();
+      showToast('Expert deleted successfully', 'success');
+    }
+
+    function detailRow(label, value) {
+      return `<div><p class="pf-label">${label}</p><p class="pf-value mt-0.5">${value ? escHtml(value) : '<span class="text-gray-300">Not recorded</span>'}</p></div>`;
+    }
+
+    function renderOverviewPane(expert, missions, feedback, summary) {
+      const orgs = [...new Set(missions.map(m => m.organization).filter(Boolean))];
+      const places = [...new Set(missions.map(m => m.location).filter(Boolean))];
+      const areas = [...new Set(missions.map(m => m.practiceArea).filter(Boolean).concat(expert.practiceArea ? [expert.practiceArea] : []))];
+      const contexts = [...new Set(missions.map(m => m.context).filter(Boolean))];
+      const regions = expert.regionalExperience || [];
+      const education = expert.education || [];
+
+      return `
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 pb-6">
+        <div class="lg:col-span-2 space-y-3">
+
+          <div class="pf-card p-5">
+            <p class="pf-section-title mb-2">Professional summary</p>
+            <p class="text-[13px] text-gray-600 leading-relaxed">${expert.summary ? escHtml(expert.summary) : '<span class="text-gray-400">No summary recorded.</span>'}</p>
+          </div>
+
+          <div class="pf-card p-5">
+            <div class="flex items-center justify-between mb-2">
+              <p class="pf-section-title">What reviewers say</p>
+              <button onclick="switchProfileTab('feedback')" class="text-[12px] font-medium text-unicef-blue hover:underline">All feedback &rarr;</button>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="shrink-0 text-center bg-[#f0f7ff] rounded-lg px-3 py-2">
+                <p class="text-lg font-bold text-unicef-dark leading-none">${summary.count ? summary.avg.toFixed(1) : '—'}</p>
+                <p class="text-[10px] text-gray-500 mt-1">${summary.count} review${summary.count === 1 ? '' : 's'}</p>
+              </div>
+              <p class="text-[13px] text-gray-700 leading-relaxed">${escHtml(summary.text)}</p>
+            </div>
+            ${summary.strengths.length || summary.watchOuts.length ? `
+            <div class="flex items-center gap-1.5 flex-wrap mt-3 pt-3 border-t border-gray-100">
+              ${summary.strengths.map(s => `<span class="chip chip-green">+ ${escHtml(s)}</span>`).join('')}
+              ${summary.watchOuts.map(s => `<span class="chip chip-amber">! ${escHtml(s)}</span>`).join('')}
+            </div>` : ''}
+          </div>
+
+          <div class="pf-card p-5">
+            <p class="pf-section-title mb-1">Related to what they have worked on</p>
+            <p class="text-[11px] text-gray-400 mb-3">Derived from ${missions.length} recorded mission${missions.length === 1 ? '' : 's'} and their reviews.</p>
+            <div class="space-y-2.5">
+              ${relatedRow('Practice areas', areas.map(a => `<span class="chip chip-blue">${escHtml(a)}</span>`))}
+              ${relatedRow('Organisations', orgs.map(o => `<span class="chip chip-gray">${escHtml(o)}</span>`))}
+              ${relatedRow('Duty stations', places.map(p => `<span class="chip chip-gray">${escHtml(p)}</span>`))}
+              ${relatedRow('Context', contexts.map(c => `<span class="chip ${c.indexOf('Human') === 0 ? 'chip-amber' : 'chip-green'}">${escHtml(c)}</span>`))}
+              ${relatedRow('Regions', regions.map(r => `<span class="chip chip-gray">${escHtml(r)}</span>`))}
+              ${relatedRow('Skills', (expert.skills || []).map(s => `<span class="chip chip-gray">${escHtml(s)}</span>`))}
+            </div>
+          </div>
+
+          <div class="pf-card p-5">
+            <p class="pf-section-title mb-3">Education</p>
+            ${education.length ? education.map(e => `
+              <div class="flex items-start gap-3 py-2 border-b border-gray-100 last:border-0">
+                <div class="w-8 h-8 rounded-lg bg-[#f0f7ff] flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4 text-unicef-dark" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-[13px] font-medium text-gray-900">${escHtml([e.degree, e.field].filter(Boolean).join(' — ')) || 'Qualification'}</p>
+                  <p class="text-[11px] text-gray-500">${escHtml([e.institution, e.country, e.year].filter(Boolean).join(' · '))}</p>
+                </div>
+              </div>`).join('') : '<p class="text-[13px] text-gray-400">No qualifications recorded.</p>'}
+            ${expert.certifications ? `<div class="mt-3 pt-3 border-t border-gray-100"><p class="pf-label">Certifications &amp; mandatory training</p><p class="pf-value mt-1">${escHtml(expert.certifications)}</p></div>` : ''}
+          </div>
+
+        </div>
+
+        <div class="space-y-3">
+          <div class="pf-card p-5">
+            <p class="pf-section-title mb-3">Contact</p>
+            <div class="space-y-3">
+              ${detailRow('Email', expert.email)}
+              ${detailRow('Phone', expert.phone)}
+              <div><p class="pf-label">LinkedIn</p>${expert.linkedIn ? `<a href="${escHtml(expert.linkedIn)}" target="_blank" rel="noopener" class="pf-value text-unicef-blue hover:underline break-all mt-0.5 block">${escHtml(expert.linkedIn)}</a>` : '<p class="pf-value mt-0.5 text-gray-300">Not recorded</p>'}</div>
+              ${detailRow('Languages', (expert.languages || []).join(', '))}
+            </div>
+          </div>
+
+          <div class="pf-card p-5">
+            <p class="pf-section-title mb-3">Deployment</p>
+            <div class="space-y-3">
+              ${detailRow('Availability', expert.availabilityStatus)}
+              ${detailRow('Work modality', expert.fullOrPartTime)}
+              ${detailRow('Previous UNICEF assignments', expert.previousUnicefExperience)}
+              ${detailRow('Daily fee', expert.dailyFee)}
+            </div>
+          </div>
+
+          <div class="pf-card p-5">
+            <p class="pf-section-title mb-3">Mission record</p>
+            <div class="space-y-3">
+              ${detailRow('Missions recorded', String(missions.length))}
+              ${detailRow('Reviews received', String(feedback.length))}
+              ${detailRow('Most recent', missions.length ? missionDates(missions[0]) : '')}
+            </div>
+            <button onclick="switchProfileTab('missions')" class="w-full mt-3 px-3 py-2 border border-gray-300 rounded-lg text-[12px] font-medium text-gray-700 hover:bg-gray-50">View past missions</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function relatedRow(label, chips) {
+      if (!chips.length) return '';
+      return `<div class="flex items-start gap-3">
+        <p class="pf-label w-28 shrink-0 pt-1">${label}</p>
+        <div class="flex items-center gap-1.5 flex-wrap">${chips.join('')}</div>
+      </div>`;
+    }
+
+    function renderMissionsPane(expert, missions, feedback) {
+      if (!missions.length) {
+        return `<div class="pf-card p-10 text-center mb-6">
+          <p class="text-[13px] text-gray-500">No past missions recorded for ${escHtml(expert.name)} yet.</p>
+          <button onclick="editExpert('${expert.id}')" class="mt-3 px-4 py-2 bg-unicef-blue text-white rounded-lg text-[13px] font-semibold hover:bg-unicef-dark">Add experience</button>
+        </div>`;
+      }
+      return `
+      <div class="pf-card p-5 mb-6">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <p class="pf-section-title">Past missions</p>
+            <p class="text-[11px] text-gray-400 mt-0.5">Most recent first. Feedback below each mission is from the colleagues who worked with them on it.</p>
+          </div>
+          <span class="chip chip-gray shrink-0">${missions.length} mission${missions.length === 1 ? '' : 's'}</span>
+        </div>
+        <div>
+          ${missions.map(m => {
+            const mf = feedback.filter(f => f.missionId === m.id);
+            return `
+            <div class="mission-card pb-5">
+              <div class="flex items-start justify-between gap-3 flex-wrap">
+                <div class="min-w-0">
+                  <p class="text-[14px] font-semibold text-gray-900 leading-tight">${escHtml(missionTitle(m))}</p>
+                  <p class="text-[12px] text-gray-500 mt-0.5">${escHtml([m.organization, m.location].filter(Boolean).join(' · '))}</p>
+                </div>
+                <span class="text-[11px] text-gray-500 shrink-0 bg-gray-50 border border-gray-200 rounded-full px-2.5 py-0.5">${escHtml(missionDates(m))}</span>
+              </div>
+              <div class="flex items-center gap-1.5 flex-wrap mt-2">
+                ${m.practiceArea ? `<span class="chip chip-blue">${escHtml(m.practiceArea)}</span>` : ''}
+                ${m.context ? `<span class="chip ${String(m.context).indexOf('Human') === 0 ? 'chip-amber' : 'chip-green'}">${escHtml(m.context)}</span>` : ''}
+              </div>
+              ${m.achievements ? `<p class="text-[13px] text-gray-600 leading-relaxed mt-2">${escHtml(m.achievements)}</p>` : ''}
+              <div class="mt-3 rounded-lg border border-gray-200 bg-[#fafbfc] px-3 py-2.5">
+                <div class="flex items-start justify-between gap-3 flex-wrap">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      ${mf.length ? starsHtml(avgRating(mf), 12) : ''}
+                      <p class="text-[12px] text-gray-600">${escHtml(missionSummaryLine(mf))}</p>
+                    </div>
+                    ${mf.length ? `<div class="flex items-center gap-1.5 flex-wrap mt-1.5">${mf.slice(0, 4).map(f => `<span class="chip chip-gray" title="${escHtml(f.authorRole || '')}">${escHtml(f.author)}</span>`).join('')}${mf.length > 4 ? `<span class="text-[11px] text-gray-400">+${mf.length - 4} more</span>` : ''}</div>` : ''}
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    ${mf.length ? `<button onclick="filterFeedbackBy('${m.id}')" class="text-[12px] font-medium text-unicef-blue hover:underline">Read ${mf.length}</button>` : ''}
+                    <button onclick="openFeedbackForm('${m.id}')" class="text-[12px] font-medium text-gray-600 hover:text-unicef-dark border border-gray-300 rounded-md px-2 py-1 bg-white">+ Feedback</button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }
+
+    function renderDocumentsPane(docs) {
+      if (!docs.length) return '<div class="pf-card p-10 text-center mb-6"><p class="text-[13px] text-gray-500">No supporting documents on file.</p></div>';
+      return `<div class="pf-card p-5 mb-6">
+        <p class="pf-section-title mb-3">Supporting documents</p>
+        ${docs.map(a => `
+          <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5 mb-2">
+            <svg class="w-5 h-5 text-unicef-blue shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] font-medium text-gray-900 truncate">${escHtml(a.name)}</p>
+              <p class="text-[11px] text-gray-500">${(a.size / 1024).toFixed(1)} KB</p>
+            </div>
+            ${a.docType ? `<span class="chip chip-gray">${escHtml(a.docType)}</span>` : ''}
+          </div>`).join('')}
+      </div>`;
+    }
+
+    /* ---- Feedback pane: summary, multi-reviewer list, add form ---- */
+
+    function renderFeedbackPane(expert, missions, feedback, summary) {
+      const visible = feedbackFilter === 'all'
+        ? feedback
+        : feedback.filter(f => (f.missionId || 'general') === feedbackFilter);
+      const filterSummary = feedbackFilter === 'all' ? summary : summarizeFeedback(visible, expert);
+
+      const pills = [{ id: 'all', label: 'All feedback', n: feedback.length }]
+        .concat(missions.map(m => ({ id: m.id, label: missionTitle(m), n: feedback.filter(f => f.missionId === m.id).length })))
+        .concat(feedback.some(f => !f.missionId || f.missionId === 'general')
+          ? [{ id: 'general', label: 'General', n: feedback.filter(f => !f.missionId || f.missionId === 'general').length }] : []);
+
+      return `
+      <div class="space-y-3 pb-6">
+
+        <div class="pf-card p-5">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <p class="pf-section-title">Summarised feedback</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">A short roll-up of every review${feedbackFilter === 'all' ? '' : ' on this mission'} — read the full entries below.</p>
+            </div>
+            <button onclick="openFeedbackForm('${feedbackFilter === 'all' ? 'general' : feedbackFilter}')" class="flex items-center gap-1.5 px-3.5 py-2 bg-unicef-blue text-white rounded-lg text-[12.5px] font-semibold hover:bg-unicef-dark shrink-0">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6"/></svg>
+              Add Feedback
+            </button>
+          </div>
+          <div class="flex items-start gap-4 flex-wrap">
+            <div class="shrink-0 text-center bg-[#f0f7ff] rounded-xl px-4 py-3 min-w-[92px]">
+              <p class="text-2xl font-bold text-unicef-dark leading-none">${filterSummary.count ? filterSummary.avg.toFixed(1) : '—'}</p>
+              <div class="mt-1.5">${starsHtml(filterSummary.avg, 12)}</div>
+              <p class="text-[10px] text-gray-500 mt-1">${filterSummary.count} review${filterSummary.count === 1 ? '' : 's'}</p>
+            </div>
+            <div class="flex-1 min-w-[240px]">
+              <p class="text-[13.5px] text-gray-700 leading-relaxed">${escHtml(filterSummary.text)}</p>
+              ${filterSummary.strengths.length || filterSummary.watchOuts.length ? `
+              <div class="flex items-center gap-1.5 flex-wrap mt-3">
+                ${filterSummary.strengths.map(s => `<span class="chip chip-green">+ ${escHtml(s)}</span>`).join('')}
+                ${filterSummary.watchOuts.map(s => `<span class="chip chip-amber">! ${escHtml(s)}</span>`).join('')}
+              </div>` : ''}
+            </div>
+          </div>
+        </div>
+
+        ${pills.length > 1 ? `<div class="flex items-center gap-2 flex-wrap">
+          ${pills.map(p => `<button class="pill${feedbackFilter === p.id ? ' active' : ''}" onclick="filterFeedbackBy('${p.id}')">${escHtml(p.label)} <span class="opacity-60">${p.n}</span></button>`).join('')}
+        </div>` : ''}
+
+        ${feedbackFormOpen ? renderFeedbackForm(expert, missions) : ''}
+
+        ${visible.length ? visible.map(f => renderFeedbackCard(expert, missions, f)).join('') : `
+          <div class="pf-card p-10 text-center">
+            <p class="text-[13px] text-gray-500">No feedback recorded${feedbackFilter === 'all' ? '' : ' for this mission'} yet.</p>
+            <button onclick="openFeedbackForm('${feedbackFilter === 'all' ? 'general' : feedbackFilter}')" class="mt-3 px-4 py-2 bg-unicef-blue text-white rounded-lg text-[13px] font-semibold hover:bg-unicef-dark">Add the first review</button>
+          </div>`}
+      </div>`;
+    }
+
+    function renderFeedbackCard(expert, missions, f) {
+      const mission = missions.find(m => m.id === f.missionId);
+      const long = String(f.comment || '').length > 180;
+      const open = !!expandedFeedback[f.id];
+      return `
+      <div class="pf-card p-4">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center font-bold text-[11px] text-white" style="background:${getAvatarColor(f.author || 'R')}">${getInitials(f.author || 'R')}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3 flex-wrap">
+              <div class="min-w-0">
+                <p class="text-[13px] font-semibold text-gray-900 leading-tight">${escHtml(f.author || 'Anonymous reviewer')}</p>
+                <p class="text-[11px] text-gray-500 mt-0.5">${escHtml(f.authorRole || 'Reviewer')}</p>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                ${starsHtml(f.rating, 13)}
+                <span class="text-[11px] text-gray-400">${escHtml(fmtDate(f.date))}</span>
+                <button onclick="deleteFeedback('${f.id}')" class="text-gray-300 hover:text-red-500" title="Remove this review" aria-label="Remove review by ${escHtml(f.author || 'reviewer')}">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="mt-1.5">
+              <span class="chip ${mission ? 'chip-blue' : 'chip-gray'}">${escHtml(mission ? missionTitle(mission) : 'General feedback')}</span>
+            </div>
+            <p class="text-[13px] text-gray-700 leading-relaxed mt-2 ${long && !open ? 'clamp-3' : ''}">${escHtml(f.comment)}</p>
+            ${long ? `<button onclick="toggleFeedbackExpand('${f.id}')" class="text-[11.5px] font-medium text-unicef-blue hover:underline mt-1">${open ? 'Show less' : 'Show more'}</button>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function ratingInputHtml() {
+      let out = '';
+      for (let i = 1; i <= 5; i++) {
+        out += `<button type="button" onclick="setFeedbackRating(${i})" class="star-btn${i <= feedbackRating ? ' on' : ''}" aria-label="${i} star${i === 1 ? '' : 's'}">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1.99 5.79L10 14.78l-5.2 2.73.99-5.79L1.58 7.62l5.82-.85L10 1.5z"/></svg>
+        </button>`;
+      }
+      const labels = ['', 'Below expectations', 'Needs improvement', 'Met expectations', 'Strong', 'Outstanding'];
+      return out + `<span class="text-[11.5px] text-gray-500 ml-2">${feedbackRating ? labels[feedbackRating] : 'Select a rating'}</span>`;
+    }
+
+    function renderFeedbackForm(expert, missions) {
+      return `
+      <div class="pf-card p-5 border-unicef-accent" id="feedback-form">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <p class="pf-section-title">Add feedback on ${escHtml(expert.name)}</p>
+            <p class="text-[11px] text-gray-400 mt-0.5">Anyone who worked with this expert can add a review. Keep it short — it feeds the summary above.</p>
+          </div>
+          <button onclick="cancelFeedbackForm()" class="text-gray-400 hover:text-gray-600" aria-label="Close feedback form">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div><label class="fld-label">Your name <span class="text-red-500">*</span></label><input type="text" id="fb-author" placeholder="e.g. Aisha Bello" class="fld" /></div>
+          <div><label class="fld-label">Your role &amp; office</label><input type="text" id="fb-role" placeholder="e.g. Chief of Field Office, UNICEF Maiduguri" class="fld" /></div>
+          <div class="sm:col-span-2">
+            <label class="fld-label">Mission this relates to</label>
+            <select id="fb-mission" class="fld">
+              <option value="general"${feedbackFormMission === 'general' ? ' selected' : ''}>General feedback (not mission-specific)</option>
+              ${missions.map(m => `<option value="${escHtml(m.id)}"${feedbackFormMission === m.id ? ' selected' : ''}>${escHtml(missionTitle(m))} — ${escHtml(m.organization || '')} (${escHtml(missionDates(m))})</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="fld-label">Rating <span class="text-red-500">*</span></label>
+          <div id="fb-stars" class="flex items-center gap-0.5 mt-1">${ratingInputHtml()}</div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between">
+            <label class="fld-label">Feedback <span class="text-red-500">*</span></label>
+            <span class="text-[11px] text-gray-400"><span id="fb-count">0</span>/${MAX_FEEDBACK_CHARS}</span>
+          </div>
+          <textarea id="fb-comment" rows="3" maxlength="${MAX_FEEDBACK_CHARS}" oninput="updateFeedbackCount()" placeholder="Two or three sentences on how they performed — what they did well and anything to watch." class="fld resize-none"></textarea>
+          <p class="text-[11px] text-gray-400 mt-1">Kept to ${MAX_FEEDBACK_CHARS} characters so the roll-up above stays readable.</p>
+        </div>
+        <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-4 mt-4">
+          <button onclick="cancelFeedbackForm()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+          <button onclick="submitFeedback()" class="px-5 py-2 bg-unicef-blue text-white rounded-lg text-sm font-semibold hover:bg-unicef-dark">Submit Feedback</button>
+        </div>
+      </div>`;
+    }
+
+    function openFeedbackForm(missionId) {
+      feedbackFormOpen = true;
+      feedbackFormMission = missionId || 'general';
+      feedbackRating = 0;
+      profileTab = 'feedback';
+      renderProfile();
+      const el = document.getElementById('fb-author');
+      if (el) { el.focus(); el.scrollIntoView({ block: 'center' }); }
+    }
+
+    function cancelFeedbackForm() {
+      feedbackFormOpen = false;
+      feedbackRating = 0;
+      renderProfile();
+    }
+
+    function setFeedbackRating(n) {
+      feedbackRating = n;
+      const box = document.getElementById('fb-stars');
+      if (box) box.innerHTML = ratingInputHtml();
+    }
+
+    function updateFeedbackCount() {
+      const ta = document.getElementById('fb-comment');
+      const out = document.getElementById('fb-count');
+      if (ta && out) out.textContent = ta.value.length;
+    }
+
+    function submitFeedback() {
+      const expert = experts.find(e => e.id === viewingId);
+      if (!expert) return;
+      const author = document.getElementById('fb-author').value.trim();
+      const authorRole = document.getElementById('fb-role').value.trim();
+      const missionId = document.getElementById('fb-mission').value;
+      const comment = document.getElementById('fb-comment').value.trim();
+
+      if (!author) { showToast('Please enter your name', 'error'); return; }
+      if (!feedbackRating) { showToast('Please select a rating', 'error'); return; }
+      if (comment.length < 10) { showToast('Please write at least a sentence of feedback', 'error'); return; }
+
+      const now = new Date();
+      const stamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+      if (!Array.isArray(expert.feedback)) expert.feedback = [];
+      expert.feedback.push({
+        id: 'fb' + Date.now(),
+        missionId: missionId === 'general' ? '' : missionId,
+        author, authorRole,
+        rating: feedbackRating,
+        date: stamp,
+        comment: comment.slice(0, MAX_FEEDBACK_CHARS)
+      });
+
+      saveToStorage();
+      feedbackFormOpen = false;
+      feedbackRating = 0;
+      feedbackFilter = 'all';
+      renderProfile();
+      showToast('Feedback added — summary updated', 'success');
+    }
+
+    function deleteFeedback(fid) {
+      const expert = experts.find(e => e.id === viewingId);
+      if (!expert || !Array.isArray(expert.feedback)) return;
+      if (!confirm('Remove this review?')) return;
+      expert.feedback = expert.feedback.filter(f => f.id !== fid);
+      saveToStorage();
+      renderProfile();
+      showToast('Review removed', 'success');
+    }
+
 
     function sendEmail(id) {
       const expert = experts.find(e => e.id === id);
@@ -1139,6 +1968,7 @@ Carlos Rivera,Education Specialist,carlos.r@unicef-roster.org,+52 55 1234 5678,M
     }
 
     // Init
+    hydrateProfileData();
     renderStats();
     setView('list');
     filterExperts();
