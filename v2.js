@@ -16,7 +16,7 @@
       hiv: ['#ff5a4f', '#E2231A'], mncah: ['#ff7bb5', '#d6336c'], edu: ['#35b8ef', '#0A6CFF'], protect: ['#a35cf0', '#6d28d9'], cross: ['#ffb02e', '#F26A21'] };
     const SHORT = { mncah: 'MNCAH Specialists', sbc: 'Social & Behaviour Change Specialists', network: 'External Expert Network', climate: 'Climate & Environment Experts' };
     root.innerHTML = `
-    <section class="v2-hero" aria-labelledby="v2h"><div class="v2-heroin">
+    <section class="v2-hero" aria-labelledby="v2h"><div class="v2-deco"></div><div class="v2-heroin">
       <div class="v2-copy">
         <div class="eyebrow">REACH</div>
         <h1 id="v2h">Find the right expertise</h1>
