@@ -109,13 +109,13 @@
     </div>
   </main>
 
-  <script src="experts-data.js"></script>
+  <script src="dashboard-data.js"></script>
   <script src="rosters.js"></script>
   <script>
     const ARROW = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
     
-    const ALL = loadExperts().filter(e => e.status === 'Active');
-    ROSTERS.forEach(r => r.count = matchExperts(ALL, r.terms.join('|')).length);
+    const ALL = DASH_EXPERTS;
+    ROSTERS.forEach(r => r.count = countRoster(r));
     document.getElementById('statN').textContent = ALL.length; document.getElementById('statR').textContent = ROSTERS.length;
     document.getElementById('rosters').innerHTML = ROSTERS.map((r, n) => `
       <a class="card${r.count ? '' : ' empty'}" href="#" data-n="${n}">
@@ -127,12 +127,12 @@
       </a>`).join('');
     document.getElementById('rosters').addEventListener('click', e => {
       const c = e.target.closest('.card'); if (!c) return; e.preventDefault();
-      const r = ROSTERS[+c.dataset.n]; location.href = resultsUrl(r.terms.join('|'), r.t);
+      location.href = rosterUrl(ROSTERS[+c.dataset.n]);
     });
 
     function search(text) {
       text = text.trim(); if (!text) return;
-      const r = resolveSearch(text); location.href = resultsUrl(r.q, r.label);
+      location.href = searchUrl(text);
     }
     document.getElementById('searchForm').addEventListener('submit', e => { e.preventDefault(); search(document.getElementById('q').value); });
     document.querySelectorAll('.suggest button').forEach(b => b.onclick = () => search(b.textContent));
