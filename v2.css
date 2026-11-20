@@ -62,8 +62,9 @@ body[data-ver="2"] main, body[data-ver="2"] .icon-btn { display:none; }
 #v2 .tile .p { display:none; } #v2 .tile.xl .p { display:block; }
 #v2 .tile.zero > img { filter:grayscale(.85) brightness(.9); }
 /* ---------- guidance banner ---------- */
-#v2 .v2-banner { position:relative; overflow:hidden; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:28px; margin:26px 0 36px; padding:24px 40px; border-radius:26px; background:linear-gradient(90deg,#e6f2fd 0%,#dcecfb 100%); }
+#v2 .v2-banner { position:relative; overflow:hidden; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:28px; margin:26px 0 36px; padding:26px 56px; border-radius:26px; background:linear-gradient(90deg,#e6f2fd 0%,#dcecfb 100%); }
 #v2 .v2-banner::after { content:""; position:absolute; right:-170px; bottom:-130px; width:380px; height:180px; border-radius:50%; background:linear-gradient(120deg,#a9dcf7,#1CABE2 60%,#0A6CFF); transform:rotate(-24deg); opacity:.9; }
+#v2 .v2-banner::before { content:""; position:absolute; left:-190px; bottom:-135px; width:380px; height:180px; border-radius:50%; background:linear-gradient(60deg,#a9dcf7,#1CABE2 60%,#0A6CFF); transform:rotate(24deg); opacity:.9; }
 #v2 .v2-banner > * { position:relative; z-index:1; }
 #v2 .v2-banner .blk { display:flex; align-items:center; justify-content:space-between; gap:20px; }
 #v2 .v2-banner h3 { margin:0 0 4px; font-size:24px; font-weight:800; letter-spacing:-.5px; color:var(--navy); }
