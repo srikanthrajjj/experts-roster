@@ -19,10 +19,7 @@
     protect: I('<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/>'),
     cross: I('<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><path d="M17 13v8M13 17h8"/>')
   };
-  const COL = {
-    recovery: ['#ffe5d3', '#e8590c'], network: ['#dfe8ff', '#2f5bea'], sbc: ['#e9e1ff', '#7048e8'], climate: ['#d9f5e3', '#2b8a3e'], finance: ['#fff1b8', '#b7791f'],
-    hiv: ['#ffdde2', '#d6336c'], mncah: ['#d6efff', '#1c7ed6'], edu: ['#e2e9ff', '#364fc7'], protect: ['#d3f4ec', '#0b7285'], cross: ['#ffe0f0', '#c2255c']
-  };
+  const COL = {"recovery": ["#f8ece3", "#b4551d"], "network": ["#e8eefa", "#3a5bb5"], "sbc": ["#eee9f9", "#6a4bc4"], "climate": ["#e4f2e8", "#2f7a45"], "finance": ["#f7f0d8", "#9a6b12"], "hiv": ["#f9e6e9", "#b83a5e"], "mncah": ["#e3f0f9", "#1f6fae"], "edu": ["#e8ecf8", "#3a4aa8"], "protect": ["#e1f1ee", "#16707a"], "cross": ["#f7e7f0", "#a8305f"]};
 
   function build(root) {
     const EXP = DASH_EXPERTS;
@@ -34,7 +31,7 @@
     const countries = new Set(EXP.map(e => e.location)).size;
 
     const tone = ['#e9e1ff', '#fff', '#fff3c4'], pick = [EXP[0], EXP[5], EXP[3]];
-    const ecard = (e, k) => `<div class="ec e${k}"><div class="top"><div class="ava" style="background:${['#ffe0f0', '#d6efff', '#d9f5e3'][k - 1]}">${esc(initials(e.name))}</div><div><b>${esc(e.name)}</b><small>${esc(e.role)}</small></div></div><div class="row"><span class="ok">Available</span>${(e.languages || []).slice(0, 2).map(l => `<span>${esc(l)}</span>`).join('')}</div></div>`;
+    const ecard = (e, k) => `<div class="ec e${k}"><div class="top"><div class="ava" style="background:${['#f6e3ee', '#e1eefa', '#e2f1e7'][k - 1]}">${esc(initials(e.name))}</div><div><b>${esc(e.name)}</b><small>${esc(e.role)}</small></div></div><div class="row"><span class="ok">Available</span>${(e.languages || []).slice(0, 2).map(l => `<span>${esc(l)}</span>`).join('')}</div></div>`;
     root.innerHTML = `
     <section class="v2-hero" aria-labelledby="v2h">
       <div class="v2-blobs"><span class="v2-blob a"></span><span class="v2-blob b"></span></div>
@@ -57,7 +54,6 @@
           </div>
         </div>
         <div class="v2-art" aria-hidden="true">
-          <div class="spark">&#10024;</div>
           ${ecard(pick[0], 1)}${ecard(pick[1], 2)}
           <div class="ec e3"><small>Experts available across</small><div class="big">${ROSTERS.length} rosters</div><div class="row"><span>${countries} countries</span><span>${langMap.size} languages</span></div></div>
         </div>
