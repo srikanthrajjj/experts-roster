@@ -53,6 +53,8 @@
     .card .body { padding:14px 20px 16px; flex:1; display:flex; flex-direction:column; }
     .card h3 { margin:0 0 6px; font-size:17px; line-height:1.15; font-weight:700; }
     .card p { margin:0 0 14px; font-size:13.5px; color:var(--muted); line-height:1.35; flex:1; }
+    .count { font-size:12.5px; color:var(--muted); margin:-6px 0 10px; } .count b { color:var(--dark); font-size:14px; }
+    .card.empty { opacity:.7; }
     .foot { display:flex; align-items:center; gap:8px; }
     .chip { background:var(--tint); color:#0b3a6e; font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:999px; }
     .arrow { margin-left:auto; width:30px; height:30px; border-radius:50%; background:#fff; box-shadow:0 1px 6px rgba(0,0,0,.18); display:grid; place-items:center; color:var(--brand); flex:none; }
@@ -105,6 +107,7 @@
     </div>
   </main>
 
+  <script src="experts-data.js"></script>
   <script>
     // Each roster -> dashboard filter. `terms` are OR-ed; matched against practice area, role, skills, summary.
     const ROSTERS = [
@@ -129,10 +132,13 @@
     const ARROW = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
     const go = (q, label) => { location.href = 'admin.html?q=' + encodeURIComponent(q) + (label ? '&roster=' + encodeURIComponent(label) : ''); };
 
+    const ALL = loadExperts().filter(e => e.status === 'Active');
+    ROSTERS.forEach(r => r.count = matchExperts(ALL, r.terms.join('|')).length);
     document.getElementById('rosters').innerHTML = ROSTERS.map((r, n) => `
-      <a class="card" href="#" data-n="${n}">
+      <a class="card${r.count ? '' : ' empty'}" href="#" data-n="${n}">
         <div class="thumb" style="background:linear-gradient(135deg,${r.g[0]},${r.g[1]})">${r.i}</div>
         <div class="body"><h3>${r.t}</h3><p>${r.d}</p>
+          <div class="count"><b>${r.count}</b> ${r.count === 1 ? 'expert' : 'experts'} available</div>
           <div class="foot">${r.tags.map(x => `<span class="chip">${x}</span>`).join('')}<span class="arrow">${ARROW}</span></div>
         </div>
       </a>`).join('');
