@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="v2.css" />
   <style>
     :root { --blue:#1CABE2; --brand:#0A6CFF; --dark:#0058AB; --ink:#0b1d33; --muted:#475569; --line:#dbe7f5; --tint:#eaf3fd; }
     * { box-sizing:border-box; }
@@ -74,10 +75,10 @@
     <nav>
       <a href="#">Home</a><a href="#">About REACH</a><a href="#" class="active">Rosters</a><a href="#">Technical Assistance</a><a href="#">Knowledge &amp; Resources</a><a href="#">Help &amp; Contact</a>
     </nav>
-    <div class="icon-btn" onclick="document.getElementById('q').focus()" title="Search"><svg width="20" height="20" fill="none" stroke="#0b1d33" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+    <div class="icon-btn" onclick="document.getElementById(document.body.dataset.ver==='2'?'v2q':'q').focus()" title="Search"><svg width="20" height="20" fill="none" stroke="#0b1d33" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
   </div></header>
 
-  <section class="hero"><div class="wrap">
+  <section class="hero" data-v="1"><div class="wrap">
     <div>
       <h1>Find the right <em>expertise</em></h1>
       <p class="lead">Search UNICEF's rosters of vetted specialists and consultants by skill, topic or programme area.</p>
@@ -96,10 +97,14 @@
     </div>
   </div></section>
 
+  <div id="v2"></div>
+
   <main class="wrap">
+    <div data-v="1">
     <h2>Explore our rosters</h2>
     <p class="sub">Browse specialist rosters by area of expertise. Select a roster to view profiles, coverage and how to access experts.</p>
     <div class="grid" id="rosters"></div>
+    </div>
 
     <div class="notice">
       <svg width="34" height="34" fill="none" stroke="#0A6CFF" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
@@ -109,8 +114,15 @@
     </div>
   </main>
 
+  <div id="verToggle" role="radiogroup" aria-label="Home page version">
+    <span>Layout</span>
+    <button type="button" role="radio" data-ver="1" aria-checked="true">V1</button>
+    <button type="button" role="radio" data-ver="2" aria-checked="false">V2</button>
+  </div>
+
   <script src="dashboard-data.js"></script>
   <script src="rosters.js"></script>
+  <script src="v2.js"></script>
   <script>
     const ARROW = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
     
@@ -136,6 +148,22 @@
     }
     document.getElementById('searchForm').addEventListener('submit', e => { e.preventDefault(); search(document.getElementById('q').value); });
     document.querySelectorAll('.suggest button').forEach(b => b.onclick = () => search(b.textContent));
+    // ---- V1 / V2 switch (V1 is the default; ?v=2 or the saved choice selects V2)
+    (function () {
+      const KEY = 'reach-home-ver';
+      const get = () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
+      const set = v => { try { localStorage.setItem(KEY, v); } catch (e) {} };
+      const fromUrl = new URLSearchParams(location.search).get('v');
+      function apply(v, persist) {
+        v = v === '2' ? '2' : '1';
+        document.body.dataset.ver = v;
+        if (v === '2') window.initHomeV2();
+        document.querySelectorAll('#verToggle [data-ver]').forEach(b => b.setAttribute('aria-checked', b.dataset.ver === v));
+        if (persist) { set(v); const u = new URL(location.href); v === '2' ? u.searchParams.set('v', '2') : u.searchParams.delete('v'); history.replaceState(null, '', u); }
+      }
+      document.querySelectorAll('#verToggle [data-ver]').forEach(b => b.addEventListener('click', () => apply(b.dataset.ver, true)));
+      apply(fromUrl || get() || '1', false);
+    })();
   </script>
 </body>
 </html>

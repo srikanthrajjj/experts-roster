@@ -3,6 +3,7 @@ const DASH_EXPERTS = [
  {
   "name": "William Singh",
   "role": "Social & Behaviour Change Specialist",
+  "location": "Nigeria",
   "skills": [
    "Social & Behaviour Change",
    "Health",
@@ -17,6 +18,7 @@ const DASH_EXPERTS = [
  {
   "name": "Elena Johnson",
   "role": "Early Childhood Development Specialist",
+  "location": "Canada",
   "skills": [
    "Social & Behaviour Change",
    "Health",
@@ -36,6 +38,7 @@ const DASH_EXPERTS = [
  {
   "name": "Chloe Jensen",
   "role": "Digital Infrastructure & Health Specialist",
+  "location": "Ethiopia",
   "skills": [
    "Digital Infrastructure",
    "Health",
@@ -50,6 +53,7 @@ const DASH_EXPERTS = [
  {
   "name": "Julia Costa",
   "role": "Health & WASH Specialist",
+  "location": "Nigeria",
   "skills": [
    "Health",
    "Early Childhood Development",
@@ -65,6 +69,7 @@ const DASH_EXPERTS = [
  {
   "name": "Helene Garcia",
   "role": "Humanitarian Action & Health Specialist",
+  "location": "Uganda",
   "skills": [
    "Humanitarian Action",
    "Policy Reform",
@@ -80,6 +85,7 @@ const DASH_EXPERTS = [
  {
   "name": "Farah Lopez",
   "role": "Policy Reform & Health Specialist",
+  "location": "Pakistan",
   "skills": [
    "Policy Reform",
    "Health",
@@ -96,6 +102,7 @@ const DASH_EXPERTS = [
  {
   "name": "Zoe Haddad",
   "role": "Child Protection & WASH Specialist",
+  "location": "Nigeria",
   "skills": [
    "Child Protection & Migration",
    "WASH",
@@ -110,6 +117,7 @@ const DASH_EXPERTS = [
  {
   "name": "Yara Traore",
   "role": "Financing for Scale & Economic Policy Specialist",
+  "location": "Ethiopia",
   "skills": [
    "Financing for Scale",
    "Economic Policy",
@@ -124,6 +132,7 @@ const DASH_EXPERTS = [
  {
   "name": "Mariam Smith",
   "role": "Policy Reform & Adolescent Development Specialist",
+  "location": "Nigeria",
   "skills": [
    "Policy Reform",
    "Adolescent Development",
@@ -139,6 +148,7 @@ const DASH_EXPERTS = [
  {
   "name": "Ana Haq",
   "role": "WASH Specialist",
+  "location": "Cote d'Ivoire",
   "skills": [
    "WASH",
    "Programme Scale-up Management",
