@@ -59,7 +59,6 @@
     .foot { display:flex; align-items:center; gap:8px; }
     .chip { background:var(--tint); color:#0b3a6e; font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:999px; }
     .arrow { margin-left:auto; width:30px; height:30px; border-radius:50%; background:#fff; box-shadow:0 1px 6px rgba(0,0,0,.18); display:grid; place-items:center; color:var(--brand); flex:none; }
-    .credits { font-size:12px; color:var(--muted); margin:-20px 0 36px; } .credits summary { cursor:pointer; } .credits ul { columns:2; padding-left:18px; } .credits a { color:var(--dark); }
     .notice { margin:18px 0 40px; background:var(--tint); border:1px solid #dce9f8; border-radius:14px; padding:16px 24px; display:flex; align-items:center; gap:22px; }
     .notice b { font-size:18px; padding-right:22px; border-right:1px solid #c9d9ec; }
     .notice span { flex:1; font-size:14px; }
@@ -108,35 +107,13 @@
       <span>Review UNICEF's recruitment and procurement procedures, which still apply.</span>
       <a href="#">Read the guidance ↗</a>
     </div>
-    <details class="credits"><summary>Photo credits</summary><ul><li>Recovery &ndash; <a href="https://commons.wikimedia.org/wiki/File:Flooding_in_Por_Chaman%2C_Farah_Province%2C_Kills_12_Civilians_DVIDS249180.jpg" target="_blank" rel="noopener">Flooding in Por Chaman, Farah Province, Kills 12 Civilians DVIDS249180</a> by Master Sgt. Tracy DeMarco (Public domain)</li><li>External Expert Network &ndash; <a href="https://commons.wikimedia.org/wiki/File:Togo_Health_Clinic_preconstruction_meeting_%289962610266%29.jpg" target="_blank" rel="noopener">Togo Health Clinic preconstruction meeting (9962610266)</a> by U.S. Army Corps of Engineers Europe District from Wiesbaden, Germany (Public domain)</li><li>SBC &ndash; <a href="https://commons.wikimedia.org/wiki/File:Khaab_Foundation.jpg" target="_blank" rel="noopener">Khaab Foundation</a> by Pal85akash (CC BY-SA 4.0)</li><li>Climate &ndash; <a href="https://commons.wikimedia.org/wiki/File:Ratargul_0276.jpg" target="_blank" rel="noopener">Ratargul 0276</a> by Abdulmominbd (CC BY-SA 4.0)</li><li>Financing &ndash; <a href="https://commons.wikimedia.org/wiki/File:Money_saving_growth.jpg" target="_blank" rel="noopener">Money saving growth</a> by nattanan (CC0)</li><li>HIV/AIDS &ndash; <a href="https://commons.wikimedia.org/wiki/File:HIV_Vaccine_Awareness_Ribbon_-_2.jpg" target="_blank" rel="noopener">HIV Vaccine Awareness Ribbon - 2</a> by NIAID (CC BY 2.0)</li><li>MNCAH &ndash; <a href="https://commons.wikimedia.org/wiki/File:A_Syrian_refugee_and_her_newborn_baby_at_a_clinic_in_Ramtha%2C_Jordan_%289613483141%29.jpg" target="_blank" rel="noopener">A Syrian refugee and her newborn baby at a clinic in Ramtha, Jordan (9613483141)</a> by DFID - UK Department for International Development (CC BY 2.0)</li><li>Education &ndash; <a href="https://commons.wikimedia.org/wiki/File:School_with_a_group_of_young_african_children_1.jpg" target="_blank" rel="noopener">School with a group of young african children 1</a> by Alex David Pratt (CC0)</li><li>Child Protection &ndash; <a href="https://commons.wikimedia.org/wiki/File:%22Await%22_by_Canovu_-_Child_tugging_adult%27s_hand%2C_Portugal_2014.png" target="_blank" rel="noopener">&quot;Await&quot; by Canovu - Child tugging adult's hand, Portugal 2014</a> by Canovu (CC BY 4.0)</li><li>Cross-Cutting &ndash; <a href="https://commons.wikimedia.org/wiki/File:A_group_of_children_playing_baloons%2C_Ismailia%2C_Egypt.jpg" target="_blank" rel="noopener">A group of children playing baloons, Ismailia, Egypt</a> by Husseingallery (CC BY-SA 4.0)</li></ul><p>Images from Wikimedia Commons under the licenses shown. Illustrative only; people shown are not UNICEF experts.</p></details>
   </main>
 
   <script src="experts-data.js"></script>
+  <script src="rosters.js"></script>
   <script>
-    // Each roster -> dashboard filter. `terms` are OR-ed; matched against practice area, role, skills, summary.
-    const ROSTERS = [
-      { img:'recovery', t:'Recovery Specialists', d:'Recovery, resilience and risk-informed programming.', tags:['Recovery','Resilience'], terms:['recovery','resilience','humanitarian'], g:['#c9d6e8','#8fa6c4'], i:'🏗️' },
-      { img:'network', t:'External Expert Network', d:'A global network of external specialists across priority areas.', tags:['Global','Policy'], terms:['policy','programme management'], g:['#ffd9a8','#f0a35e'], i:'🌍' },
-      { img:'sbc', t:'Social & Behaviour Change (SBC) Specialists', d:'Social and behaviour change, communication and community engagement.', tags:['SBC','Communication'], terms:['social & behaviour change','sbc','communication','community engagement'], g:['#cfe9d6','#6fb58a'], i:'💬' },
-      { img:'climate', t:'Climate & Environment Experts', d:'Climate change, environment and sustainable programming.', tags:['Climate','Sustainability'], terms:['climate','environment','sustainab'], g:['#a8d8a0','#3f8f4a'], i:'🌳' },
-      { img:'finance', t:'Financing for Scale Specialists', d:'Innovative financing, resource mobilization and scaling solutions for children.', tags:['Financing','Scaling'], terms:['financing','scale','scaling','economic'], g:['#e6f1c8','#9cc45a'], i:'🪙' },
-      { img:'hiv', t:'HIV/AIDS Technical Experts', d:'HIV prevention, treatment, care and related programming.', tags:['HIV','Treatment'], terms:['hiv','aids'], g:['#e9d5d5','#c24b4b'], i:'🎗️' },
-      { img:'mncah', t:'Maternal, Newborn, Child and Adolescent Health (MNCAH)', d:'Immunization, nutrition and adolescent health.', tags:['Maternal','Child Health'], terms:['health','nutrition','immuniz','maternal','adolescent'], g:['#f6dcc8','#d98b5f'], i:'🤱' },
-      { img:'edu', t:'Education Specialists', d:'Education policy, programme design and learning innovation.', tags:['Learning','Policy'], terms:['education','learning','early childhood'], g:['#cfe0f5','#6b95cc'], i:'📚' },
-      { img:'protect', t:'Child Protection Specialists', d:'Child protection systems, violence prevention and risk mitigation.', tags:['Protection','Case Mgmt'], terms:['child protection','protection','case management','gbv'], g:['#b9d6a8','#4f8a3a'], i:'🛡️' },
-      { img:'cross', t:'Cross-Cutting Specialists', d:'Gender, inclusion, disability, humanitarian action, data and innovation.', tags:['Inclusion','Data'], terms:['gender','inclusion','disability','humanitarian','data','digital'], g:['#ffe2b8','#e8a84a'], i:'🤝' }
-    ];
-    // Plain-language topics -> terms the dashboard data actually contains.
-    const SYNONYMS = {
-      vaccination:['health','immuniz'], vaccine:['health','immuniz'], immunization:['health','immuniz'], immunisation:['health','immuniz'],
-      climate:['climate','environment','wash','sustainab'], gender:['gender','adolescent','inclusion'],
-      water:['wash'], sanitation:['wash'], hygiene:['wash'], school:['education'], learning:['education','learning'],
-      nutrition:['nutrition'], protection:['child protection','protection']
-    };
-    const POS = {"recovery": "center 35%", "network": "center 30%", "sbc": "center 45%", "climate": "center", "finance": "center 60%", "hiv": "center 40%", "mncah": "center 35%", "edu": "center 50%", "cross": "center 45%", "protect": "center 55%"};
     const ARROW = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
-    const go = (q, label) => { location.href = 'admin.html?q=' + encodeURIComponent(q) + (label ? '&roster=' + encodeURIComponent(label) : ''); };
-
+    
     const ALL = loadExperts().filter(e => e.status === 'Active');
     ROSTERS.forEach(r => r.count = matchExperts(ALL, r.terms.join('|')).length);
     document.getElementById('statN').textContent = ALL.length; document.getElementById('statR').textContent = ROSTERS.length;
@@ -150,15 +127,12 @@
       </a>`).join('');
     document.getElementById('rosters').addEventListener('click', e => {
       const c = e.target.closest('.card'); if (!c) return; e.preventDefault();
-      const r = ROSTERS[+c.dataset.n]; go(r.terms.join('|'), r.t);
+      const r = ROSTERS[+c.dataset.n]; location.href = resultsUrl(r.terms.join('|'), r.t);
     });
 
     function search(text) {
-      text = text.trim(); if (!text) { location.href = 'admin.html'; return; }
-      // OR across any synonym expansions, AND across typed words only when no synonym applies
-      const groups = text.toLowerCase().split(/[\s,]+/).filter(Boolean);
-      const terms = groups.flatMap(w => SYNONYMS[w] ? [w, ...SYNONYMS[w]] : []);
-      go(terms.length ? [...new Set(terms)].join('|') : groups.join(' '), text);
+      text = text.trim(); if (!text) return;
+      const r = resolveSearch(text); location.href = resultsUrl(r.q, r.label);
     }
     document.getElementById('searchForm').addEventListener('submit', e => { e.preventDefault(); search(document.getElementById('q').value); });
     document.querySelectorAll('.suggest button').forEach(b => b.onclick = () => search(b.textContent));

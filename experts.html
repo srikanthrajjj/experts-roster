@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find experts – REACH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --blue:#1CABE2; --brand:#0A6CFF; --dark:#0058AB; --ink:#0b1d33; --muted:#475569; --line:#dbe7f5; --tint:#eaf3fd; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:#f6f9fe; }
+    a { color:inherit; text-decoration:none; }
+    .wrap { max-width:1440px; margin:0 auto; padding:0 56px; }
+    header.nav { background:#fff; border-bottom:1px solid #eef2f7; position:sticky; top:0; z-index:10; }
+    .nav .wrap { display:flex; align-items:center; gap:28px; height:52px; }
+    .logo { display:flex; align-items:center; gap:14px; }
+    .logo img { height:30px; } .logo .tag { color:var(--blue); font-size:22px; }
+    .logo .reach { font-weight:800; font-size:21px; border-left:1px solid #cbd5e1; padding-left:20px; }
+    .nav nav { display:flex; gap:32px; margin-left:20px; flex:1; font-size:13px; font-weight:500; }
+    .nav nav a { padding:17px 0 14px; border-bottom:3px solid transparent; }
+    .nav nav a.active { color:var(--brand); border-color:var(--brand); font-weight:600; }
+    .top { background:linear-gradient(180deg,#f3f8ff,#fff); border-bottom:1px solid #e6eef9; padding:26px 0 24px; }
+    .crumb { font-size:13px; color:var(--muted); margin-bottom:10px; } .crumb a { color:var(--dark); font-weight:500; }
+    .top h1 { margin:0 0 16px; font-size:30px; font-weight:800; letter-spacing:-.5px; }
+    .search { display:flex; align-items:center; background:#fff; border:1px solid var(--line); border-radius:999px; padding:6px 6px 6px 4px; box-shadow:0 6px 20px rgba(15,60,120,.1); max-width:620px; }
+    .search:focus-within { border-color:var(--brand); }
+    .search svg { margin:0 10px 0 16px; flex:none; }
+    .search input { flex:1; min-width:0; border:0; outline:0; font:inherit; font-size:15px; padding:10px 0; background:transparent; }
+    .btn { background:var(--brand); color:#fff; border:0; border-radius:999px; font:600 14.5px 'Inter'; padding:11px 24px; cursor:pointer; }
+    .btn:hover { background:var(--dark); }
+    .layout { display:grid; grid-template-columns:270px 1fr; gap:32px; padding-top:28px; padding-bottom:56px; align-items:start; }
+    aside { background:#fff; border:1px solid var(--line); border-radius:14px; padding:10px; position:sticky; top:70px; }
+    aside h2 { font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:10px 12px 8px; font-weight:700; }
+    .facet { display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; border:0; background:transparent; text-align:left; font:500 14px 'Inter'; padding:9px 12px; border-radius:9px; cursor:pointer; color:var(--ink); }
+    .facet:hover { background:var(--tint); }
+    .facet.on { background:var(--tint); color:var(--dark); font-weight:700; }
+    .facet .n { font-size:12px; font-weight:600; background:#eef3fa; color:var(--muted); border-radius:999px; padding:2px 9px; min-width:26px; text-align:center; }
+    .facet.on .n { background:var(--brand); color:#fff; }
+    .facet.zero { opacity:.5; }
+    .head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; }
+    .head h2 { margin:0; font-size:20px; } .head span { color:var(--muted); font-size:14px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:16px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:12px; transition:box-shadow .15s, transform .15s; }
+    .card:hover { box-shadow:0 8px 22px rgba(15,60,120,.14); transform:translateY(-2px); }
+    .who { display:flex; gap:14px; align-items:center; }
+    .av { width:48px; height:48px; border-radius:50%; color:#fff; display:grid; place-items:center; font-weight:700; flex:none; }
+    .who b { display:block; font-size:16px; } .who small { color:var(--muted); font-size:13px; line-height:1.3; display:block; }
+    .meta { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; color:var(--muted); }
+    .chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .chip { background:var(--tint); color:#0b3a6e; font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; }
+    .sum { font-size:13.5px; color:var(--muted); line-height:1.45; margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    .act { display:flex; gap:8px; margin-top:auto; padding-top:4px; }
+    .act a { flex:1; text-align:center; font-weight:600; font-size:13.5px; padding:9px 12px; border-radius:9px; border:1px solid var(--line); }
+    .act a.p { background:var(--brand); border-color:var(--brand); color:#fff; } .act a.p:hover { background:var(--dark); }
+    .act a:not(.p):hover { background:var(--tint); }
+    .empty { background:#fff; border:1px dashed #b9cbe4; border-radius:14px; padding:44px 24px; text-align:center; color:var(--muted); }
+    .empty h3 { color:var(--ink); margin:0 0 6px; font-size:18px; }
+    .empty .chips { justify-content:center; margin-top:14px; }
+    .empty button { border:0; cursor:pointer; font-family:inherit; }
+    @media (max-width:900px){ .layout{grid-template-columns:1fr;} aside{position:static; display:flex; overflow-x:auto; gap:6px; padding:8px;} aside h2{display:none;} .facet{width:auto; white-space:nowrap; flex:none;} .wrap{padding:0 18px;} .nav nav,.logo .tag{display:none;} }
+  </style>
+</head>
+<body>
+  <header class="nav"><div class="wrap">
+    <a class="logo" href="index.html"><img src="assets/unicef-logo-dxya9f98.png" alt="UNICEF" /><span class="tag">for every child</span><span class="reach">REACH</span></a>
+    <nav><a href="index.html">Home</a><a href="#">About REACH</a><a href="index.html" class="active">Rosters</a><a href="#">Technical Assistance</a><a href="#">Knowledge &amp; Resources</a><a href="#">Help &amp; Contact</a></nav>
+  </div></header>
+
+  <section class="top"><div class="wrap">
+    <div class="crumb"><a href="index.html">Rosters</a> &rsaquo; Find experts</div>
+    <h1>Find experts</h1>
+    <form class="search" id="searchForm">
+      <svg width="20" height="20" fill="none" stroke="#334155" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" autocomplete="off" placeholder="Search skill, topic or language" aria-label="Search experts" />
+      <button class="btn" type="submit">Search</button>
+    </form>
+  </div></section>
+
+  <main class="wrap layout">
+    <aside><h2>Rosters</h2><div id="facets"></div></aside>
+    <section>
+      <div class="head"><h2 id="title"></h2><span id="count"></span></div>
+      <div class="grid" id="results"></div>
+    </section>
+  </main>
+
+  <script src="experts-data.js"></script>
+  <script src="rosters.js"></script>
+  <script>
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const FLAGS = {'Nigeria':'🇳🇬','Canada':'🇨🇦','Ethiopia':'🇪🇹','Uganda':'🇺🇬','Pakistan':'🇵🇰',"Cote d'Ivoire":'🇨🇮','France':'🇫🇷','Egypt':'🇪🇬','USA':'🇺🇸','Colombia':'🇨🇴','India':'🇮🇳','Kenya':'🇰🇪'};
+    const COLORS = ['#0058AB','#003F7F','#0096FF','#1CABE2','#005A9C'];
+    const color = n => COLORS[Math.abs([...n].reduce((h, c) => c.charCodeAt(0) + ((h << 5) - h), 0)) % COLORS.length];
+    const initials = n => n.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+    const params = new URLSearchParams(location.search);
+    const query = (params.get('q') || '').trim();
+    const label = params.get('label') || query;
+    const ALL = loadExperts().filter(e => e.status === 'Active');
+    const results = matchExperts(ALL, query);
+    const activeRoster = ROSTERS.find(r => r.terms.join('|') === query);
+
+    // Category facets with live counts (always against all active experts)
+    const facet = (name, n, on, href, zero) => `<a class="facet${on ? ' on' : ''}${zero ? ' zero' : ''}" href="${href}"><span>${esc(name)}</span><span class="n">${n}</span></a>`;
+    document.getElementById('facets').innerHTML =
+      facet('All experts', ALL.length, !query, 'experts.html', false) +
+      ROSTERS.map(r => { const n = matchExperts(ALL, r.terms.join('|')).length; return facet(r.t.replace(/ \(.*\)/, ''), n, r === activeRoster, resultsUrl(r.terms.join('|'), r.t), !n); }).join('');
+
+    document.title = (query ? esc(label) + ' – ' : '') + 'Find experts – REACH';
+    document.getElementById('q').value = activeRoster ? '' : (params.get('label') || '');
+    document.getElementById('title').textContent = query ? (activeRoster ? activeRoster.t : 'Results for “' + label + '”') : 'All experts';
+    document.getElementById('count').textContent = results.length + (results.length === 1 ? ' expert' : ' experts');
+
+    const grid = document.getElementById('results');
+    if (!results.length) {
+      grid.outerHTML = `<div class="empty"><h3>No experts found${query ? ' for “' + esc(label) + '”' : ''}</h3>Try a broader term, or browse a roster.<div class="chips">${['vaccination','climate','gender','WASH','French'].map(s => `<button class="chip" data-s="${s}">${s}</button>`).join('')}</div></div>`;
+    } else {
+      grid.innerHTML = results.map(e => `
+        <article class="card">
+          <div class="who"><div class="av" style="background:${color(e.name)}">${esc(initials(e.name))}</div><div><b>${esc(e.name)}</b><small>${esc(e.role)}</small></div></div>
+          <div class="meta"><span>${FLAGS[e.country] || '🌍'} ${esc(e.country)}</span><span>${esc(e.experience)} experience</span>${e.languages && e.languages.length ? `<span>${esc(e.languages.join(', '))}</span>` : ''}</div>
+          ${e.summary ? `<p class="sum">${esc(e.summary)}</p>` : ''}
+          <div class="chips">${(e.skills || []).slice(0, 4).map(s => `<span class="chip">${esc(s)}</span>`).join('')}</div>
+          <div class="act"><a class="p" href="mailto:${esc(e.email)}">Contact</a>${e.linkedIn ? `<a href="${esc(e.linkedIn)}" target="_blank" rel="noopener">LinkedIn</a>` : ''}</div>
+        </article>`).join('');
+    }
+
+    function search(text) { text = text.trim(); if (!text) { location.href = 'experts.html'; return; } const r = resolveSearch(text); location.href = resultsUrl(r.q, r.label); }
+    document.getElementById('searchForm').addEventListener('submit', e => { e.preventDefault(); search(document.getElementById('q').value); });
+    document.addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (b) search(b.dataset.s); });
+  </script>
+</body>
+</html>
