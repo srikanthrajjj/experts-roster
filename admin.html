@@ -529,10 +529,32 @@
       });
     }
 
+    // ---- Search arriving from the REACH landing page (?q=a|b c&roster=Label) ----
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = (searchParams.get('q') || '').trim().toLowerCase();
+    function applySearch(list) {
+      if (!searchQuery) return list;
+      // '|' separates alternatives (OR); spaces inside one alternative must all match (AND)
+      const alts = searchQuery.split('|').map(a => a.split(/\s+/).filter(Boolean)).filter(a => a.length);
+      return list.filter(e => {
+        const hay = [e.name, e.role, e.country, e.practiceArea, e.summary, e.programme, (e.skills || []).join(' '), (e.languages || []).join(' ')].join(' ').toLowerCase();
+        return alts.some(words => words.every(w => hay.includes(w)));
+      });
+    }
+    function renderSearchBanner() {
+      if (!searchQuery) return;
+      const label = searchParams.get('roster') || searchQuery;
+      const el = document.createElement('div');
+      el.className = 'flex items-center justify-between gap-3 bg-blue-50 border border-blue-200 text-blue-900 rounded-lg px-4 py-2 mb-3 text-sm';
+      el.innerHTML = '<span>Showing experts for <b>' + escHtml(label) + '</b> &mdash; <span id="search-count"></span></span><a href="admin.html" class="text-unicef-dark font-semibold hover:underline shrink-0">Clear filter &times;</a><a href="index.html" class="text-unicef-dark font-semibold hover:underline shrink-0">&larr; Back to rosters</a>';
+      document.getElementById('dashboard-view').prepend(el);
+    }
+
     function filterExperts() {
-      let filtered = [...experts];
+      let filtered = applySearch([...experts]);
       filtered = sortData(filtered);
       document.getElementById('expert-count').textContent = filtered.length;
+      const sc = document.getElementById('search-count'); if (sc) sc.innerHTML = filtered.length ? filtered.length + ' match' + (filtered.length === 1 ? '' : 'es') : 'no experts on this roster yet. <a href="admin.html" class="underline font-semibold">Browse all experts</a> or <a href="index.html" class="underline font-semibold">try another roster</a>';
 
       if (currentView === 'list') {
         document.getElementById('experts-table-body').parentElement.parentElement.classList.remove('hidden');
@@ -1969,6 +1991,7 @@ Carlos Rivera,Education Specialist,carlos.r@unicef-roster.org,+52 55 1234 5678,M
 
     // Init
     hydrateProfileData();
+    renderSearchBanner();
     renderStats();
     setView('list');
     filterExperts();
