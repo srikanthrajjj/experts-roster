@@ -16,7 +16,7 @@
       hiv: ['#ff5a4f', '#E2231A'], mncah: ['#ff7bb5', '#d6336c'], edu: ['#35b8ef', '#0A6CFF'], protect: ['#a35cf0', '#6d28d9'], cross: ['#ffb02e', '#F26A21'] };
     const SHORT = { mncah: 'MNCAH Specialists', sbc: 'Social & Behaviour Change Specialists', network: 'External Expert Network', climate: 'Climate & Environment Experts' };
     root.innerHTML = `
-    <section class="v2-hero" aria-labelledby="v2h">
+    <section class="v2-hero" aria-labelledby="v2h"><div class="v2-heroin">
       <div class="v2-copy">
         <div class="eyebrow">REACH</div>
         <h1 id="v2h">Find the right expertise</h1>
@@ -24,7 +24,7 @@
         <div class="v2-cmd">
           <form class="v2-bar" id="v2f" role="search" autocomplete="off">
             ${SEARCH}
-            <input id="v2q" role="combobox" aria-expanded="false" aria-controls="v2pop" aria-autocomplete="list" placeholder="Search expertise, skill or topic (e.g. vaccination, education, climate)" aria-label="Search experts" />
+            <input id="v2q" role="combobox" aria-expanded="false" aria-controls="v2pop" aria-autocomplete="list" placeholder="Search expertise, skill or topic (e.g. vaccination, climate)" aria-label="Search experts" />
             <button class="v2-go" type="submit">Find experts</button>
           </form>
           <div class="v2-pop" id="v2pop" role="listbox" hidden></div>
@@ -34,7 +34,7 @@
         <div class="tag">People<br>Knowledge<br>Solutions<br>for every child
           <svg viewBox="0 0 150 22" fill="none"><path d="M3 17C40 6 90 4 147 5" stroke="#1CABE2" stroke-width="4" stroke-linecap="round"/></svg></div>
       </div>
-    </section>
+    </div></section>
 
     <section class="wrap v2-sec" aria-labelledby="v2r">
       <div class="v2-sec-h"><h2 id="v2r">Explore our rosters</h2><button type="button" class="viewall" id="v2all" aria-expanded="false"><span>View all rosters</span>${ARROW}</button></div>
