@@ -19,7 +19,7 @@ const SYNONYMS = {
   climate:['Climate Resilience for Children'], gender:['Gender Equality','Adolescent Development'],
   water:['WASH'], sanitation:['WASH'], hygiene:['WASH'], wash:['WASH'],
   school:['Early Childhood Development','Education'], education:['Early Childhood Development','Education'], learning:['Early Childhood Development','Education'],
-  nutrition:['Child Nutrition & Development'], protection:['Child Protection'], digital:['Digital Infrastructure'], policy:['Policy Reform'],
+  nutrition:['Child Nutrition & Development'], recovery:['Humanitarian Action'], 'child protection':['Child Protection'], protection:['Child Protection'], digital:['Digital Infrastructure'], policy:['Policy Reform'],
   financing:['Financing for Scale'], finance:['Financing for Scale'], humanitarian:['Humanitarian Action'], emergency:['Humanitarian Action'],
   sbc:['Social & Behaviour Change'], behaviour:['Social & Behaviour Change'], adolescent:['Adolescent Development'], hiv:['HIV']
 };
