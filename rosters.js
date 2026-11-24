@@ -30,12 +30,14 @@ const LANGS = [...new Set(DASH_EXPERTS.flatMap(e => e.languages || []))];
 const AREAS = ['Early Childhood Development','Health','WASH','Child Protection','Social & Behaviour Change','Humanitarian Action','Gender Equality','Adolescent Development','Financing for Scale','Digital Infrastructure','Policy Reform','Nutrition','Education'];
 // A roster whose skills are all Global Practice Areas opens with those areas selected (multi-select); otherwise skills.
 const asAreas = skills => (skills && skills.length && skills.every(s => AREAS.includes(s))) ? skills : [];
-const countRoster = r => {
+// Experts a roster covers -- the same rule the experts page applies to the URL that rosterUrl() builds.
+const membersOf = r => {
   const a = asAreas(r.skills);
-  if (a.length) return DASH_EXPERTS.filter(e => a.some(x => e.globalPracticeArea === x || e.skills.includes(x))).length;
-  if (r.q) return DASH_EXPERTS.filter(e => (e.name + ' ' + e.role).toLowerCase().includes(r.q.toLowerCase())).length;
-  return DASH_EXPERTS.filter(e => r.skills.some(s => e.skills.includes(s))).length;
+  if (a.length) return DASH_EXPERTS.filter(e => a.some(x => e.globalPracticeArea === x || e.skills.includes(x)));
+  if (r.q) return DASH_EXPERTS.filter(e => (e.name + ' ' + e.role).toLowerCase().includes(r.q.toLowerCase()));
+  return DASH_EXPERTS.filter(e => r.skills.some(s => e.skills.includes(s)));
 };
+const countRoster = r => membersOf(r).length;
 
 const resultsUrl = (params) => {
   const u = new URLSearchParams();
@@ -55,3 +57,20 @@ function searchUrl(text) {
   if (skills) return resultsUrl({ skills });
   return resultsUrl({ q: text });
 }
+
+// Experts a typed search will return (mirrors searchUrl -> experts page), used for live previews.
+function expertsForSearch(text) {
+  text = (text || '').trim(); if (!text) return [];
+  const lc = text.toLowerCase();
+  const lang = LANGS.find(l => l.toLowerCase() === lc);
+  if (lang) return DASH_EXPERTS.filter(e => (e.languages || []).includes(lang));
+  const skills = SYNONYMS[lc];
+  if (skills) {
+    const a = asAreas(skills);
+    return a.length ? DASH_EXPERTS.filter(e => a.some(x => e.globalPracticeArea === x || e.skills.includes(x)))
+                    : DASH_EXPERTS.filter(e => skills.some(s => e.skills.includes(s)));
+  }
+  return DASH_EXPERTS.filter(e => (e.name + ' ' + e.role).toLowerCase().includes(lc));
+}
+// Link to the experts page filtered to one country (the page's Location filter uses "Cote" for Cote d'Ivoire).
+const locUrl = loc => 'experts.html?loc=' + encodeURIComponent(loc);

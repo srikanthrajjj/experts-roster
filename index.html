@@ -6,9 +6,10 @@
   <title>REACH – Find the right expertise</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="v2.css" />
   <link rel="stylesheet" href="v3.css" />
+  <link rel="stylesheet" href="v4.css" />
   <style>
     :root { --blue:#1CABE2; --brand:#0A6CFF; --dark:#0058AB; --ink:#0b1d33; --muted:#475569; --line:#dbe7f5; --tint:#eaf3fd; }
     * { box-sizing:border-box; }
@@ -100,6 +101,7 @@
 
   <div id="v2"></div>
   <div id="v3"></div>
+  <div id="v4"></div>
 
   <main class="wrap">
     <div data-v="1">
@@ -121,12 +123,14 @@
     <button type="button" role="radio" data-ver="1" aria-checked="true">V1</button>
     <button type="button" role="radio" data-ver="2" aria-checked="false">V2</button>
     <button type="button" role="radio" data-ver="3" aria-checked="false">V3</button>
+    <button type="button" role="radio" data-ver="4" aria-checked="false">V4</button>
   </div>
 
   <script src="dashboard-data.js"></script>
   <script src="rosters.js"></script>
   <script src="v2.js"></script>
   <script src="v3.js"></script>
+  <script src="v4.js"></script>
   <script>
     const ARROW = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
     
@@ -159,10 +163,11 @@
       const set = v => { try { localStorage.setItem(KEY, v); } catch (e) {} };
       const fromUrl = new URLSearchParams(location.search).get('v');
       function apply(v, persist) {
-        v = v === '2' || v === '3' ? v : '1';
+        v = v === '2' || v === '3' || v === '4' ? v : '1';
         document.body.dataset.ver = v;
         if (v === '2') window.initHomeV2();
         if (v === '3') window.initHomeV3();
+        if (v === '4') window.initHomeV4();
         document.querySelectorAll('#verToggle [data-ver]').forEach(b => b.setAttribute('aria-checked', b.dataset.ver === v));
         if (persist) { set(v); const u = new URL(location.href); v !== '1' ? u.searchParams.set('v', v) : u.searchParams.delete('v'); history.replaceState(null, '', u); }
       }
